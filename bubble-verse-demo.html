@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bubble Verse — 去中心化社群宇宙</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+/* ─── Reset & Variables ─────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f13;
+  --panel:#1a1a24;
+  --panel2:#22222f;
+  --border:#2a2a3a;
+  --fg:#e8e8f0;
+  --fg2:#9090a8;
+  --accent:#7c3aed;
+  --accent2:#a855f7;
+  --pink:#ec4899;
+  --teal:#06b6d4;
+  --orange:#f97316;
+  --green:#22c55e;
+  --radius:12px;
+  --radius-lg:20px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+html,body{height:100%;background:var(--bg);color:var(--fg);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;font-size:15px;overflow:hidden}
+button{cursor:pointer;font-family:inherit}
+img{display:block}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+/* ─── Layout ────────────────────────────────────────────────────── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:240px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .25s}
+.sidebar.collapsed{width:70px}
+.main{flex:1;overflow-y:auto;padding:0}
+
+/* ─── Sidebar ───────────────────────────────────────────────────── */
+.sidebar-logo{padding:20px 18px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.logo-orbs{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.orb{border-radius:50%;animation:float 3s ease-in-out infinite}
+.orb1{width:10px;height:10px;background:#f97316;animation-delay:0s}
+.orb2{width:14px;height:14px;background:var(--accent);animation-delay:.4s}
+.orb3{width:9px;height:9px;background:var(--teal);animation-delay:.8s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.logo-name{font-size:18px;font-weight:800;background:linear-gradient(135deg,#f97316,#ec4899,#7c3aed,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;overflow:hidden}
+
+.nav-list{padding:12px 8px;flex:1;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);border:none;background:none;color:var(--fg2);font-size:14px;font-weight:500;width:100%;transition:all .15s;white-space:nowrap;overflow:hidden;position:relative}
+.nav-item:hover{background:var(--panel2);color:var(--fg)}
+.nav-item.active{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(168,85,247,.1));color:var(--accent2)}
+.nav-item.active .nav-icon{color:var(--accent2)}
+.nav-icon{font-size:18px;flex-shrink:0;width:22px;text-align:center}
+.nav-text{overflow:hidden;text-overflow:ellipsis}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;flex-shrink:0}
+.nav-divider{height:1px;background:var(--border);margin:8px 12px}
+.nav-section-label{font-size:10px;font-weight:700;color:var(--fg2);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:.08em}
+
+.sidebar-bottom{padding:12px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius);background:var(--panel2);cursor:pointer;transition:background .15s}
+.user-card:hover{background:var(--border)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--pink));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
+.user-info{flex:1;overflow:hidden}
+.user-name{font-size:13px;font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-handle{font-size:11px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ─── Page Header ───────────────────────────────────────────────── */
+.page-header{position:sticky;top:0;background:rgba(15,15,19,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:14px;z-index:100}
+.page-title{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+.page-title i{color:var(--accent2)}
+.page-actions{margin-left:auto;display:flex;gap:8px}
+
+/* ─── Buttons ───────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:99px;border:none;font-size:13px;font-weight:600;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:var(--panel2);color:var(--fg);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--border)}
+.btn-gradient{background:linear-gradient(135deg,#f97316,#ec4899,#7c3aed);color:#fff}
+.btn-gradient:hover{opacity:.9}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-icon{padding:8px;border-radius:var(--radius);background:var(--panel2);border:1px solid var(--border);color:var(--fg2)}
+.btn-icon:hover{color:var(--fg);background:var(--border)}
+
+/* ─── Cards ─────────────────────────────────────────────────────── */
+.card{background:var(--panel);border-radius:var(--radius-lg);border:1px solid var(--border)}
+
+/* ─── Tabs ──────────────────────────────────────────────────────── */
+.tabs{display:flex;gap:4px;padding:4px;background:var(--panel2);border-radius:var(--radius);border:1px solid var(--border)}
+.tab{padding:7px 16px;border-radius:8px;border:none;background:none;color:var(--fg2);font-size:13px;font-weight:600;transition:all .15s}
+.tab.active{background:var(--panel);color:var(--fg);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tab:hover:not(.active){color:var(--fg)}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════════════════════════════════════ */
+.landing{min-height:100vh;overflow-y:auto;background:var(--bg)}
+.landing-hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 20% 30%, rgba(124,58,237,.2) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 70%, rgba(6,182,212,.15) 0%, transparent 50%),
+  radial-gradient(ellipse at 50% 80%, rgba(236,72,153,.15) 0%, transparent 50%);
+pointer-events:none}
+.hero-big-logo{display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:24px}
+.hero-orbs{display:flex;gap:12px;align-items:center}
+.hero-orb{border-radius:50%;filter:blur(1px);animation:float 3s ease-in-out infinite}
+.hero-orb1{width:24px;height:24px;background:radial-gradient(circle,#fbbf24,#f97316);animation-delay:0s}
+.hero-orb2{width:36px;height:36px;background:radial-gradient(circle,#a855f7,#7c3aed);animation-delay:.5s}
+.hero-orb3{width:20px;height:20px;background:radial-gradient(circle,#22d3ee,#06b6d4);animation-delay:1s}
+.hero-title{font-size:clamp(48px,10vw,88px);font-weight:900;background:linear-gradient(135deg,#fbbf24 0%,#f97316 15%,#ec4899 35%,#a855f7 55%,#7c3aed 70%,#06b6d4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-2px;line-height:1}
+.hero-sub{font-size:clamp(14px,2.5vw,20px);color:var(--fg2);max-width:600px;line-height:1.7;margin-bottom:8px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.pill{font-size:11px;padding:4px 12px;border-radius:99px;background:rgba(124,58,237,.15);color:var(--accent2);border:1px solid rgba(124,58,237,.3);display:flex;align-items:center;gap:5px}
+
+.features-section{padding:60px 24px;max-width:1100px;margin:0 auto}
+.features-title{font-size:28px;font-weight:800;text-align:center;margin-bottom:8px}
+.features-desc{color:var(--fg2);text-align:center;margin-bottom:40px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.feature-card{border-radius:24px;padding:32px 28px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden}
+.feature-card-bubbles{background:linear-gradient(135deg,#1a0a2e,#2d1458,#3b0764)}
+.feature-card-verse{background:linear-gradient(135deg,#0a0a1a,#0f172a,#0c1a3a)}
+.feature-card-galaxies{background:linear-gradient(135deg,#0d0520,#1a0040,#0c1a3a)}
+.feature-icon-wrap{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:28px}
+.feature-name{font-size:26px;font-weight:800;color:#fff}
+.feature-tag{font-size:11px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);padding:3px 10px;border-radius:99px;align-self:flex-start;display:flex;align-items:center;gap:4px}
+.feature-desc{font-size:14px;color:rgba(255,255,255,.75);line-height:1.7}
+.feature-list{display:flex;flex-direction:column;gap:8px}
+.feature-list li{font-size:13px;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px}
+.feature-list li i{color:rgba(255,255,255,.6);font-size:14px}
+
+.why-section{padding:60px 24px;max-width:900px;margin:0 auto}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:32px}
+.why-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;display:flex;gap:14px}
+.why-icon{font-size:28px;color:var(--accent2);flex-shrink:0}
+.why-card strong{display:block;font-size:14px;font-weight:700;margin-bottom:4px}
+.why-card span{font-size:12px;color:var(--fg2);line-height:1.6}
+
+/* ═══════════════════════════════════════════════════════════════════
+   STORIES / BUBBLES
+══════════════════════════════════════════════════════════════════════ */
+.page-content{padding:20px 24px;max-width:900px}
+
+/* Story bar */
+.story-bar{background:var(--panel);border-radius:var(--radius-lg);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px}
+.story-bar-track{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.story-bar-track::-webkit-scrollbar{display:none}
+.story-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;cursor:pointer}
+.story-ring{width:64px;height:64px;border-radius:50%;padding:2.5px;display:flex;align-items:center;justify-content:center}
+.story-ring.unseen{background:linear-gradient(135deg,#fbbf24,#f97316,#ec4899,#a855f7)}
+.story-ring.seen{background:var(--border)}
+.story-ring.add-ring{background:var(--border);position:relative}
+.story-avatar{width:56px;height:56px;border-radius:50%;border:2px solid var(--panel);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff}
+.story-add-btn{width:56px;height:56px;border-radius:50%;border:2px solid var(--panel);background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--accent2);position:relative}
+.story-plus{position:absolute;bottom:0;right:0;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid var(--panel)}
+.story-name{font-size:11px;color:var(--fg2);max-width:64px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Story grid */
+.stories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.story-card{border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .2s;aspect-ratio:9/16;position:relative}
+.story-card:hover{transform:scale(1.03)}
+.story-card-media{width:100%;height:100%;object-fit:cover}
+.story-card-gradient{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:16px;text-align:center}
+.story-card-text{color:#fff;font-size:14px;font-weight:600;line-height:1.4;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.story-card-footer{position:absolute;bottom:0;left:0;right:0;padding:10px 10px 8px;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);display:flex;align-items:center;gap:6px}
+.story-card-avatar{width:22px;height:22px;border-radius:50%;border:1.5px solid #fff;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;overflow:hidden}
+.story-card-author{font-size:11px;color:#fff;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.story-unseen-dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;background:var(--accent2);border:2px solid var(--panel)}
+
+/* Story Viewer */
+.story-viewer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.story-viewer-overlay.open{opacity:1;pointer-events:all}
+.story-viewer{width:min(420px,100vw);height:min(750px,100vh);background:#000;border-radius:20px;overflow:hidden;position:relative}
+.story-progress-bars{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:4px;z-index:10}
+.story-pb-track{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+.story-pb-fill{height:100%;background:#fff;transition:width .1s linear;border-radius:2px}
+.story-hdr{position:absolute;top:24px;left:12px;right:12px;display:flex;align-items:center;gap:8px;z-index:10}
+.story-hdr-av{width:34px;height:34px;border-radius:50%;border:2px solid #fff;background:linear-gradient(135deg,var(--accent),var(--pink));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px}
+.story-hdr-name{color:#fff;font-weight:600;font-size:14px;flex:1;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.story-hdr-time{color:rgba(255,255,255,.6);font-size:11px}
+.story-hdr-close{background:none;border:none;color:#fff;font-size:22px;padding:4px;margin-left:8px}
+.story-content{width:100%;height:100%}
+.story-media{width:100%;height:100%;object-fit:cover}
+.story-text-content{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:40px 28px}
+.story-text-body{color:#fff;font-size:26px;font-weight:700;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.5);line-height:1.4}
+.story-tap-left{position:absolute;top:0;left:0;width:33%;height:100%;z-index:5}
+.story-tap-right{position:absolute;top:0;right:0;width:33%;height:100%;z-index:5}
+.story-footer{position:absolute;bottom:16px;left:0;right:0;text-align:center;z-index:10;color:rgba(255,255,255,.7);font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VERSE FEED
+══════════════════════════════════════════════════════════════════════ */
+.verse-layout{display:grid;grid-template-columns:1fr 280px;gap:24px;padding:20px 24px;max-width:1100px}
+@media(max-width:768px){.verse-layout{grid-template-columns:1fr}}
+
+.trending-bar{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.trending-label{font-size:12px;font-weight:700;color:var(--accent2);display:flex;align-items:center;gap:5px;flex-shrink:0}
+.trend-tag-btn{font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid var(--border);background:none;color:var(--fg2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px}
+.trend-tag-btn:hover,.trend-tag-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(124,58,237,.1)}
+.trend-tag-count{font-size:9px;opacity:.6}
+
+.verse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.verse-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:pointer}
+.verse-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.verse-media{aspect-ratio:16/9;background:var(--panel2);position:relative;overflow:hidden}
+.verse-media img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.verse-card:hover .verse-media img{transform:scale(1.04)}
+.verse-media-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.3))}
+.verse-media-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px}
+.verse-body{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.verse-author{display:flex;align-items:center;gap:9px}
+.verse-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.verse-author-info{flex:1;min-width:0}
+.verse-author-name{font-size:13px;font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.verse-author-handle{font-size:11px;color:var(--fg2)}
+.verse-time{font-size:11px;color:var(--fg2);flex-shrink:0}
+.verse-text{font-size:13px;color:var(--fg);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.verse-tags{display:flex;flex-wrap:wrap;gap:4px}
+.verse-tag{font-size:11px;color:var(--accent2);font-weight:500}
+.verse-stats{display:flex;gap:2px;border-top:1px solid var(--border);padding-top:10px}
+.verse-stat-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;background:none;border:none;border-radius:8px;font-size:12px;color:var(--fg2);transition:all .15s}
+.verse-stat-btn:hover{background:rgba(124,58,237,.1);color:var(--accent2)}
+.verse-stat-btn i{font-size:15px}
+
+/* Verse Sidebar */
+.verse-sidebar{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px}
+.sidebar-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.sidebar-card-title{font-size:13px;font-weight:700;color:var(--fg);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sidebar-card-title i{color:var(--accent2)}
+.trending-list{display:flex;flex-direction:column;gap:6px}
+.trending-item{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;cursor:pointer;transition:background .15s}
+.trending-item:hover{background:var(--panel2)}
+.trending-rank{font-size:12px;font-weight:700;color:var(--fg2);width:20px;text-align:center}
+.trending-info{display:flex;flex-direction:column}
+.trending-tag-name{font-size:13px;font-weight:600;color:var(--accent2)}
+.trending-count{font-size:11px;color:var(--fg2)}
+.sidebar-desc{font-size:12px;color:var(--fg2);line-height:1.7}
+
+/* ═══════════════════════════════════════════════════════════════════
+   GALAXIES
+══════════════════════════════════════════════════════════════════════ */
+.galaxy-hero{border-radius:24px;background:linear-gradient(135deg,#1a0040,#7c3aed,#0ea5e9);padding:36px 32px;margin:20px 24px;color:#fff}
+.galaxy-hero h1{font-size:28px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.galaxy-hero p{font-size:14px;opacity:.85;line-height:1.6;max-width:500px;margin-bottom:16px}
+
+.cat-bar{display:flex;gap:6px;flex-wrap:wrap;padding:0 24px 16px}
+.cat-btn{padding:6px 14px;border-radius:99px;border:1px solid var(--border);background:none;font-size:12px;color:var(--fg2);cursor:pointer;text-transform:capitalize;transition:all .15s}
+.cat-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.galaxy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:0 24px 24px}
+.galaxy-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.galaxy-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.galaxy-banner{height:90px;background-size:cover;background-position:center;position:relative}
+.galaxy-banner-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.4))}
+.galaxy-color-dot{position:absolute;bottom:-10px;left:16px;width:22px;height:22px;border-radius:50%;border:3px solid var(--panel)}
+.galaxy-body{padding:18px 16px 14px}
+.galaxy-title-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.galaxy-name{font-size:15px;font-weight:700;color:var(--fg)}
+.galaxy-cat-badge{font-size:10px;padding:2px 8px;border-radius:99px;background:var(--accent);color:#fff;text-transform:capitalize}
+.galaxy-desc{font-size:12px;color:var(--fg2);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.galaxy-stats{display:flex;gap:12px;font-size:11px;color:var(--fg2);margin-bottom:12px}
+.galaxy-stats i{margin-right:3px}
+.galaxy-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.galaxy-tag{font-size:10px;color:var(--accent2);background:rgba(124,58,237,.1);padding:2px 7px;border-radius:4px}
+.galaxy-join-btn{width:100%;padding:8px;border-radius:99px;border:none;font-size:12px;font-weight:600;color:#fff;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.galaxy-join-btn:hover{opacity:.85}
+.galaxy-join-btn.joined{background:var(--border);color:var(--fg2)}
+
+/* Galaxy Detail */
+.galaxy-detail-banner{height:200px;background-size:cover;background-position:center;position:relative;margin:0}
+.galaxy-detail-header{background:var(--panel);border-bottom:1px solid var(--border);padding:0 24px 20px}
+.galaxy-detail-meta{display:flex;align-items:flex-start;gap:16px;padding-top:16px}
+.galaxy-detail-orb{width:56px;height:56px;border-radius:50%;margin-top:-36px;border:4px solid var(--panel);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.galaxy-detail-info{flex:1}
+.galaxy-detail-name{font-size:22px;font-weight:800;color:var(--fg);margin-bottom:4px}
+.galaxy-detail-stats{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--fg2)}
+.galaxy-stats-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 24px}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.stat-num{display:block;font-size:24px;font-weight:800;color:var(--accent2)}
+.stat-label{font-size:11px;color:var(--fg2);text-transform:uppercase;letter-spacing:.05em}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MISC
+══════════════════════════════════════════════════════════════════════ */
+.empty-state{display:flex;flex-direction:column;align-items:center;gap:16px;padding:60px 24px;text-align:center;color:var(--fg2)}
+.empty-state i{font-size:52px;opacity:.3}
+.badge-new{font-size:9px;font-weight:700;background:var(--pink);color:#fff;padding:1px 5px;border-radius:99px;position:absolute;top:6px;right:8px}
+.notification-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);display:inline-block;margin-left:4px;flex-shrink:0}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;font-size:13px;font-weight:600;color:var(--fg);box-shadow:var(--shadow);z-index:10000;display:flex;align-items:center;gap:8px;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success i{color:var(--green)}
+.toast.info i{color:var(--accent2)}
+
+/* Responsive */
+@media(max-width:640px){
+  .sidebar{display:none}
+  .verse-layout{grid-template-columns:1fr;padding:12px}
+  .verse-sidebar{display:none}
+  .galaxy-grid{padding:0 12px 12px;grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- ── TOAST ── -->
+  <div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
+
+  <!-- ── STORY VIEWER ── -->
+  <div class="story-viewer-overlay" id="storyViewerOverlay" onclick="closeStoryViewer(event)">
+    <div class="story-viewer" id="storyViewer">
+      <div class="story-progress-bars" id="storyProgressBars"></div>
+      <div class="story-hdr">
+        <div class="story-hdr-av" id="storyHdrAv"></div>
+        <span class="story-hdr-name" id="storyHdrName"></span>
+        <span class="story-hdr-time" id="storyHdrTime"></span>
+        <button class="story-hdr-close" onclick="closeStoryViewer()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="story-content" id="storyContent"></div>
+      <div class="story-tap-left" onclick="storyPrev()"></div>
+      <div class="story-tap-right" onclick="storyNext()"></div>
+      <div class="story-footer"><i class="ti ti-eye"></i> <span id="storyViews">0</span> 觀看</div>
+    </div>
+  </div>
+
+  <!-- ── MAIN LAYOUT ── -->
+  <div class="app" id="mainLayout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-orbs">
+          <span class="orb orb1"></span>
+          <span class="orb orb2"></span>
+          <span class="orb orb3"></span>
+        </div>
+        <span class="logo-name">Bubble Verse</span>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-section-label">主要</li>
+        <li><button class="nav-item" onclick="navigate('home')"><i class="nav-icon ti ti-home"></i><span class="nav-text">首頁</span></button></li>
+        <li><button class="nav-item" id="nav-bubbles" onclick="navigate('bubbles')"><i class="nav-icon ti ti-bubble"></i><span class="nav-text">泡泡故事</span><span class="nav-badge">3</span></button></li>
+        <li><button class="nav-item" id="nav-verse" onclick="navigate('verse')"><i class="nav-icon ti ti-universe"></i><span class="nav-text">詩篇 Verse</span></button></li>
+        <li><button class="nav-item" id="nav-galaxies" onclick="navigate('galaxies')"><i class="nav-icon ti ti-galaxy"></i><span class="nav-text">星系 Galaxies</span></button></li>
+        <div class="nav-divider"></div>
+        <li class="nav-section-label">探索</li>
+        <li><button class="nav-item" onclick="showToast('🔍 搜尋功能','info')"><i class="nav-icon ti ti-search"></i><span class="nav-text">搜尋</span></button></li>
+        <li><button class="nav-item" onclick="showToast('🔔 通知功能','info')"><i class="nav-icon ti ti-bell"></i><span class="nav-text">通知</span><span class="notification-dot"></span></button></li>
+        <li><button class="nav-item" onclick="showToast('💬 聊天功能','info')"><i class="nav-icon ti ti-messages"></i><span class="nav-text">聊天</span></button></li>
+        <div class="nav-divider"></div>
+        <li><button class="nav-item" onclick="navigate('landing')"><i class="nav-icon ti ti-info-circle"></i><span class="nav-text">關於平台</span></button></li>
+      </ul>
+      <div class="sidebar-bottom">
+        <div class="user-card" onclick="showToast('👤 個人資料','info')">
+          <div class="user-avatar">泡</div>
+          <div class="user-info">
+            <div class="user-name">泡泡宇宙用戶</div>
+            <div class="user-handle">@bubbler@bubble.verse</div>
+          </div>
+          <i class="ti ti-dots-vertical" style="color:var(--fg2)"></i>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="main" id="mainContent"></main>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════
+const STORIES = [
+  { id:1, userId:'alice', name:'Alice', handle:'alice', emoji:'🌸', bg:'linear-gradient(135deg,#ff9a56,#ff6b6b)', type:'text', text:'今天的日落真的太美了！🌅 分享給大家看看', views:234, time:'2m', unseen:true },
+  { id:2, userId:'bob', name:'Bob', handle:'bob', emoji:'🎮', bg:'linear-gradient(135deg,#1a1a2e,#16213e)', type:'text', text:'剛剛通關了新遊戲！難度超高但超爽 🎉', views:89, time:'15m', unseen:true },
+  { id:3, userId:'carol', name:'Carol', handle:'carol', emoji:'🎨', bg:'linear-gradient(135deg,#0f3460,#533483)', type:'text', text:'新作品完成了~ 數位繪圖練習 ✨', views:312, time:'1h', unseen:true },
+  { id:4, userId:'dave', name:'Dave', handle:'dave', emoji:'☕', bg:'linear-gradient(135deg,#6a3805,#c47327)', type:'text', text:'早安！今天的咖啡特別香 ☕ 準備開始美好的一天', views:56, time:'2h', unseen:false },
+  { id:5, userId:'eve', name:'Eve', handle:'eve', emoji:'🌿', bg:'linear-gradient(135deg,#134e4a,#065f46)', type:'text', text:'植物園散步日記 🌿 城市裡的一片綠', views:178, time:'3h', unseen:false },
+  { id:6, userId:'frank', name:'Frank', handle:'frank', emoji:'🎵', bg:'linear-gradient(135deg,#4c1d95,#7c3aed)', type:'text', text:'推薦一首超棒的歌！最近一直在單曲循環 🎵🎵🎵', views:445, time:'5h', unseen:false },
+];
+
+const VERSE_NOTES = [
+  { id:'n1', author:'Alice Lin', handle:'alice', emoji:'🌸', color:'linear-gradient(135deg,#ec4899,#a855f7)', text:'去中心化社群媒體的崛起——為什麼我們需要 ActivityPub？在這個被幾家科技巨頭壟斷的時代，開放協定是我們的救贖。', tags:['去中心化','ActivityPub','開源'], reactions:284, replies:47, renotes:89, time:'2h', emoji_bg:'🌸', hasMedia:false },
+  { id:'n2', author:'Bob Chen', handle:'bob', emoji:'🎮', color:'linear-gradient(135deg,#3b82f6,#06b6d4)', text:'我在 Bubble Verse 上建立了一個遊戲討論星系！目前已有 1,200 名成員，每天都有新的遊戲心得分享 🎮', tags:['遊戲','星系','社群'], reactions:156, replies:23, renotes:41, time:'4h', hasMedia:true, mediaEmoji:'🎮' },
+  { id:'n3', author:'Carol Wu', handle:'carol', emoji:'🎨', color:'linear-gradient(135deg,#f97316,#ef4444)', text:'分享我的最新數位藝術作品！使用 Procreate 完成，靈感來自於台灣的夜市文化。喜歡的話記得按愛心 ❤️', tags:['藝術','數位繪圖','台灣'], reactions:512, replies:68, renotes:134, time:'6h', hasMedia:true, mediaEmoji:'🎨' },
+  { id:'n4', author:'Dave Ho', handle:'dave', emoji:'☕', color:'linear-gradient(135deg,#d97706,#92400e)', text:'咖啡日記第 365 天！一整年每天喝不同的咖啡，今天喝到了夢幻逸品——衣索比亞耶加雪菲水洗處理。香氣層次豐富得像一首詩。', tags:['咖啡','生活','美食'], reactions:203, replies:31, renotes:57, time:'8h', hasMedia:false },
+  { id:'n5', author:'Eve Park', handle:'eve', emoji:'🌿', color:'linear-gradient(135deg,#16a34a,#065f46)', text:'永續生活小貼士：如何在城市裡減少碳足跡？從日常的小事開始改變，每個人都能為地球做出貢獻 🌍', tags:['環保','永續','城市'], reactions:378, replies:52, renotes:96, time:'10h', hasMedia:true, mediaEmoji:'🌿' },
+  { id:'n6', author:'Frank Liao', handle:'frank', emoji:'🎵', color:'linear-gradient(135deg,#7c3aed,#4f46e5)', text:'新歌推薦合輯！這個月發現的 10 首獨立樂團神曲，每一首都讓我魂飛魄散。附上 Spotify 播放清單連結～', tags:['音樂','獨立樂團','推薦'], reactions:445, replies:73, renotes:121, time:'12h', hasMedia:false },
+];
+
+const TRENDING_TAGS = [
+  { tag:'去中心化', count:1284 },
+  { tag:'ActivityPub', count:892 },
+  { tag:'泡泡宇宙', count:756 },
+  { tag:'開源', count:634 },
+  { tag:'遊戲', count:521 },
+  { tag:'藝術', count:489 },
+  { tag:'音樂', count:412 },
+  { tag:'咖啡', count:387 },
+  { tag:'環保', count:356 },
+  { tag:'台灣', count:334 },
+];
+
+const GALAXIES = [
+  { id:'g1', name:'科技愛好者', category:'technology', color:'#06b6d4', emoji:'💻', desc:'討論最新科技趨勢、程式開發、開源專案，歡迎所有對技術有熱情的人！', members:12400, posts:45600, isPrivate:false, tags:['程式','AI','開源'], joined:false },
+  { id:'g2', name:'遊戲玩家聯盟', category:'gaming', color:'#7c3aed', emoji:'🎮', desc:'各類遊戲討論，從主機到手遊，從休閒到競技，只要愛玩遊戲就是我們的人！', members:8900, posts:32100, isPrivate:false, tags:['RPG','FPS','手遊'], joined:true },
+  { id:'g3', name:'獨立音樂人', category:'music', color:'#ec4899', emoji:'🎵', desc:'支持獨立音樂，分享創作，互相學習，讓好音樂被更多人聽見。', members:5600, posts:18900, isPrivate:false, tags:['創作','獨立','樂器'], joined:false },
+  { id:'g4', name:'數位藝術圈', category:'art', color:'#f97316', emoji:'🎨', desc:'數位繪圖、像素藝術、3D 創作……藝術沒有界限，創意無限延伸！', members:7200, posts:25400, isPrivate:false, tags:['繪圖','設計','CG'], joined:false },
+  { id:'g5', name:'永續生活研究社', category:'other', color:'#22c55e', emoji:'🌿', desc:'探討永續生活方式，環保行動，綠色消費，讓我們一起為地球努力。', members:3400, posts:12300, isPrivate:false, tags:['環保','永續','素食'], joined:true },
+  { id:'g6', name:'咖啡迷俱樂部', category:'food', color:'#d97706', emoji:'☕', desc:'精品咖啡愛好者的秘密基地，手沖、義式、濾杯…各種沖法都歡迎討論！', members:4100, posts:9800, isPrivate:false, tags:['精品咖啡','手沖','烘焙'], joined:false },
+  { id:'g7', name:'台灣旅遊筆記', category:'travel', color:'#0ea5e9', emoji:'✈️', desc:'分享台灣各地旅遊攻略、美食推薦、隱藏景點，讓每次旅行都更完美！', members:6700, posts:21500, isPrivate:false, tags:['台灣','美食','旅遊'], joined:false },
+  { id:'g8', name:'程式設計師書房', category:'education', color:'#8b5cf6', emoji:'📚', desc:'技術讀書會、演算法練習、系統設計討論，持續學習，共同進步。', members:5100, posts:16200, isPrivate:true, tags:['演算法','系統設計','讀書'], joined:false },
+];
+
+let currentPage = 'landing';
+let storyViewerData = null;
+let storyIndex = 0;
+let storyTimer = null;
+let storyProgress = 0;
+let activeGalaxy = null;
+let activeTag = null;
+
+// ═══════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + page);
+  if(navEl) navEl.classList.add('active');
+
+  const layout = document.getElementById('mainLayout');
+  const content = document.getElementById('mainContent');
+
+  if(page === 'landing') {
+    layout.style.display = 'none';
+    renderLanding();
+  } else {
+    layout.style.display = 'flex';
+    document.getElementById('app').style.overflow = 'hidden';
+    if(page === 'bubbles') renderBubbles(content);
+    else if(page === 'verse') renderVerse(content);
+    else if(page === 'galaxies') renderGalaxies(content);
+    else if(page === 'galaxy' && activeGalaxy) renderGalaxyDetail(content, activeGalaxy);
+    else renderHome(content);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LANDING PAGE
+// ═══════════════════════════════════════════════════════════════════
+function renderLanding() {
+  document.getElementById('app').innerHTML = `
+  <div class="landing" id="landingRoot">
+    <div class="landing-hero">
+      <div class="hero-bg"></div>
+      <div class="hero-big-logo">
+        <div class="hero-orbs">
+          <span class="hero-orb hero-orb1"></span>
+          <span class="hero-orb hero-orb2"></span>
+          <span class="hero-orb hero-orb3"></span>
+        </div>
+        <h1 class="hero-title">Bubble Verse</h1>
+      </div>
+      <p class="hero-sub">去中心化的社交宇宙——限時泡泡故事、演算法探索、聯合社群星系，盡在一處。</p>
+      <div class="hero-cta">
+        <button class="btn btn-gradient" style="font-size:15px;padding:12px 28px" onclick="enterApp()">
+          <i class="ti ti-rocket"></i> 進入 Bubble Verse
+        </button>
+        <button class="btn btn-ghost" style="font-size:15px;padding:12px 28px" onclick="navigate('bubbles');rebuildApp()">
+          <i class="ti ti-eye"></i> 預覽功能
+        </button>
+      </div>
+      <div class="hero-pills">
+        <span class="pill"><i class="ti ti-lock-open"></i> 去中心化</span>
+        <span class="pill"><i class="ti ti-world"></i> ActivityPub 聯合</span>
+        <span class="pill"><i class="ti ti-code"></i> 開源</span>
+        <span class="pill"><i class="ti ti-shield-check"></i> 擁有自己的數據</span>
+      </div>
+    </div>
+
+    <div class="features-section">
+      <h2 class="features-title">三大核心功能</h2>
+      <p class="features-desc" style="color:var(--fg2);max-width:500px;margin:0 auto 40px">結合 Instagram、TikTok、Facebook 的最佳設計，加上去中心化的力量</p>
+      <div class="features-grid">
+        <div class="feature-card feature-card-bubbles">
+          <div class="feature-icon-wrap" style="background:rgba(249,115,22,.2)">
+            <span style="font-size:28px">🫧</span>
+          </div>
+          <div class="feature-name">Bubbles 泡泡</div>
+          <div class="feature-tag"><i class="ti ti-camera"></i> 靈感來自 Instagram Stories</div>
+          <p class="feature-desc">分享存活 24 小時的精彩時刻。文字、圖片、影片——你的故事，你做主。</p>
+          <ul class="feature-list">
+            <li><i class="ti ti-check"></i> 24 小時自動消失</li>
+            <li><i class="ti ti-check"></i> 支援文字、圖片、影片</li>
+            <li><i class="ti ti-check"></i> 查看誰觀看了你的泡泡</li>
+            <li><i class="ti ti-check"></i> 聯合訂閱者的故事</li>
+          </ul>
+        </div>
+        <div class="feature-card feature-card-verse">
+          <div class="feature-icon-wrap" style="background:rgba(6,182,212,.15)">
+            <span style="font-size:28px">🌌</span>
+          </div>
+          <div class="feature-name">Verse 詩篇</div>
+          <div class="feature-tag"><i class="ti ti-music"></i> 靈感來自 TikTok For You</div>
+          <p class="feature-desc">你的個人化內容宇宙，由互動信號和新鮮度驅動的演算法精選。</p>
+          <ul class="feature-list">
+            <li><i class="ti ti-check"></i> 演算法排名：互動 × 新鮮度</li>
+            <li><i class="ti ti-check"></i> 熱門標籤即時榜</li>
+            <li><i class="ti ti-check"></i> 跨實例聯合內容</li>
+            <li><i class="ti ti-check"></i> 視覺優先卡片設計</li>
+          </ul>
+        </div>
+        <div class="feature-card feature-card-galaxies">
+          <div class="feature-icon-wrap" style="background:rgba(124,58,237,.2)">
+            <span style="font-size:28px">🌀</span>
+          </div>
+          <div class="feature-name">Galaxies 星系</div>
+          <div class="feature-tag"><i class="ti ti-users-group"></i> 靈感來自 Facebook Groups</div>
+          <p class="feature-desc">加入或建立主題社群，跨越 Fediverse 連結志同道合的人。</p>
+          <ul class="feature-list">
+            <li><i class="ti ti-check"></i> 按主題分類的社群</li>
+            <li><i class="ti ti-check"></i> 公開與私人星系</li>
+            <li><i class="ti ti-check"></i> 聯合——跨伺服器連接</li>
+            <li><i class="ti ti-check"></i> 角色管理系統</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="why-section">
+      <h2 class="features-title">為什麼選擇去中心化？</h2>
+      <div class="why-grid">
+        <div class="why-card">
+          <i class="why-icon ti ti-shield-check"></i>
+          <div>
+            <strong>擁有你的數據</strong>
+            <span>你的內容屬於你。在實例間遷移而不失去社交關係。</span>
+          </div>
+        </div>
+        <div class="why-card">
+          <i class="why-icon ti ti-network"></i>
+          <div>
+            <strong>無單點故障</strong>
+            <span>某個伺服器下線不影響整個網路，真正的去中心化韌性。</span>
+          </div>
+        </div>
+        <div class="why-card">
+          <i class="why-icon ti ti-plug-connected"></i>
+          <div>
+            <strong>開放互通</strong>
+            <span>與 Mastodon、Pleroma、Pixelfed 及所有 ActivityPub 平台互通。</span>
+          </div>
+        </div>
+        <div class="why-card">
+          <i class="why-icon ti ti-eye-off"></i>
+          <div>
+            <strong>無廣告演算法</strong>
+            <span>Verse 的演算法完全透明、開源，為用戶服務而非廣告商。</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:40px">
+        <button class="btn btn-gradient" style="font-size:15px;padding:14px 36px" onclick="enterApp()">
+          <i class="ti ti-rocket"></i> 立即體驗 Bubble Verse
+        </button>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function enterApp() {
+  rebuildApp();
+  navigate('bubbles');
+}
+
+function rebuildApp() {
+  document.getElementById('app').innerHTML = `
+    <div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
+    <div class="story-viewer-overlay" id="storyViewerOverlay" onclick="closeStoryViewer(event)">
+      <div class="story-viewer" id="storyViewer">
+        <div class="story-progress-bars" id="storyProgressBars"></div>
+        <div class="story-hdr">
+          <div class="story-hdr-av" id="storyHdrAv"></div>
+          <span class="story-hdr-name" id="storyHdrName"></span>
+          <span class="story-hdr-time" id="storyHdrTime"></span>
+          <button class="story-hdr-close" onclick="closeStoryViewer()"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="story-content" id="storyContent"></div>
+        <div class="story-tap-left" onclick="storyPrev()"></div>
+        <div class="story-tap-right" onclick="storyNext()"></div>
+        <div class="story-footer"><i class="ti ti-eye"></i> <span id="storyViews">0</span> 觀看</div>
+      </div>
+    </div>
+    <div class="app" id="mainLayout">
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-orbs">
+            <span class="orb orb1"></span>
+            <span class="orb orb2"></span>
+            <span class="orb orb3"></span>
+          </div>
+          <span class="logo-name">Bubble Verse</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-section-label">主要</li>
+          <li><button class="nav-item" onclick="navigate('home')"><i class="nav-icon ti ti-home"></i><span class="nav-text">首頁</span></button></li>
+          <li><button class="nav-item" id="nav-bubbles" onclick="navigate('bubbles')"><i class="nav-icon ti ti-bubble"></i><span class="nav-text">泡泡故事</span><span class="nav-badge">3</span></button></li>
+          <li><button class="nav-item" id="nav-verse" onclick="navigate('verse')"><i class="nav-icon ti ti-universe"></i><span class="nav-text">詩篇 Verse</span></button></li>
+          <li><button class="nav-item" id="nav-galaxies" onclick="navigate('galaxies')"><i class="nav-icon ti ti-galaxy"></i><span class="nav-text">星系 Galaxies</span></button></li>
+          <div class="nav-divider"></div>
+          <li class="nav-section-label">探索</li>
+          <li><button class="nav-item" onclick="showToast('搜尋功能 — 整合全域與本地搜尋','info')"><i class="nav-icon ti ti-search"></i><span class="nav-text">搜尋</span></button></li>
+          <li><button class="nav-item" onclick="showToast('通知中心 — 互動、追蹤、星系活動','info')"><i class="nav-icon ti ti-bell"></i><span class="nav-text">通知</span><span class="notification-dot"></span></button></li>
+          <li><button class="nav-item" onclick="showToast('聊天功能 — 端對端加密私訊','info')"><i class="nav-icon ti ti-messages"></i><span class="nav-text">聊天</span></button></li>
+          <div class="nav-divider"></div>
+          <li><button class="nav-item" onclick="navigate('landing');document.getElementById('mainLayout').style.display='none'"><i class="nav-icon ti ti-info-circle"></i><span class="nav-text">關於平台</span></button></li>
+        </ul>
+        <div class="sidebar-bottom">
+          <div class="user-card" onclick="showToast('個人資料設定','info')">
+            <div class="user-avatar">泡</div>
+            <div class="user-info">
+              <div class="user-name">泡泡宇宙用戶</div>
+              <div class="user-handle">@bubbler@bubble.verse</div>
+            </div>
+            <i class="ti ti-dots-vertical" style="color:var(--fg2)"></i>
+          </div>
+        </div>
+      </nav>
+      <main class="main" id="mainContent"></main>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════════════════
+function renderHome(container) {
+  container.innerHTML = `
+    <div class="page-header">
+      <span class="page-title"><i class="ti ti-home"></i> 首頁</span>
+      <div class="page-actions">
+        <button class="btn btn-gradient btn-sm" onclick="showToast('新增貼文','info')"><i class="ti ti-pencil"></i> 發佈</button>
+      </div>
+    </div>
+    <div class="page-content">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px">
+        ${[
+          {icon:'ti-bubble',label:'泡泡故事',value:'3 則未讀',color:'#f97316',page:'bubbles'},
+          {icon:'ti-universe',label:'詩篇 Verse',value:'熱門更新',color:'#7c3aed',page:'verse'},
+          {icon:'ti-galaxy',label:'我的星系',value:'2 個社群',color:'#06b6d4',page:'galaxies'},
+          {icon:'ti-bell',label:'新通知',value:'12 則',color:'#ec4899',page:null},
+        ].map(c=>`
+          <button class="card" style="padding:20px;text-align:left;border:none;cursor:pointer;transition:transform .2s" onclick="${c.page?`navigate('${c.page}')`:`showToast('${c.label}','info')`}" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            <i class="ti ${c.icon}" style="font-size:28px;color:${c.color}"></i>
+            <div style="margin-top:10px;font-size:15px;font-weight:700;color:var(--fg)">${c.label}</div>
+            <div style="font-size:12px;color:var(--fg2);margin-top:2px">${c.value}</div>
+          </button>
+        `).join('')}
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(6,182,212,.1));border:1px solid rgba(124,58,237,.3);border-radius:var(--radius-lg);padding:24px;text-align:center">
+        <div style="font-size:32px;margin-bottom:8px">🫧🌌🌀</div>
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">歡迎來到 Bubble Verse！</h2>
+        <p style="color:var(--fg2);font-size:13px;max-width:400px;margin:0 auto 16px;line-height:1.7">探索 Bubbles、Verse 和 Galaxies——去中心化社群媒體的新紀元</p>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="navigate('bubbles')"><i class="ti ti-bubble"></i> 查看泡泡</button>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('verse')"><i class="ti ti-universe"></i> 探索詩篇</button>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('galaxies')"><i class="ti ti-galaxy"></i> 加入星系</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BUBBLES / STORIES
+// ═══════════════════════════════════════════════════════════════════
+function renderBubbles(container) {
+  const unseenCount = STORIES.filter(s=>s.unseen).length;
+  container.innerHTML = `
+    <div class="page-header">
+      <span class="page-title"><i class="ti ti-bubble" style="color:var(--orange)"></i> 泡泡故事 <span style="font-size:12px;background:var(--orange);color:#fff;padding:2px 8px;border-radius:99px;font-weight:700">${unseenCount}</span></span>
+      <div class="page-actions">
+        <button class="btn btn-gradient btn-sm" onclick="showAddStoryDialog()"><i class="ti ti-plus"></i> 新增故事</button>
+      </div>
+    </div>
+    <div class="page-content">
+      <!-- Story bar -->
+      <div class="story-bar">
+        <div class="story-bar-track">
+          <div class="story-item" onclick="showAddStoryDialog()">
+            <div class="story-ring add-ring">
+              <div class="story-add-btn">
+                <i class="ti ti-plus"></i>
+                <div class="story-plus"><i class="ti ti-plus" style="font-size:9px"></i></div>
+              </div>
+            </div>
+            <span class="story-name">我的故事</span>
+          </div>
+          ${STORIES.map((s,i)=>`
+            <div class="story-item" onclick="openStoryViewer(${i})">
+              <div class="story-ring ${s.unseen?'unseen':'seen'}">
+                <div class="story-avatar" style="background:${s.bg}">${s.emoji}</div>
+              </div>
+              <span class="story-name">${s.name}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Stories Grid -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <i class="ti ti-layout-grid" style="color:var(--fg2)"></i>
+        <span style="font-size:13px;font-weight:600;color:var(--fg2)">所有故事 · ${STORIES.length} 則</span>
+        <span style="font-size:11px;color:var(--fg2);margin-left:auto">${unseenCount} 則未讀</span>
+      </div>
+      <div class="stories-grid">
+        ${STORIES.map((s,i)=>`
+          <div class="story-card" onclick="openStoryViewer(${i})">
+            <div class="story-card-gradient" style="background:${s.bg}">
+              <span class="story-card-text">${s.text}</span>
+            </div>
+            ${s.unseen?'<div class="story-unseen-dot"></div>':''}
+            <div class="story-card-footer">
+              <div class="story-card-avatar">${s.emoji}</div>
+              <span class="story-card-author">${s.name}</span>
+              <span style="font-size:10px;color:rgba(255,255,255,.6)">${s.time}</span>
+            </div>
+          </div>
+        `).join('')}
+        <!-- Add Story Card -->
+        <div class="story-card" onclick="showAddStoryDialog()" style="background:var(--panel2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;aspect-ratio:9/16;cursor:pointer">
+          <i class="ti ti-plus" style="font-size:32px;color:var(--fg2)"></i>
+          <span style="font-size:12px;color:var(--fg2);font-weight:600">新增故事</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showAddStoryDialog() {
+  const dialog = document.createElement('div');
+  dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9998;display:flex;align-items:center;justify-content:center;';
+  dialog.innerHTML = `
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px;width:360px;max-width:90vw">
+      <h3 style="font-size:17px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+        <i class="ti ti-bubble" style="color:var(--orange)"></i> 新增泡泡故事
+      </h3>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        ${[{t:'text',l:'文字',e:'T'},{t:'image',l:'圖片',e:'🖼️'},{t:'video',l:'影片',e:'🎬'}].map(x=>`
+          <button onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.style.background='var(--panel2)');this.style.background='var(--accent)';this.style.color='#fff'"
+            style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--fg2);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s">
+            ${x.e} ${x.l}
+          </button>
+        `).join('')}
+      </div>
+      <textarea id="storyTextInput" placeholder="輸入你的故事文字..." style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--fg);font-size:14px;resize:none;height:100px;font-family:inherit"></textarea>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <select id="storyBgSelect" style="flex:1;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--fg);font-size:13px">
+          <option value="linear-gradient(135deg,#f97316,#ec4899)">🌅 日落橙粉</option>
+          <option value="linear-gradient(135deg,#7c3aed,#06b6d4)">🌌 宇宙藍紫</option>
+          <option value="linear-gradient(135deg,#16a34a,#06b6d4)">🌿 自然綠藍</option>
+          <option value="linear-gradient(135deg,#1a1a2e,#16213e)">🌃 深夜城市</option>
+          <option value="linear-gradient(135deg,#dc2626,#ea580c)">🔥 熱情紅橙</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;padding:10px;border-radius:99px;border:1px solid var(--border);background:none;color:var(--fg2);font-size:13px;font-weight:600;cursor:pointer">取消</button>
+        <button onclick="submitNewStory(this)" style="flex:2;padding:10px;border-radius:99px;border:none;background:linear-gradient(135deg,#f97316,#ec4899);color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+          <i class="ti ti-send"></i> 發佈故事
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(dialog);
+  dialog.addEventListener('click', e => { if(e.target===dialog) dialog.remove(); });
+}
+
+function submitNewStory(btn) {
+  const text = document.getElementById('storyTextInput').value || '✨ 新的一天，新的故事！';
+  const bg = document.getElementById('storyBgSelect').value;
+  const dialog = btn.closest('div[style*=fixed]');
+  dialog.remove();
+  STORIES.unshift({
+    id: Date.now(), userId:'me', name:'我', handle:'me', emoji:'😊',
+    bg, type:'text', text, views:0, time:'剛才', unseen:false
+  });
+  if(currentPage==='bubbles') renderBubbles(document.getElementById('mainContent'));
+  showToast('🫧 你的泡泡故事已發佈！24 小時後消失');
+}
+
+// ─── Story Viewer ────────────────────────────────────────────────
+function openStoryViewer(idx) {
+  storyIndex = idx;
+  storyViewerData = STORIES;
+  const overlay = document.getElementById('storyViewerOverlay');
+  overlay.classList.add('open');
+  renderCurrentStory();
+  startStoryTimer();
+}
+
+function renderCurrentStory() {
+  const s = storyViewerData[storyIndex];
+  if(!s) return closeStoryViewer();
+  document.getElementById('storyHdrAv').textContent = s.emoji;
+  document.getElementById('storyHdrAv').style.background = s.bg;
+  document.getElementById('storyHdrName').textContent = s.name;
+  document.getElementById('storyHdrTime').textContent = s.time;
+  document.getElementById('storyViews').textContent = s.views + Math.floor(Math.random()*5);
+  document.getElementById('storyContent').innerHTML = `
+    <div class="story-text-content" style="background:${s.bg}">
+      <span class="story-text-body">${s.text}</span>
+    </div>
+  `;
+  // Progress bars
+  const bars = storyViewerData.map((_,i)=>`
+    <div class="story-pb-track"><div class="story-pb-fill" id="pb${i}" style="width:${i<storyIndex?100:i===storyIndex?0:0}%"></div></div>
+  `).join('');
+  document.getElementById('storyProgressBars').innerHTML = bars;
+  storyProgress = 0;
+  // Mark as seen
+  if(s.unseen) { s.unseen = false; }
+}
+
+function startStoryTimer() {
+  if(storyTimer) clearInterval(storyTimer);
+  storyProgress = 0;
+  storyTimer = setInterval(() => {
+    storyProgress += 2;
+    const pb = document.getElementById('pb'+storyIndex);
+    if(pb) pb.style.width = storyProgress + '%';
+    if(storyProgress >= 100) storyNext();
+  }, 100);
+}
+
+function storyNext() {
+  if(storyIndex < storyViewerData.length-1) {
+    storyIndex++;
+    renderCurrentStory();
+    startStoryTimer();
+  } else closeStoryViewer();
+}
+
+function storyPrev() {
+  if(storyIndex > 0) {
+    storyIndex--;
+    renderCurrentStory();
+    startStoryTimer();
+  }
+}
+
+function closeStoryViewer(e) {
+  if(e && e.target !== document.getElementById('storyViewerOverlay')) return;
+  if(storyTimer) { clearInterval(storyTimer); storyTimer = null; }
+  document.getElementById('storyViewerOverlay')?.classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// VERSE FEED
+// ═══════════════════════════════════════════════════════════════════
+function renderVerse(container) {
+  container.innerHTML = `
+    <div class="page-header">
+      <span class="page-title"><i class="ti ti-universe" style="color:var(--teal)"></i> 詩篇 Verse</span>
+      <div class="page-actions">
+        <button class="btn-icon" onclick="renderVerse(document.getElementById('mainContent'))"><i class="ti ti-refresh"></i></button>
+      </div>
+    </div>
+    <div class="verse-layout">
+      <div class="verse-feed">
+        <!-- Trending bar -->
+        <div class="trending-bar">
+          <span class="trending-label"><i class="ti ti-trending-up"></i> 熱門</span>
+          ${TRENDING_TAGS.slice(0,6).map(t=>`
+            <button class="trend-tag-btn ${activeTag===t.tag?'active':''}" onclick="filterByTag('${t.tag}')">
+              #${t.tag} <span class="trend-tag-count">${fmtNum(t.count)}</span>
+            </button>
+          `).join('')}
+          <button class="trend-tag-btn ${activeTag===null?'':'active'}" onclick="clearTagFilter()" style="color:var(--fg2)">全部</button>
+        </div>
+
+        <!-- Feed cards -->
+        <div class="verse-grid" id="verseGrid">
+          ${renderVerseCards()}
+        </div>
+        <div style="text-align:center;padding:20px">
+          <button class="btn btn-ghost" onclick="showToast('載入更多內容...','info')">
+            <i class="ti ti-refresh"></i> 載入更多
+          </button>
+        </div>
+      </div>
+      <!-- Sidebar -->
+      <aside class="verse-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-card-title"><i class="ti ti-flame"></i> 熱門標籤</div>
+          <div class="trending-list">
+            ${TRENDING_TAGS.map((t,i)=>`
+              <div class="trending-item" onclick="filterByTag('${t.tag}')">
+                <span class="trending-rank">${i+1}</span>
+                <div class="trending-info">
+                  <span class="trending-tag-name">#${t.tag}</span>
+                  <span class="trending-count">${fmtNum(t.count)} 則貼文</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="sidebar-card">
+          <div class="sidebar-card-title"><i class="ti ti-info-circle"></i> 關於詩篇</div>
+          <p class="sidebar-desc">詩篇根據以下公式排名內容：<br><code style="font-size:11px;background:var(--panel2);padding:2px 6px;border-radius:4px">互動×3 + 回覆×2 + 轉發×2 + 新鮮度</code><br><br>來自整個 Fediverse 的公開內容都會被收錄。</p>
+        </div>
+      </aside>
+    </div>
+  `;
+}
+
+function renderVerseCards() {
+  const filtered = activeTag
+    ? VERSE_NOTES.filter(n => n.tags.includes(activeTag))
+    : VERSE_NOTES;
+  if(filtered.length === 0) return `<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-hash"></i><p>沒有 #${activeTag} 的相關內容</p><button class="btn btn-ghost btn-sm" onclick="clearTagFilter()">清除篩選</button></div>`;
+  return filtered.map(n => `
+    <div class="verse-card" onclick="showToast('查看完整貼文 — @${n.handle}','info')">
+      ${n.hasMedia?`
+        <div class="verse-media">
+          <div class="verse-media-placeholder" style="background:${n.color}">${n.mediaEmoji||n.emoji}</div>
+          <div class="verse-media-overlay"></div>
+        </div>
+      `:''}
+      <div class="verse-body">
+        <div class="verse-author">
+          <div class="verse-av" style="background:${n.color}">${n.emoji}</div>
+          <div class="verse-author-info">
+            <span class="verse-author-name">${n.author}</span>
+            <span class="verse-author-handle">@${n.handle}</span>
+          </div>
+          <span class="verse-time">${n.time}</span>
+        </div>
+        <p class="verse-text">${n.text}</p>
+        <div class="verse-tags">
+          ${n.tags.map(t=>`<span class="verse-tag" onclick="event.stopPropagation();filterByTag('${t}')">#${t}</span>`).join(' ')}
+        </div>
+        <div class="verse-stats">
+          <button class="verse-stat-btn" onclick="event.stopPropagation();likeNote('${n.id}',this)">
+            <i class="ti ti-mood-heart"></i> <span id="rc_${n.id}">${fmtNum(n.reactions)}</span>
+          </button>
+          <button class="verse-stat-btn" onclick="event.stopPropagation();showToast('回覆功能','info')">
+            <i class="ti ti-message-circle"></i> ${fmtNum(n.replies)}
+          </button>
+          <button class="verse-stat-btn" onclick="event.stopPropagation();showToast('轉發成功！','success')">
+            <i class="ti ti-repeat"></i> ${fmtNum(n.renotes)}
+          </button>
+          <button class="verse-stat-btn" onclick="event.stopPropagation();copyLink('${n.id}')">
+            <i class="ti ti-share"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterByTag(tag) {
+  activeTag = tag;
+  const grid = document.getElementById('verseGrid');
+  if(grid) grid.innerHTML = renderVerseCards();
+  // update trend tag buttons
+  document.querySelectorAll('.trend-tag-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(tag));
+  });
+}
+
+function clearTagFilter() {
+  activeTag = null;
+  const grid = document.getElementById('verseGrid');
+  if(grid) grid.innerHTML = renderVerseCards();
+  document.querySelectorAll('.trend-tag-btn').forEach(b => b.classList.remove('active'));
+}
+
+function likeNote(id, btn) {
+  const note = VERSE_NOTES.find(n=>n.id===id);
+  if(!note) return;
+  note.reactions++;
+  const el = document.getElementById('rc_'+id);
+  if(el) el.textContent = fmtNum(note.reactions);
+  btn.style.color = '#ec4899';
+  btn.style.background = 'rgba(236,72,153,.1)';
+  showToast('❤️ 已按愛心！','success');
+}
+
+function copyLink(id) {
+  showToast('🔗 連結已複製到剪貼簿','success');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GALAXIES
+// ═══════════════════════════════════════════════════════════════════
+let activeCategory = 'all';
+
+function renderGalaxies(container) {
+  container.innerHTML = `
+    <div class="page-header">
+      <span class="page-title"><i class="ti ti-galaxy" style="color:var(--accent2)"></i> 星系 Galaxies</span>
+      <div class="page-actions">
+        <button class="btn btn-gradient btn-sm" onclick="showCreateGalaxyDialog()"><i class="ti ti-plus"></i> 建立星系</button>
+      </div>
+    </div>
+    <div class="galaxy-hero">
+      <h1><span style="font-size:28px">🌀</span> 探索星系</h1>
+      <p>加入或建立主題社群，跨越 Fediverse 連結志同道合的人。每個星系都是獨立的去中心化社群。</p>
+      <button class="btn" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="showCreateGalaxyDialog()">
+        <i class="ti ti-rocket"></i> 建立我的星系
+      </button>
+    </div>
+    <div class="cat-bar" id="galaxyCatBar">
+      ${['all','technology','gaming','music','art','food','travel','education','other'].map(c=>`
+        <button class="cat-btn ${activeCategory===c?'active':''}" onclick="filterGalaxies('${c}')">
+          ${c==='all'?'全部':c}
+        </button>
+      `).join('')}
+    </div>
+    <div class="galaxy-grid" id="galaxyGrid">
+      ${renderGalaxyCards()}
+    </div>
+  `;
+}
+
+function renderGalaxyCards() {
+  const list = activeCategory==='all' ? GALAXIES : GALAXIES.filter(g=>g.category===activeCategory);
+  return list.map(g=>`
+    <div class="galaxy-card" onclick="openGalaxyDetail('${g.id}')">
+      <div class="galaxy-banner" style="background:linear-gradient(135deg,${g.color}55,${g.color})">
+        <div class="galaxy-banner-overlay"></div>
+        <div class="galaxy-color-dot" style="background:${g.color}"></div>
+        ${g.isPrivate?`<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;padding:2px 8px;border-radius:99px;display:flex;align-items:center;gap:3px"><i class="ti ti-lock"></i> 私人</span>`:''}
+      </div>
+      <div class="galaxy-body">
+        <div class="galaxy-title-row">
+          <span style="font-size:18px">${g.emoji}</span>
+          <span class="galaxy-name">${g.name}</span>
+          <span class="galaxy-cat-badge">${g.category}</span>
+        </div>
+        <p class="galaxy-desc">${g.desc}</p>
+        <div class="galaxy-stats">
+          <span><i class="ti ti-users"></i>${fmtNum(g.members)} 成員</span>
+          <span><i class="ti ti-notes"></i>${fmtNum(g.posts)} 貼文</span>
+        </div>
+        <div class="galaxy-tags">
+          ${g.tags.map(t=>`<span class="galaxy-tag">#${t}</span>`).join('')}
+        </div>
+        <button class="galaxy-join-btn ${g.joined?'joined':''}"
+          style="${g.joined?'':'background:'+g.color}"
+          onclick="event.stopPropagation();toggleJoinGalaxy('${g.id}',this)">
+          ${g.joined
+            ? '<i class="ti ti-check"></i> 已加入'
+            : '<i class="ti ti-rocket"></i> 加入星系'
+          }
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterGalaxies(cat) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.trim()===cat || (cat==='all' && b.textContent.trim()==='全部'));
+  });
+  const grid = document.getElementById('galaxyGrid');
+  if(grid) grid.innerHTML = renderGalaxyCards();
+}
+
+function toggleJoinGalaxy(id, btn) {
+  const g = GALAXIES.find(x=>x.id===id);
+  if(!g) return;
+  g.joined = !g.joined;
+  if(g.joined) {
+    g.members++;
+    btn.className = 'galaxy-join-btn joined';
+    btn.innerHTML = '<i class="ti ti-check"></i> 已加入';
+    btn.style.background = '';
+    showToast(`🌀 已加入「${g.name}」星系！`,'success');
+  } else {
+    g.members = Math.max(0, g.members-1);
+    btn.className = 'galaxy-join-btn';
+    btn.style.background = g.color;
+    btn.innerHTML = '<i class="ti ti-rocket"></i> 加入星系';
+    showToast(`離開「${g.name}」星系`,'info');
+  }
+  // Update stats display
+  const statsEl = btn.parentNode.querySelector('.galaxy-stats');
+  if(statsEl) statsEl.innerHTML = `<span><i class="ti ti-users"></i>${fmtNum(g.members)} 成員</span><span><i class="ti ti-notes"></i>${fmtNum(g.posts)} 貼文</span>`;
+}
+
+function openGalaxyDetail(id) {
+  activeGalaxy = GALAXIES.find(g=>g.id===id);
+  if(!activeGalaxy) return;
+  renderGalaxyDetail(document.getElementById('mainContent'), activeGalaxy);
+}
+
+function renderGalaxyDetail(container, g) {
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="btn-icon" onclick="navigate('galaxies')"><i class="ti ti-arrow-left"></i></button>
+      <span class="page-title">${g.emoji} ${g.name}</span>
+      <div class="page-actions">
+        <button class="btn ${g.joined?'btn-ghost':'btn-primary'} btn-sm"
+          onclick="toggleJoinFromDetail('${g.id}',this)"
+          style="${g.joined?'':'background:'+g.color}">
+          ${g.joined?'<i class="ti ti-logout"></i> 離開':'<i class="ti ti-rocket"></i> 加入星系'}
+        </button>
+      </div>
+    </div>
+    <!-- Banner -->
+    <div class="galaxy-detail-banner" style="background:linear-gradient(135deg,${g.color}66,${g.color})">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.5))"></div>
+    </div>
+    <div class="galaxy-detail-header">
+      <div class="galaxy-detail-meta">
+        <div class="galaxy-detail-orb" style="background:${g.color}">${g.emoji}</div>
+        <div class="galaxy-detail-info">
+          <div class="galaxy-detail-name">${g.name}</div>
+          <div class="galaxy-detail-stats">
+            <span><i class="ti ti-tag"></i> ${g.category}</span>
+            <span><i class="ti ti-users"></i> ${fmtNum(g.members)} 成員</span>
+            <span><i class="ti ti-notes"></i> ${fmtNum(g.posts)} 貼文</span>
+            ${g.isPrivate?'<span><i class="ti ti-lock"></i> 私人</span>':''}
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--fg2);margin-top:12px;line-height:1.7;padding-bottom:4px">${g.desc}</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:8px">
+        ${g.tags.map(t=>`<span class="galaxy-tag">#${t}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="galaxy-stats-cards">
+      <div class="stat-card">
+        <span class="stat-num" style="color:${g.color}">${fmtNum(g.members)}</span>
+        <span class="stat-label">成員</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" style="color:${g.color}">${fmtNum(g.posts)}</span>
+        <span class="stat-label">貼文</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" style="color:${g.color};text-transform:capitalize;font-size:16px">${g.category}</span>
+        <span class="stat-label">分類</span>
+      </div>
+    </div>
+
+    <!-- Mock posts -->
+    <div style="padding:0 24px 24px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-notes" style="color:${g.color}"></i> 最新貼文
+      </div>
+      ${[...Array(3)].map((_,i)=>`
+        <div class="card" style="padding:16px;margin-bottom:10px;border-color:${g.color}22">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="width:34px;height:34px;border-radius:50%;background:${g.color};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">
+              ${['A','B','C'][i]}
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600">成員 ${['Alice','Bob','Carol'][i]}</div>
+              <div style="font-size:11px;color:var(--fg2)">${['1小時前','3小時前','5小時前'][i]}</div>
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--fg);line-height:1.6">${[
+            `${g.name} 社群太棒了！每天都能學到新東西，感謝大家的分享 🙏`,
+            `剛加入這個星系就發現了好多有趣的討論，氛圍非常好！`,
+            `推薦大家都來這裡！${g.name} 是我在 Bubble Verse 最喜歡的星系 ⭐`,
+          ][i]}</p>
+          <div style="display:flex;gap:12px;margin-top:10px;font-size:12px;color:var(--fg2)">
+            <button class="verse-stat-btn" style="padding:4px 8px" onclick="showToast('❤️ 已按愛心','success')"><i class="ti ti-mood-heart"></i> ${[24,18,31][i]}</button>
+            <button class="verse-stat-btn" style="padding:4px 8px" onclick="showToast('回覆功能','info')"><i class="ti ti-message-circle"></i> ${[5,3,8][i]}</button>
+          </div>
+        </div>
+      `).join('')}
+      <button class="btn btn-ghost" style="width:100%" onclick="showToast('載入更多貼文','info')">載入更多貼文</button>
+    </div>
+  `;
+}
+
+function toggleJoinFromDetail(id, btn) {
+  const g = GALAXIES.find(x=>x.id===id);
+  if(!g) return;
+  g.joined = !g.joined;
+  if(g.joined) {
+    btn.className='btn btn-ghost btn-sm';
+    btn.innerHTML='<i class="ti ti-logout"></i> 離開';
+    btn.style.background='';
+    showToast(`🌀 已加入「${g.name}」！`,'success');
+  } else {
+    btn.className='btn btn-primary btn-sm';
+    btn.style.background=g.color;
+    btn.innerHTML='<i class="ti ti-rocket"></i> 加入星系';
+    showToast(`離開「${g.name}」`,'info');
+  }
+}
+
+function showCreateGalaxyDialog() {
+  const d = document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9998;display:flex;align-items:center;justify-content:center;';
+  d.innerHTML=`
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:28px;width:400px;max-width:90vw;max-height:85vh;overflow-y:auto">
+      <h3 style="font-size:17px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px">
+        <i class="ti ti-galaxy" style="color:var(--accent2)"></i> 建立新星系
+      </h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:12px;color:var(--fg2);font-weight:600;display:block;margin-bottom:4px">星系名稱 *</label>
+          <input id="gName" placeholder="e.g. 台灣程式設計師" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--fg);font-size:14px;font-family:inherit"/>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--fg2);font-weight:600;display:block;margin-bottom:4px">描述</label>
+          <textarea id="gDesc" placeholder="描述你的星系..." style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--fg);font-size:14px;resize:none;height:70px;font-family:inherit"></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
+            <label style="font-size:12px;color:var(--fg2);font-weight:600;display:block;margin-bottom:4px">分類</label>
+            <select id="gCat" style="width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--fg);font-size:13px">
+              ${['technology','gaming','music','art','sports','food','travel','education','other'].map(c=>`<option value="${c}">${c}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--fg2);font-weight:600;display:block;margin-bottom:4px">主色</label>
+            <input id="gColor" type="color" value="#7c3aed" style="width:100%;height:42px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:4px;cursor:pointer"/>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="gPrivate" style="width:16px;height:16px;cursor:pointer"/>
+          <label for="gPrivate" style="font-size:13px;cursor:pointer">設為私人星系（需要審核加入）</label>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:20px">
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;padding:10px;border-radius:99px;border:1px solid var(--border);background:none;color:var(--fg2);font-size:13px;font-weight:600;cursor:pointer">取消</button>
+        <button onclick="submitNewGalaxy(this)" style="flex:2;padding:10px;border-radius:99px;border:none;background:linear-gradient(135deg,#7c3aed,#06b6d4);color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+          <i class="ti ti-rocket"></i> 建立星系
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(d);
+  d.addEventListener('click',e=>{if(e.target===d)d.remove()});
+}
+
+function submitNewGalaxy(btn) {
+  const name = document.getElementById('gName').value || '我的新星系';
+  const desc = document.getElementById('gDesc').value || '一個全新的星系正在形成...';
+  const cat = document.getElementById('gCat').value;
+  const color = document.getElementById('gColor').value;
+  const isPrivate = document.getElementById('gPrivate').checked;
+  btn.closest('div[style*=fixed]').remove();
+  const emojis = {'technology':'💻','gaming':'🎮','music':'🎵','art':'🎨','sports':'⚽','food':'🍔','travel':'✈️','education':'📚','other':'🌟'};
+  GALAXIES.unshift({
+    id:'g'+Date.now(), name, category:cat, color, emoji:emojis[cat]||'🌀',
+    desc, members:1, posts:0, isPrivate, tags:[], joined:true
+  });
+  renderGalaxies(document.getElementById('mainContent'));
+  showToast(`🌀 星系「${name}」已建立！`,'success');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════════
+function fmtNum(n) {
+  if(n>=1000000) return (n/1000000).toFixed(1)+'M';
+  if(n>=1000) return (n/1000).toFixed(1)+'K';
+  return String(n);
+}
+
+let toastTimeout;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  if(!t||!m) return;
+  t.className = 'toast show ' + type;
+  t.querySelector('i').className = type==='success'?'ti ti-check':'ti ti-info-circle';
+  m.textContent = msg;
+  if(toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(()=>{ t.classList.remove('show'); }, 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+navigate('landing');
+</script>
+</body>
+</html>
