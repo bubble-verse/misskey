@@ -110,6 +110,21 @@ export const navbarItemDef = reactive({
 		icon: 'ti ti-device-tv',
 		to: '/channels',
 	},
+	bubbles: {
+		title: i18n.ts.bubbles,
+		icon: 'ti ti-bubble',
+		to: '/bubbles',
+	},
+	verse: {
+		title: i18n.ts.verse,
+		icon: 'ti ti-universe',
+		to: '/verse',
+	},
+	galaxies: {
+		title: i18n.ts.galaxies,
+		icon: 'ti ti-galaxy',
+		to: '/galaxies',
+	},
 	chat: {
 		title: i18n.ts.chat,
 		icon: 'ti ti-messages',

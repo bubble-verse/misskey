@@ -228,6 +228,22 @@ export const ROUTE_DEF = [{
 	component: page(() => import('@/pages/explore.vue')),
 	hash: 'initialTab',
 }, {
+	name: 'bubbleStories',
+	path: '/bubbles',
+	component: page(() => import('@/pages/bubble-stories.vue')),
+}, {
+	name: 'verse',
+	path: '/verse',
+	component: page(() => import('@/pages/verse.vue')),
+}, {
+	name: 'galaxies',
+	path: '/galaxies',
+	component: page(() => import('@/pages/galaxies.vue')),
+}, {
+	name: 'galaxy',
+	path: '/galaxies/:galaxyId',
+	component: page(() => import('@/pages/galaxy.vue')),
+}, {
 	path: '/search',
 	component: page(() => import('@/pages/search.vue')),
 	query: {
