@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Bubble Verse — 去中心化社群宇宙</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -23,24 +22,18 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent)}
 textarea{resize:vertical;min-height:80px}
 img{max-width:100%}
 .hidden{display:none!important}
-
-/* ── Scrollbar ── */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-
-/* ── Layout ── */
 #app{display:flex;min-height:100vh}
 #sidebar{width:var(--sidebar);background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 12px;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s}
 #main{margin-left:var(--sidebar);flex:1;min-height:100vh}
 #content{max-width:900px;margin:0 auto;padding:24px 20px}
-
-/* ── Sidebar ── */
 .logo{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:20px}
 .logo-orb{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--pink));position:relative;overflow:hidden;flex-shrink:0}
 .logo-orb::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.3),transparent 60%)}
 .logo-text{font-size:17px;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s,color .15s;color:var(--text2);font-size:14px;font-weight:500;margin-bottom:2px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s,color .15s;color:var(--text2);font-size:14px;font-weight:500;margin-bottom:2px;position:relative}
 .nav-item:hover{background:var(--panel2);color:var(--text)}
 .nav-item.active{background:rgba(124,58,237,.18);color:var(--accent2)}
 .nav-item i{font-size:18px;width:22px;text-align:center;flex-shrink:0}
@@ -48,15 +41,11 @@ img{max-width:100%}
 .sidebar-user{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-sm);margin-top:auto}
 .sidebar-user .uname{font-size:13px;font-weight:600}
 .sidebar-user .uhandle{font-size:12px;color:var(--text3)}
-
-/* ── Avatar ── */
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;color:#fff}
 .avatar-sm{width:32px;height:32px;font-size:13px}
 .avatar-md{width:44px;height:44px;font-size:17px}
 .avatar-lg{width:72px;height:72px;font-size:28px}
 .avatar-xl{width:96px;height:96px;font-size:38px}
-
-/* ── Auth ── */
 #auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
 .auth-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.25;animation:float 8s ease-in-out infinite}
 .auth-orb:nth-child(1){width:400px;height:400px;background:var(--accent);top:-100px;left:-100px;animation-delay:0s}
@@ -86,12 +75,10 @@ img{max-width:100%}
 .btn-sm{padding:6px 14px;font-size:13px}
 .btn-danger{background:#ef4444;color:#fff}
 .btn-danger:hover{background:#dc2626}
-
-/* ── Cards / Panels ── */
+.btn-follow{background:var(--accent);color:#fff;padding:5px 14px;border-radius:99px;font-size:13px;font-weight:600;border:none;cursor:pointer}
+.btn-following{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
 .card-sm{padding:14px}
-
-/* ── Story Bar ── */
 .story-bar{display:flex;gap:12px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none}
 .story-bar::-webkit-scrollbar{display:none}
 .story-circle{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
@@ -103,36 +90,41 @@ img{max-width:100%}
 .add-story-btn{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
 .add-story-ring{width:64px;height:64px;border-radius:50%;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text3);transition:all .2s}
 .add-story-ring:hover{border-color:var(--accent);color:var(--accent)}
-
-/* ── Post Composer ── */
 .composer{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
 .composer-top{display:flex;gap:12px;align-items:flex-start}
 .composer-input{flex:1}
 .composer-input textarea{background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:8px 0;font-size:15px;resize:none}
 .composer-input textarea:focus{border-bottom-color:var(--accent)}
-.composer-actions{display:flex;gap:8px;margin-top:10px;align-items:center}
+.composer-actions{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
 .composer-actions button{padding:6px 10px;border-radius:6px;font-size:13px;color:var(--text3);display:flex;align-items:center;gap:6px;transition:all .15s}
 .composer-actions button:hover{background:var(--panel2);color:var(--accent)}
 .composer-actions .post-btn{margin-left:auto;background:var(--accent);color:#fff;padding:8px 20px;border-radius:20px;font-weight:600}
 .composer-actions .post-btn:hover{background:var(--accent2)}
-
-/* ── Posts ── */
-.post{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;transition:border-color .15s}
+.post-media{width:100%;border-radius:10px;max-height:400px;object-fit:cover;margin-bottom:10px;display:block}
+.post-media-video{width:100%;border-radius:10px;max-height:400px;background:#000;margin-bottom:10px;display:block}
+.composer-media-preview{position:relative;margin:10px 0}
+.composer-media-preview .remove-media{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:none;z-index:2}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+.media-grid-item{aspect-ratio:1;overflow:hidden;border-radius:6px;background:#000;position:relative;cursor:pointer}
+.media-grid-item img,.media-grid-item video{width:100%;height:100%;object-fit:cover}
+.video-play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(0,0,0,.3)}
+.post{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;transition:border-color .15s;position:relative}
 .post:hover{border-color:var(--accent2)}
 .post-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .post-meta{flex:1}
-.post-meta .dname{font-weight:600;font-size:14px}
-.post-meta .handle{font-size:12px;color:var(--text3)}
+.post-meta .dname{font-weight:600;font-size:14px;cursor:pointer;color:var(--text)}
+.post-meta .dname:hover{color:var(--accent2)}
+.post-meta .handle{font-size:12px;color:var(--text3);cursor:pointer}
+.post-meta .handle:hover{color:var(--accent2)}
 .post-meta .time{font-size:12px;color:var(--text3);margin-left:8px}
 .post-content{font-size:15px;line-height:1.6;margin-bottom:12px}
-.post-actions{display:flex;gap:4px}
+.post-actions{display:flex;gap:4px;position:relative}
 .post-action{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;font-size:13px;color:var(--text3);transition:all .15s}
 .post-action:hover{background:rgba(124,58,237,.1);color:var(--accent)}
 .post-action.liked{color:#ef4444}
 .post-action.liked:hover{background:rgba(239,68,68,.1)}
 .post-action.reposted{color:var(--teal)}
-
-/* ── Poll ── */
+.post-action.bookmarked{color:var(--orange)}
 .poll-container{background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px}
 .poll-question{font-weight:600;margin-bottom:12px}
 .poll-option{margin-bottom:8px}
@@ -148,14 +140,10 @@ img{max-width:100%}
 .poll-option-input{display:flex;gap:6px;align-items:center}
 .poll-option-input input{flex:1}
 .poll-option-input button{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--panel);border:1px solid var(--border);color:var(--text3);display:flex;align-items:center;justify-content:center}
-
-/* ── Trending Tags ── */
 .tag-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;margin-bottom:16px}
 .tag-bar::-webkit-scrollbar{display:none}
 .tag-pill{padding:6px 14px;border-radius:20px;background:var(--panel2);border:1px solid var(--border);font-size:13px;color:var(--text2);white-space:nowrap;cursor:pointer;transition:all .2s;flex-shrink:0}
 .tag-pill:hover,.tag-pill.active{background:rgba(124,58,237,.2);border-color:var(--accent);color:var(--accent2)}
-
-/* ── Masonry ── */
 .masonry{columns:2;column-gap:14px}
 @media(max-width:600px){.masonry{columns:1}}
 .masonry-item{break-inside:avoid;margin-bottom:14px}
@@ -166,8 +154,6 @@ img{max-width:100%}
 .verse-stats{display:flex;gap:12px;font-size:12px;color:var(--text3)}
 .verse-stats span{display:flex;align-items:center;gap:4px;cursor:pointer;transition:color .15s}
 .verse-stats span:hover{color:var(--accent2)}
-
-/* ── Galaxies ── */
 .galaxy-hero{background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(236,72,153,.2));border:1px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center;margin-bottom:20px}
 .galaxy-hero h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
 .filter-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
@@ -181,8 +167,6 @@ img{max-width:100%}
 .galaxy-card h3{font-size:15px;font-weight:700}
 .galaxy-card p{font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5}
 .galaxy-meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text3)}
-
-/* ── Spaces ── */
 .spaces-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .spaces-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .space-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all .2s;cursor:pointer}
@@ -195,26 +179,13 @@ img{max-width:100%}
 .space-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .space-tag{padding:3px 10px;border-radius:12px;background:var(--panel2);font-size:11px;color:var(--text3)}
 .space-footer{display:flex;justify-content:space-between;align-items:center}
-.space-speakers{display:flex;gap:-4px}
+.space-speakers{display:flex}
 .space-speakers .avatar{border:2px solid var(--panel);margin-right:-8px}
 .listener-count{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:4px}
-
-/* Waveform */
 .waveform{display:flex;align-items:center;justify-content:center;gap:4px;height:60px}
 .wave-bar{width:5px;border-radius:3px;background:linear-gradient(to top,var(--pink),var(--accent));animation:wave 1.2s ease-in-out infinite}
-.wave-bar:nth-child(1){animation-delay:0s}
-.wave-bar:nth-child(2){animation-delay:.1s}
-.wave-bar:nth-child(3){animation-delay:.2s}
-.wave-bar:nth-child(4){animation-delay:.3s}
-.wave-bar:nth-child(5){animation-delay:.4s}
-.wave-bar:nth-child(6){animation-delay:.5s}
-.wave-bar:nth-child(7){animation-delay:.4s}
-.wave-bar:nth-child(8){animation-delay:.3s}
-.wave-bar:nth-child(9){animation-delay:.2s}
-.wave-bar:nth-child(10){animation-delay:.1s}
+.wave-bar:nth-child(1){animation-delay:0s}.wave-bar:nth-child(2){animation-delay:.1s}.wave-bar:nth-child(3){animation-delay:.2s}.wave-bar:nth-child(4){animation-delay:.3s}.wave-bar:nth-child(5){animation-delay:.4s}.wave-bar:nth-child(6){animation-delay:.5s}.wave-bar:nth-child(7){animation-delay:.4s}.wave-bar:nth-child(8){animation-delay:.3s}.wave-bar:nth-child(9){animation-delay:.2s}.wave-bar:nth-child(10){animation-delay:.1s}
 @keyframes wave{0%,100%{height:8px}50%{height:40px}}
-
-/* Space detail */
 .space-detail{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
 .space-detail-header{text-align:center;margin-bottom:20px}
 .space-detail-header h2{font-size:20px;font-weight:800}
@@ -228,21 +199,17 @@ img{max-width:100%}
 .chat-msg{display:flex;gap:8px;margin-bottom:10px;font-size:13px}
 .chat-msg .chat-name{font-weight:600;color:var(--accent2)}
 .chat-msg .chat-text{color:var(--text2)}
-
-/* ── Profile ── */
 .profile-header{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
-.profile-top{display:flex;align-items:flex-end;gap:16px;margin-bottom:16px}
-.profile-stats{display:flex;gap:24px;margin-bottom:16px}
-.profile-stat{text-align:center}
+.profile-top{display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.profile-stats{display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap}
+.profile-stat{text-align:center;cursor:pointer}
 .profile-stat .num{font-size:20px;font-weight:700}
 .profile-stat .lbl{font-size:12px;color:var(--text3)}
 .profile-bio{font-size:14px;color:var(--text2);margin-bottom:12px}
-.profile-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
-.profile-tab{padding:10px 20px;font-size:14px;font-weight:500;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;margin-bottom:-1px}
+.profile-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto}
+.profile-tab{padding:10px 20px;font-size:14px;font-weight:500;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;margin-bottom:-1px;white-space:nowrap}
 .profile-tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
 .profile-tab:hover{color:var(--text)}
-
-/* ── Settings ── */
 .settings-section{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
 .settings-section h3{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .settings-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -253,8 +220,6 @@ img{max-width:100%}
 .toggle.on::after{transform:translateX(20px)}
 .checkbox-label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--text2)}
 .checkbox-label input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
-
-/* ── Story Viewer ── */
 .story-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:flex;align-items:center;justify-content:center}
 .story-viewer-inner{position:relative;width:min(400px,100vw);height:min(711px,100vh);border-radius:16px;overflow:hidden}
 .story-progress-bar{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:4px;z-index:2}
@@ -262,33 +227,25 @@ img{max-width:100%}
 .story-seg-fill{height:100%;background:#fff;width:0%}
 .story-seg-fill.done{width:100%}
 .story-close{position:absolute;top:14px;right:14px;z-index:3;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
-.story-body{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;text-align:center;padding:24px}
+.story-body{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;text-align:center;padding:24px;position:absolute;top:0;left:0}
 .story-nav{position:absolute;inset:0;display:flex;z-index:2}
 .story-nav-left,.story-nav-right{flex:1;cursor:pointer}
 .story-author{position:absolute;top:40px;left:14px;display:flex;align-items:center;gap:8px;z-index:2;color:#fff}
 .story-author .dname{font-weight:600;font-size:13px}
-
-/* ── Dialog ── */
 .dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.dialog{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:460px;position:relative;max-height:90vh;overflow-y:auto}
+.dialog{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:500px;position:relative;max-height:90vh;overflow-y:auto}
 .dialog h2{font-size:18px;font-weight:700;margin-bottom:20px}
 .dialog-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:16px}
 .dialog-close:hover{color:var(--text);background:var(--border)}
 .dialog-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-
-/* ── Toast ── */
 #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:14px;color:var(--text);transform:translateX(120%);transition:transform .3s ease;pointer-events:auto;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.4)}
 .toast.show{transform:translateX(0)}
 .toast.success{border-left:3px solid var(--teal)}
 .toast.error{border-left:3px solid #ef4444}
 .toast.info{border-left:3px solid var(--accent)}
-
-/* ── Page titles ── */
 .page-title{font-size:22px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
 .page-title i{font-size:24px}
-
-/* ── Misc ── */
 .section-title{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text2)}
 .flex-between{display:flex;justify-content:space-between;align-items:center}
 .mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
@@ -304,13 +261,34 @@ img{max-width:100%}
 .badge-purple{background:rgba(124,58,237,.2);color:var(--accent2)}
 .badge-teal{background:rgba(20,184,166,.2);color:var(--teal)}
 .galaxy-detail{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
-.galaxy-detail-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.galaxy-detail-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
 .back-btn{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text3);cursor:pointer;margin-bottom:16px;transition:color .2s}
 .back-btn:hover{color:var(--accent2)}
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
 .empty-state i{font-size:48px;margin-bottom:12px;display:block}
-
-/* Mobile */
+i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.feed-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.feed-tab{padding:10px 20px;font-size:14px;font-weight:500;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;margin-bottom:-1px}
+.feed-tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+.notif-item{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border)}
+.notif-item.unread{background:rgba(124,58,237,.05);border-radius:8px;padding:14px;margin-bottom:4px}
+.nav-badge{background:#ef4444;color:#fff;border-radius:99px;font-size:10px;font-weight:700;padding:1px 6px;margin-left:auto}
+.quote-embed{border:1px solid var(--border);border-radius:10px;padding:12px;margin:8px 0;background:var(--panel2);font-size:13px}
+.quote-embed .quote-author{font-weight:600;color:var(--accent2);margin-bottom:4px;font-size:12px}
+.quote-embed .quote-text{color:var(--text2);line-height:1.5}
+.action-dropdown{position:absolute;background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:100;min-width:160px;overflow:hidden;bottom:36px;left:50%}
+.action-dropdown-item{padding:10px 16px;font-size:14px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:8px}
+.action-dropdown-item:hover{background:var(--panel2)}
+.comment-item{display:flex;gap:10px;margin-bottom:14px}
+.comment-body{flex:1;background:var(--panel2);border-radius:10px;padding:10px 12px}
+.comment-body .comment-author{font-size:13px;font-weight:600;margin-bottom:2px}
+.comment-body .comment-text{font-size:14px;color:var(--text2)}
+.comment-body .comment-time{font-size:11px;color:var(--text3);margin-top:4px}
+.search-input-wrap{position:relative;margin-bottom:16px}
+.search-input-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px}
+.search-input-wrap input{padding-left:40px}
+.user-list-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.user-list-item:last-child{border-bottom:none}
 @media(max-width:768px){
   #sidebar{transform:translateX(-100%)}
   #sidebar.open{transform:translateX(0)}
@@ -357,14 +335,16 @@ img{max-width:100%}
       <div class="logo-orb"></div>
       <span class="logo-text">Bubble Verse</span>
     </div>
-    <div class="nav-item active" onclick="navigate('home')"><i class="ti ti-home"></i><span>首頁</span></div>
-    <div class="nav-item" onclick="navigate('bubbles')"><i class="ti ti-bubble" style="color:var(--orange)"></i><span>泡泡故事</span></div>
-    <div class="nav-item" onclick="navigate('verse')"><i class="ti ti-universe" style="color:var(--teal)"></i><span>詩篇</span></div>
-    <div class="nav-item" onclick="navigate('galaxies')"><i class="ti ti-galaxy" style="color:var(--purple)"></i><span>星系</span></div>
-    <div class="nav-item" onclick="navigate('spaces')"><i class="ti ti-broadcast" style="color:var(--pink)"></i><span>直播空間</span></div>
+    <div class="nav-item active" data-page="home" onclick="navigate('home')"><i class="ti ti-home"></i><span>首頁</span></div>
+    <div class="nav-item" data-page="bubbles" onclick="navigate('bubbles')"><i class="ti ti-bubble" style="color:var(--orange)"></i><span>泡泡故事</span></div>
+    <div class="nav-item" data-page="verse" onclick="navigate('verse')"><i class="ti ti-universe" style="color:var(--teal)"></i><span>詩篇</span></div>
+    <div class="nav-item" data-page="galaxies" onclick="navigate('galaxies')"><i class="ti ti-galaxy" style="color:var(--purple)"></i><span>星系</span></div>
+    <div class="nav-item" data-page="spaces" onclick="navigate('spaces')"><i class="ti ti-broadcast" style="color:var(--pink)"></i><span>直播空間</span></div>
     <div class="nav-divider"></div>
-    <div class="nav-item" onclick="navigate('profile')"><i class="ti ti-user" style="color:var(--accent2)"></i><span>我的個人頁</span></div>
-    <div class="nav-item" onclick="navigate('settings')"><i class="ti ti-settings"></i><span>設定</span></div>
+    <div class="nav-item" data-page="search" onclick="navigate('search')"><i class="ti ti-search"></i><span>搜尋</span></div>
+    <div class="nav-item" data-page="notifications" onclick="navigate('notifications')"><i class="ti ti-bell"></i><span>通知</span><span id="notif-badge" class="nav-badge hidden">0</span></div>
+    <div class="nav-item" data-page="profile" onclick="navigate('profile')"><i class="ti ti-user" style="color:var(--accent2)"></i><span>我的個人頁</span></div>
+    <div class="nav-item" data-page="settings" onclick="navigate('settings')"><i class="ti ti-settings"></i><span>設定</span></div>
     <div class="nav-divider"></div>
     <div class="nav-item" onclick="doLogout()" style="color:#ef4444"><i class="ti ti-logout"></i><span>登出</span></div>
     <div style="flex:1"></div>
@@ -376,13 +356,13 @@ img{max-width:100%}
 </div>
 <button id="mobile-menu-btn" onclick="toggleSidebar()"><i class="ti ti-menu-2"></i></button>
 
-<!-- Story Viewer -->
 <div id="story-viewer" class="story-viewer hidden">
   <div class="story-viewer-inner" id="story-viewer-inner">
     <div class="story-progress-bar" id="story-progress"></div>
     <div class="story-author" id="story-author"></div>
     <div class="story-body" id="story-body"></div>
-    <div class="story-nav">
+    <video id="story-video" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0" playsinline muted loop class="hidden"></video>
+    <div class="story-nav" style="z-index:3">
       <div class="story-nav-left" onclick="storyNav(-1)"></div>
       <div class="story-nav-right" onclick="storyNav(1)"></div>
     </div>
@@ -390,69 +370,112 @@ img{max-width:100%}
   </div>
 </div>
 
-<!-- Dialogs placeholder -->
 <div id="dialog-overlay" class="dialog-overlay hidden" onclick="closeDialog(event)">
   <div id="dialog-box" class="dialog" onclick="event.stopPropagation()"></div>
 </div>
+
+<input type="file" id="media-file-input" accept="image/*,video/*" multiple style="display:none" onchange="handleMediaFiles(this)"/>
+<input type="file" id="story-media-input" accept="image/*,video/*" style="display:none" onchange="handleStoryMedia(this)"/>
 
 <script>
 // ═══════════════════════════════════════════════════════════
 // DATA & STATE
 // ═══════════════════════════════════════════════════════════
-const COLORS = [
-  'linear-gradient(135deg,#7c3aed,#ec4899)',
-  'linear-gradient(135deg,#2563eb,#7c3aed)',
-  'linear-gradient(135deg,#059669,#14b8a6)',
-  'linear-gradient(135deg,#d97706,#ef4444)',
-  'linear-gradient(135deg,#0891b2,#2563eb)',
-  'linear-gradient(135deg,#dc2626,#f97316)',
-  'linear-gradient(135deg,#7c3aed,#14b8a6)',
-  'linear-gradient(135deg,#f97316,#ec4899)',
-];
+const COLORS=['linear-gradient(135deg,#7c3aed,#ec4899)','linear-gradient(135deg,#2563eb,#7c3aed)','linear-gradient(135deg,#059669,#14b8a6)','linear-gradient(135deg,#d97706,#ef4444)','linear-gradient(135deg,#0891b2,#2563eb)','linear-gradient(135deg,#dc2626,#f97316)','linear-gradient(135deg,#7c3aed,#14b8a6)','linear-gradient(135deg,#f97316,#ec4899)'];
 function hashColor(s){let h=0;for(let c of s)h=(h*31+c.charCodeAt(0))>>>0;return COLORS[h%COLORS.length]}
 
-let users = JSON.parse(localStorage.getItem('bv_users')||'[]');
-let session = JSON.parse(localStorage.getItem('bv_session')||'null');
-let posts = JSON.parse(localStorage.getItem('bv_posts')||'[]');
-let stories = JSON.parse(localStorage.getItem('bv_stories')||'[]');
-let galaxies = JSON.parse(localStorage.getItem('bv_galaxies')||'[]');
-let spaces = JSON.parse(localStorage.getItem('bv_spaces')||'[]');
-let pollVotes = JSON.parse(localStorage.getItem('bv_pollvotes')||'{}');
+let users=JSON.parse(localStorage.getItem('bv_users')||'[]');
+let session=JSON.parse(localStorage.getItem('bv_session')||'null');
+let posts=JSON.parse(localStorage.getItem('bv_posts')||'[]');
+let stories=JSON.parse(localStorage.getItem('bv_stories')||'[]');
+let galaxies=JSON.parse(localStorage.getItem('bv_galaxies')||'[]');
+let spaces=JSON.parse(localStorage.getItem('bv_spaces')||'[]');
+let pollVotes=JSON.parse(localStorage.getItem('bv_pollvotes')||'{}');
+let comments=JSON.parse(localStorage.getItem('bv_comments')||'{}');
+let notifications=JSON.parse(localStorage.getItem('bv_notifications')||'[]');
+let bookmarks=JSON.parse(localStorage.getItem('bv_bookmarks')||'{}');
 
-let currentPage = 'home';
-let storyIndex = 0;
-let storyGroupIndex = 0;
-let storyTimer = null;
-let storyGroups = [];
-let activeGalaxy = null;
-let activeSpace = null;
+let currentPage='home';
+let storyIndex=0;
+let storyGroupIndex=0;
+let storyTimer=null;
+let storyGroups=[];
+let activeGalaxy=null;
+let activeSpace=null;
+let feedFilter='all';
+let profileTab='posts';
+let viewingUserId=null;
+let searchTab='posts';
+let composerMediaUrl=null;
+let composerMediaType=null;
+let pollComposerData=null;
+let galaxyFilter='全部';
+let selectedStoryBg='linear-gradient(135deg,#1e1b4b,#7c3aed)';
+let storyMediaUrl=null;
+let storyMediaType=null;
+
+function saveUsers(){localStorage.setItem('bv_users',JSON.stringify(users))}
+function savePosts(){localStorage.setItem('bv_posts',JSON.stringify(posts))}
+function saveStories(){localStorage.setItem('bv_stories',JSON.stringify(stories))}
+function saveGalaxies(){localStorage.setItem('bv_galaxies',JSON.stringify(galaxies))}
+function saveSpaces(){localStorage.setItem('bv_spaces',JSON.stringify(spaces))}
+function savePollVotes(){localStorage.setItem('bv_pollvotes',JSON.stringify(pollVotes))}
+function saveComments(){localStorage.setItem('bv_comments',JSON.stringify(comments))}
+function saveNotifications(){localStorage.setItem('bv_notifications',JSON.stringify(notifications))}
+function saveBookmarks(){localStorage.setItem('bv_bookmarks',JSON.stringify(bookmarks))}
+function saveSession(){localStorage.setItem('bv_session',JSON.stringify(session))}
 
 // ── Seed data ──
 function seedData(){
   if(users.length===0){
     const mockUsers=[
-      {id:'u1',username:'nova_chan',displayName:'Nova Chan',password:btoa('pass123'),bio:'星際探索者 ✨ 喜歡分享宇宙美景',createdAt:Date.now()-86400000*10,avatarColor:hashColor('nova_chan')},
-      {id:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',password:btoa('pass123'),bio:'寫詩、攝影、追星 🌠',createdAt:Date.now()-86400000*8,avatarColor:hashColor('cosmic_lee')},
-      {id:'u3',username:'orion_x',displayName:'獵戶座X',password:btoa('pass123'),bio:'深夜思考者，喜歡哲學討論',createdAt:Date.now()-86400000*6,avatarColor:hashColor('orion_x')},
-      {id:'u4',username:'luna_v',displayName:'Luna V',password:btoa('pass123'),bio:'月亮守望者 🌙 藝術家',createdAt:Date.now()-86400000*5,avatarColor:hashColor('luna_v')},
-      {id:'u5',username:'star_k',displayName:'Star K',password:btoa('pass123'),bio:'音樂製作人 🎵 分享日常',createdAt:Date.now()-86400000*3,avatarColor:hashColor('star_k')},
-      {id:'u6',username:'nebula_j',displayName:'星雲J',password:btoa('pass123'),bio:'攝影 | 旅行 | 咖啡',createdAt:Date.now()-86400000*2,avatarColor:hashColor('nebula_j')},
+      {id:'u1',username:'nova_chan',displayName:'Nova Chan',password:btoa('pass123'),bio:'星際探索者 ✨ 喜歡分享宇宙美景',createdAt:Date.now()-86400000*10,avatarColor:hashColor('nova_chan'),followers:['u2','u3'],following:['u2','u3','u4']},
+      {id:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',password:btoa('pass123'),bio:'寫詩、攝影、追星 🌠',createdAt:Date.now()-86400000*8,avatarColor:hashColor('cosmic_lee'),followers:['u1','u3','u4'],following:['u1','u5']},
+      {id:'u3',username:'orion_x',displayName:'獵戶座X',password:btoa('pass123'),bio:'深夜思考者，喜歡哲學討論',createdAt:Date.now()-86400000*6,avatarColor:hashColor('orion_x'),followers:['u1','u2','u5'],following:['u1','u2']},
+      {id:'u4',username:'luna_v',displayName:'Luna V',password:btoa('pass123'),bio:'月亮守望者 🌙 藝術家',createdAt:Date.now()-86400000*5,avatarColor:hashColor('luna_v'),followers:['u1','u5'],following:['u2','u6']},
+      {id:'u5',username:'star_k',displayName:'Star K',password:btoa('pass123'),bio:'音樂製作人 🎵 分享日常',createdAt:Date.now()-86400000*3,avatarColor:hashColor('star_k'),followers:['u2','u4','u6'],following:['u3','u6']},
+      {id:'u6',username:'nebula_j',displayName:'星雲J',password:btoa('pass123'),bio:'攝影 | 旅行 | 咖啡',createdAt:Date.now()-86400000*2,avatarColor:hashColor('nebula_j'),followers:['u3','u5'],following:['u4','u5']},
     ];
     users=mockUsers;saveUsers();
+  } else {
+    // Ensure existing users have followers/following
+    let changed=false;
+    users.forEach(u=>{if(!u.followers){u.followers=[];changed=true;}if(!u.following){u.following=[];changed=true;}});
+    if(changed)saveUsers();
   }
   if(posts.length===0){
     const now=Date.now();
     const mockPosts=[
-      {id:'p1',userId:'u1',username:'nova_chan',displayName:'Nova Chan',avatarColor:hashColor('nova_chan'),content:'歡迎來到 Bubble Verse！這裡是一個充滿創意與想像力的社群宇宙 🌌 快來加入我們吧！',likes:['u2','u3','u4'],reposts:['u5'],comments:12,createdAt:now-3600000*5,type:'post'},
-      {id:'p2',userId:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',avatarColor:hashColor('cosmic_lee'),content:'今天在星系圖書館找到了一本絕版的天文詩集，每一頁都是宇宙的低語 📖✨',likes:['u1','u3'],reposts:[],comments:5,createdAt:now-3600000*4,type:'post'},
-      {id:'p3',userId:'u3',username:'orion_x',displayName:'獵戶座X',avatarColor:hashColor('orion_x'),content:'深夜問題：如果宇宙是一個泡泡，那我們呼出的每一口氣，是否都在創造新的宇宙？',likes:['u1','u2','u4','u5','u6'],reposts:['u1'],comments:23,createdAt:now-3600000*3,type:'post'},
-      {id:'p-poll1',userId:'u4',username:'luna_v',displayName:'Luna V',avatarColor:hashColor('luna_v'),content:'你最喜歡哪個時段發文？',likes:['u1','u2'],reposts:[],comments:8,createdAt:now-3600000*2,type:'poll',poll:{question:'你最喜歡哪個時段發文？',options:[{text:'清晨 🌅',votes:14},{text:'下午 ☀️',votes:7},{text:'深夜 🌙',votes:31},{text:'隨機 🎲',votes:5}],totalVotes:57,expiresAt:now+86400000}},
-      {id:'p5',userId:'u5',username:'star_k',displayName:'Star K',avatarColor:hashColor('star_k'),content:'新曲《星際漂流》正式上線！感謝所有支持我的朋友，這首歌獻給每一個在夜裡仰望星空的靈魂 🎵🌟',likes:['u1','u2','u3','u4','u6'],reposts:['u2','u3'],comments:31,createdAt:now-3600000*2,type:'post'},
-      {id:'p6',userId:'u6',username:'nebula_j',displayName:'星雲J',avatarColor:hashColor('nebula_j'),content:'今日咖啡拿鐵拉花：銀河系特調 ☕🌀 去中心化的咖啡豆，去中心化的靈魂',likes:['u1','u4'],reposts:[],comments:4,createdAt:now-3600000*1,type:'post'},
-      {id:'p-poll2',userId:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',avatarColor:hashColor('cosmic_lee'),content:'Bubble Verse 上你最常用哪個功能？',likes:['u3','u5'],reposts:['u1'],comments:15,createdAt:now-1800000,type:'poll',poll:{question:'Bubble Verse 上你最常用哪個功能？',options:[{text:'泡泡故事 📸',votes:22},{text:'詩篇 ✍️',votes:18},{text:'星系社群 🌌',votes:9},{text:'直播空間 🎙️',votes:35}],totalVotes:84,expiresAt:now+86400000*2}},
-      {id:'p8',userId:'u1',username:'nova_chan',displayName:'Nova Chan',avatarColor:hashColor('nova_chan'),content:'剛剛加入了「攝影星系」！這個社群超棒的，大家都在分享宇宙美照 📷 有喜歡攝影的朋友嗎？',likes:['u3','u5','u6'],reposts:['u4'],comments:9,createdAt:now-900000,type:'post'},
+      {id:'p1',userId:'u1',username:'nova_chan',displayName:'Nova Chan',avatarColor:hashColor('nova_chan'),content:'歡迎來到 Bubble Verse！這裡是一個充滿創意與想像力的社群宇宙 🌌 快來加入我們吧！',likes:['u2','u3','u4'],reposts:['u5'],comments:3,createdAt:now-3600000*5,type:'post'},
+      {id:'p2',userId:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',avatarColor:hashColor('cosmic_lee'),content:'今天在星系圖書館找到了一本絕版的天文詩集，每一頁都是宇宙的低語 📖✨',likes:['u1','u3'],reposts:[],comments:3,createdAt:now-3600000*4,type:'post'},
+      {id:'p3',userId:'u3',username:'orion_x',displayName:'獵戶座X',avatarColor:hashColor('orion_x'),content:'深夜問題：如果宇宙是一個泡泡，那我們呼出的每一口氣，是否都在創造新的宇宙？',likes:['u1','u2','u4','u5','u6'],reposts:['u1'],comments:4,createdAt:now-3600000*3,type:'post'},
+      {id:'p-poll1',userId:'u4',username:'luna_v',displayName:'Luna V',avatarColor:hashColor('luna_v'),content:'你最喜歡哪個時段發文？',likes:['u1','u2'],reposts:[],comments:2,createdAt:now-3600000*2,type:'poll',poll:{question:'你最喜歡哪個時段發文？',options:[{text:'清晨 🌅',votes:14},{text:'下午 ☀️',votes:7},{text:'深夜 🌙',votes:31},{text:'隨機 🎲',votes:5}],totalVotes:57,expiresAt:now+86400000}},
+      {id:'p5',userId:'u5',username:'star_k',displayName:'Star K',avatarColor:hashColor('star_k'),content:'新曲《星際漂流》正式上線！感謝所有支持我的朋友，這首歌獻給每一個在夜裡仰望星空的靈魂 🎵🌟',likes:['u1','u2','u3','u4','u6'],reposts:['u2','u3'],comments:2,createdAt:now-3600000*2,type:'post'},
+      {id:'p6',userId:'u6',username:'nebula_j',displayName:'星雲J',avatarColor:hashColor('nebula_j'),content:'今日咖啡拿鐵拉花：銀河系特調 ☕🌀 去中心化的咖啡豆，去中心化的靈魂',likes:['u1','u4'],reposts:[],comments:2,createdAt:now-3600000*1,type:'post'},
+      {id:'p-poll2',userId:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',avatarColor:hashColor('cosmic_lee'),content:'Bubble Verse 上你最常用哪個功能？',likes:['u3','u5'],reposts:['u1'],comments:2,createdAt:now-1800000,type:'poll',poll:{question:'Bubble Verse 上你最常用哪個功能？',options:[{text:'泡泡故事 📸',votes:22},{text:'詩篇 ✍️',votes:18},{text:'星系社群 🌌',votes:9},{text:'直播空間 🎙️',votes:35}],totalVotes:84,expiresAt:now+86400000*2}},
+      {id:'p8',userId:'u1',username:'nova_chan',displayName:'Nova Chan',avatarColor:hashColor('nova_chan'),content:'剛剛加入了「攝影星系」！這個社群超棒的，大家都在分享宇宙美照 📷 有喜歡攝影的朋友嗎？',likes:['u3','u5','u6'],reposts:['u4'],comments:2,createdAt:now-900000,type:'post'},
     ];
     posts=mockPosts;savePosts();
+  }
+  if(!comments['p1']){
+    const now=Date.now();
+    comments['p1']=[
+      {id:'c1',userId:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',avatarColor:hashColor('cosmic_lee'),text:'超棒！歡迎大家加入這個宇宙冒險！',createdAt:now-3600000*4},
+      {id:'c2',userId:'u3',username:'orion_x',displayName:'獵戶座X',avatarColor:hashColor('orion_x'),text:'Bubble Verse 真的太有創意了 🌌',createdAt:now-3600000*3},
+      {id:'c3',userId:'u5',username:'star_k',displayName:'Star K',avatarColor:hashColor('star_k'),text:'愛上這個平台了！',createdAt:now-3600000*2},
+    ];
+    comments['p2']=[
+      {id:'c4',userId:'u1',username:'nova_chan',displayName:'Nova Chan',avatarColor:hashColor('nova_chan'),text:'哪裡找到的？想要同一本！',createdAt:now-3600000*3},
+      {id:'c5',userId:'u4',username:'luna_v',displayName:'Luna V',avatarColor:hashColor('luna_v'),text:'詩集聽起來好美，書名是什麼？',createdAt:now-3600000*2},
+      {id:'c6',userId:'u6',username:'nebula_j',displayName:'星雲J',avatarColor:hashColor('nebula_j'),text:'宇宙的低語 ✨ 太浪漫的說法了',createdAt:now-3600000*1},
+    ];
+    comments['p3']=[
+      {id:'c7',userId:'u1',username:'nova_chan',displayName:'Nova Chan',avatarColor:hashColor('nova_chan'),text:'這個問題讓我思考了好久...',createdAt:now-3600000*2},
+      {id:'c8',userId:'u2',username:'cosmic_lee',displayName:'Cosmic Lee',avatarColor:hashColor('cosmic_lee'),text:'量子力學角度：每次觀測都創造新宇宙 🔬',createdAt:now-3600000*1},
+      {id:'c9',userId:'u4',username:'luna_v',displayName:'Luna V',avatarColor:hashColor('luna_v'),text:'如果真的是這樣，那我們都是宇宙的創造者！',createdAt:now-1800000},
+      {id:'c10',userId:'u5',username:'star_k',displayName:'Star K',avatarColor:hashColor('star_k'),text:'深夜哲學最迷人了 🌙',createdAt:now-900000},
+    ];
+    saveComments();
   }
   if(stories.length===0){
     const now=Date.now();
@@ -488,13 +511,79 @@ function seedData(){
   }
 }
 
-function saveUsers(){localStorage.setItem('bv_users',JSON.stringify(users))}
-function savePosts(){localStorage.setItem('bv_posts',JSON.stringify(posts))}
-function saveStories(){localStorage.setItem('bv_stories',JSON.stringify(stories))}
-function saveGalaxies(){localStorage.setItem('bv_galaxies',JSON.stringify(galaxies))}
-function saveSpaces(){localStorage.setItem('bv_spaces',JSON.stringify(spaces))}
-function savePollVotes(){localStorage.setItem('bv_pollvotes',JSON.stringify(pollVotes))}
-function saveSession(){localStorage.setItem('bv_session',JSON.stringify(session))}
+// ═══════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function timeAgo(ts){
+  const d=(Date.now()-ts)/1000;
+  if(d<60)return '剛剛';if(d<3600)return Math.floor(d/60)+'分鐘前';
+  if(d<86400)return Math.floor(d/3600)+'小時前';return Math.floor(d/86400)+'天前';
+}
+function uid(){return 'id'+Date.now()+Math.random().toString(36).slice(2)}
+function toast(msg,type='info'){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  const icons={success:'ti-check',error:'ti-x',info:'ti-info-circle'};
+  t.innerHTML=`<i class="ti ${icons[type]||'ti-info-circle'}"></i>${esc(msg)}`;
+  c.appendChild(t);
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>t.classList.add('show'))});
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350)},3000);
+}
+function avatarHTML(displayName,color,cls='avatar-sm'){
+  return `<div class="avatar ${cls}" style="background:${color}">${(displayName||'?')[0].toUpperCase()}</div>`;
+}
+function openDialog(html){
+  document.getElementById('dialog-box').innerHTML=html;
+  document.getElementById('dialog-overlay').classList.remove('hidden');
+  _applyIcons(document.getElementById('dialog-box'));
+}
+function closeDialog(e){
+  if(!e||e.target===document.getElementById('dialog-overlay'))
+    document.getElementById('dialog-overlay').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+function addNotification(type,fromUserId,postId,extraText){
+  if(!session)return;
+  const p=postId?posts.find(x=>x.id===postId):null;
+  const postOwnerId=p?p.userId:null;
+  if(postOwnerId===session.userId)return; // Don't notify yourself via post
+  const fromUser=users.find(x=>x.id===fromUserId)||{displayName:session.displayName,avatarColor:session.avatarColor};
+  const notif={
+    id:uid(),type,
+    fromUserId,fromDisplayName:fromUser.displayName,fromAvatarColor:fromUser.avatarColor,
+    postId:postId||null,text:extraText||'',createdAt:Date.now(),read:false
+  };
+  notifications.unshift(notif);
+  if(notifications.length>100)notifications=notifications.slice(0,100);
+  saveNotifications();
+  updateNotifBadge();
+}
+function addNotificationForUser(type,fromUserId,targetUserId,postId,extraText){
+  if(!session||targetUserId===session.userId)return;
+  const fromUser=users.find(x=>x.id===fromUserId)||{displayName:session.displayName,avatarColor:session.avatarColor};
+  const notif={
+    id:uid(),type,
+    fromUserId,fromDisplayName:fromUser.displayName,fromAvatarColor:fromUser.avatarColor,
+    targetUserId,postId:postId||null,text:extraText||'',createdAt:Date.now(),read:false
+  };
+  notifications.unshift(notif);
+  if(notifications.length>100)notifications=notifications.slice(0,100);
+  saveNotifications();
+  updateNotifBadge();
+}
+function updateNotifBadge(){
+  const unread=notifications.filter(n=>!n.read).length;
+  const badge=document.getElementById('notif-badge');
+  if(badge){
+    badge.textContent=unread>99?'99+':unread;
+    badge.classList.toggle('hidden',unread===0);
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
 // AUTH
@@ -511,9 +600,7 @@ function doLogin(){
   const user=users.find(x=>x.username===u);
   if(!user||user.password!==btoa(p)){toast('帳號或密碼錯誤','error');return}
   session={userId:user.id,username:user.username,displayName:user.displayName,avatarColor:user.avatarColor};
-  saveSession();
-  showApp();
-  toast('歡迎回來，'+user.displayName+'！','success');
+  saveSession();showApp();toast('歡迎回來，'+user.displayName+'！','success');
 }
 function doRegister(){
   const name=document.getElementById('reg-name').value.trim();
@@ -524,12 +611,10 @@ function doRegister(){
   if(p!==p2){toast('密碼不一致','error');return}
   if(p.length<6){toast('密碼至少6位','error');return}
   if(users.find(x=>x.username===u)){toast('帳號已被使用','error');return}
-  const user={id:'u'+Date.now(),username:u,displayName:name,password:btoa(p),bio:'',createdAt:Date.now(),avatarColor:hashColor(u)};
+  const user={id:'u'+Date.now(),username:u,displayName:name,password:btoa(p),bio:'',createdAt:Date.now(),avatarColor:hashColor(u),followers:[],following:[]};
   users.push(user);saveUsers();
   session={userId:user.id,username:user.username,displayName:user.displayName,avatarColor:user.avatarColor};
-  saveSession();
-  showApp();
-  toast('帳號建立成功！歡迎，'+name+'！','success');
+  saveSession();showApp();toast('帳號建立成功！歡迎，'+name+'！','success');
 }
 function doLogout(){
   session=null;localStorage.removeItem('bv_session');
@@ -544,87 +629,151 @@ function doLogout(){
 function showApp(){
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  renderSidebarUser();
-  navigate('home');
+  renderSidebarUser();updateNotifBadge();navigate('home');
 }
 function renderSidebarUser(){
   const el=document.getElementById('sidebar-user');
+  if(!el||!session)return;
   el.innerHTML=`<div class="avatar avatar-sm" style="background:${session.avatarColor}">${session.displayName[0]}</div><div><div class="uname">${esc(session.displayName)}</div><div class="uhandle">@${esc(session.username)}</div></div>`;
 }
-function navigate(page){
+function navigate(page,uid2){
   currentPage=page;
   activeGalaxy=null;activeSpace=null;
-  document.querySelectorAll('.nav-item').forEach(el=>{
-    const txt=el.querySelector('span')?.textContent;
-    const map={home:'首頁',bubbles:'泡泡故事',verse:'詩篇',galaxies:'星系',spaces:'直播空間',profile:'我的個人頁',settings:'設定'};
-    el.classList.toggle('active',map[page]===txt);
+  if(uid2!==undefined)viewingUserId=uid2;
+  document.querySelectorAll('.nav-item[data-page]').forEach(el=>{
+    el.classList.toggle('active',el.dataset.page===page);
   });
   renderPage(page);
   document.getElementById('sidebar').classList.remove('open');
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
 
-function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
-function timeAgo(ts){
-  const d=(Date.now()-ts)/1000;
-  if(d<60)return '剛剛';if(d<3600)return Math.floor(d/60)+'分鐘前';
-  if(d<86400)return Math.floor(d/3600)+'小時前';return Math.floor(d/86400)+'天前';
-}
-function uid(){return 'id'+Date.now()+Math.random().toString(36).slice(2)}
-
 // ═══════════════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════════════
-function toast(msg,type='info'){
-  const c=document.getElementById('toast-container');
-  const t=document.createElement('div');
-  t.className=`toast ${type}`;
-  const icons={success:'ti-check',error:'ti-x',info:'ti-info-circle'};
-  t.innerHTML=`<i class="ti ${icons[type]||'ti-info-circle'}"></i>${esc(msg)}`;
-  c.appendChild(t);
-  requestAnimationFrame(()=>{requestAnimationFrame(()=>t.classList.add('show'))});
-  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350)},3000);
-}
-
-// ═══════════════════════════════════════════════════════════
-// AVATAR
-// ═══════════════════════════════════════════════════════════
-function avatarHTML(displayName,color,cls='avatar-sm'){
-  return `<div class="avatar ${cls}" style="background:${color}">${(displayName||'?')[0].toUpperCase()}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════════
-// DIALOG
-// ═══════════════════════════════════════════════════════════
-function openDialog(html){
-  document.getElementById('dialog-box').innerHTML=html;
-  document.getElementById('dialog-overlay').classList.remove('hidden');
-}
-function closeDialog(e){
-  if(!e||e.target===document.getElementById('dialog-overlay'))
-    document.getElementById('dialog-overlay').classList.add('hidden');
-}
-
-// ═══════════════════════════════════════════════════════════
-// RENDER PAGE
+// RENDER PAGE ROUTER
 // ═══════════════════════════════════════════════════════════
 function renderPage(page){
   const el=document.getElementById('content');
-  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings};
-  if(pages[page])el.innerHTML=pages[page]();
+  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings,search:renderSearch,notifications:renderNotifications,userprofile:renderUserProfile};
+  if(pages[page]){el.innerHTML=pages[page]();_applyIcons(el);}
   else el.innerHTML='<div class="empty-state"><i class="ti ti-compass"></i><p>頁面不存在</p></div>';
-  attachPageHandlers(page);
 }
 
 // ═══════════════════════════════════════════════════════════
-// HOME
+// FOLLOW SYSTEM
+// ═══════════════════════════════════════════════════════════
+function isFollowing(targetId){
+  if(!session)return false;
+  const me=users.find(u=>u.id===session.userId);
+  return me&&me.following&&me.following.includes(targetId);
+}
+function toggleFollow(targetId){
+  if(!session||targetId===session.userId)return;
+  const me=users.find(u=>u.id===session.userId);
+  const target=users.find(u=>u.id===targetId);
+  if(!me||!target)return;
+  if(!me.following)me.following=[];
+  if(!target.followers)target.followers=[];
+  const idx=me.following.indexOf(targetId);
+  if(idx>=0){
+    me.following.splice(idx,1);
+    target.followers.splice(target.followers.indexOf(session.userId),1);
+    toast('已取消追蹤','info');
+  } else {
+    me.following.push(targetId);
+    target.followers.push(session.userId);
+    addNotificationForUser('follow',session.userId,targetId,null,'開始追蹤你');
+    toast('已追蹤 '+target.displayName,'success');
+  }
+  saveUsers();
+  session.following=me.following;saveSession();
+  // Re-render any follow buttons on page
+  document.querySelectorAll(`[data-follow="${targetId}"]`).forEach(btn=>{
+    const following=isFollowing(targetId);
+    btn.className=following?'btn-following':'btn-follow';
+    btn.textContent=following?'已追蹤':'追蹤';
+  });
+  updateNotifBadge();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MEDIA FILE HANDLING
+// ═══════════════════════════════════════════════════════════
+function attachFile(){
+  document.getElementById('media-file-input').click();
+}
+function handleMediaFiles(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>50*1024*1024){toast('檔案過大（最大50MB）','error');input.value='';return}
+  const isVideo=file.type.startsWith('video/');
+  const isImage=file.type.startsWith('image/');
+  if(!isVideo&&!isImage){toast('僅支援圖片或影片檔案','error');input.value='';return}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    composerMediaUrl=e.target.result;
+    composerMediaType=isVideo?'video':'image';
+    renderComposerMediaPreview();
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+function renderComposerMediaPreview(){
+  const area=document.getElementById('composer-media-area');
+  if(!area)return;
+  if(!composerMediaUrl){area.innerHTML='';return;}
+  if(composerMediaType==='video'){
+    area.innerHTML=`<div class="composer-media-preview"><video src="${composerMediaUrl}" class="post-media-video" controls playsinline muted style="max-height:200px"></video><button class="remove-media" onclick="clearComposerMedia()">✕</button></div>`;
+  } else {
+    area.innerHTML=`<div class="composer-media-preview"><img src="${composerMediaUrl}" class="post-media" style="max-height:200px"/><button class="remove-media" onclick="clearComposerMedia()">✕</button></div>`;
+  }
+}
+function clearComposerMedia(){composerMediaUrl=null;composerMediaType=null;renderComposerMediaPreview();}
+function handleStoryMedia(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>50*1024*1024){toast('檔案過大（最大50MB）','error');input.value='';return}
+  const isVideo=file.type.startsWith('video/');
+  const isImage=file.type.startsWith('image/');
+  if(!isVideo&&!isImage){toast('僅支援圖片或影片檔案','error');input.value='';return}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    storyMediaUrl=e.target.result;
+    storyMediaType=isVideo?'video':'image';
+    const prev=document.getElementById('story-preview');
+    if(prev){
+      if(isVideo){prev.innerHTML=`<video src="${storyMediaUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px" autoplay muted loop playsinline></video>`;}
+      else{prev.innerHTML=`<img src="${storyMediaUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>`;}
+    }
+    const storyTextEl=document.getElementById('story-text');
+    if(storyTextEl&&!storyTextEl.value)storyTextEl.value='';
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+// ═══════════════════════════════════════════════════════════
+// HOME PAGE
 // ═══════════════════════════════════════════════════════════
 function renderHome(){
   return `
   <div class="page-title"><i class="ti ti-home"></i>首頁</div>
   ${renderStoryBarHTML()}
   ${renderComposerHTML()}
-  <div id="feed">${renderFeedHTML(posts)}</div>`;
+  <div class="feed-tabs">
+    <div class="feed-tab ${feedFilter==='all'?'active':''}" onclick="setFeedFilter('all')">全部</div>
+    <div class="feed-tab ${feedFilter==='following'?'active':''}" onclick="setFeedFilter('following')">追蹤中</div>
+  </div>
+  <div id="feed">${renderFeedHTML(getFilteredPosts())}</div>`;
+}
+function setFeedFilter(f){
+  feedFilter=f;
+  const feed=document.getElementById('feed');
+  if(feed){feed.innerHTML=renderFeedHTML(getFilteredPosts());_applyIcons(feed);}
+  document.querySelectorAll('.feed-tab').forEach(t=>{t.classList.toggle('active',t.textContent===(f==='all'?'全部':'追蹤中'))});
+}
+function getFilteredPosts(){
+  if(feedFilter==='all')return posts;
+  const me=users.find(u=>u.id===session.userId);
+  if(!me||!me.following||!me.following.length)return [];
+  return posts.filter(p=>me.following.includes(p.userId)||p.userId===session.userId);
 }
 function renderStoryBarHTML(){
   const grouped=groupStories();
@@ -633,9 +782,10 @@ function renderStoryBarHTML(){
     <div class="add-story-ring"><i class="ti ti-plus"></i></div>
     <span class="story-name">新增故事</span>
   </div>`;
-  for(const g of grouped){
+  for(let gi=0;gi<grouped.length;gi++){
+    const g=grouped[gi];
     const seen=g.stories.every(s=>s.seen.includes(session.userId));
-    html+=`<div class="story-circle" onclick="openStoryViewer(${grouped.indexOf(g)})">
+    html+=`<div class="story-circle" onclick="openStoryViewer(${gi})">
       <div class="story-ring ${seen?'seen':''}">
         <div class="story-inner">${avatarHTML(g.displayName,g.avatarColor,'')}</div>
       </div>
@@ -652,12 +802,13 @@ function groupStories(){
   }
   return Object.values(map);
 }
-function renderComposerHTML(){
+function renderComposerHTML(galaxyId){
   return `<div class="composer">
     <div class="composer-top">
       ${avatarHTML(session.displayName,session.avatarColor,'avatar-sm')}
       <div class="composer-input">
         <textarea id="compose-text" placeholder="分享你的宇宙片刻..." rows="2"></textarea>
+        <div id="composer-media-area"></div>
         <div id="poll-area"></div>
       </div>
     </div>
@@ -665,46 +816,219 @@ function renderComposerHTML(){
       <button onclick="attachFile()"><i class="ti ti-photo"></i>媒體</button>
       <button id="poll-btn" onclick="togglePollComposer()"><i class="ti ti-chart-bar"></i>投票</button>
       <button onclick="openCreateSpaceDialog()"><i class="ti ti-broadcast"></i>空間</button>
-      <button class="post-btn" onclick="submitPost()">發布</button>
+      <button class="post-btn" onclick="submitPost(${galaxyId?`'${galaxyId}'`:'null'})">發布</button>
     </div>
   </div>`;
 }
 function renderFeedHTML(arr){
   const sorted=[...arr].sort((a,b)=>b.createdAt-a.createdAt);
+  if(!sorted.length)return '<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文，快去追蹤一些人吧！</p></div>';
   return sorted.map(p=>renderPostHTML(p)).join('');
 }
 function renderPostHTML(p){
+  if(!p)return '';
   const liked=p.likes&&p.likes.includes(session.userId);
   const reposted=p.reposts&&p.reposts.includes(session.userId);
+  const bms=bookmarks[session.userId]||[];
+  const bmd=bms.includes(p.id);
+  const isOwn=p.userId===session.userId;
+  const following=isFollowing(p.userId);
+  let mediaHTML='';
+  if(p.mediaUrl){
+    if(p.mediaType==='video'){
+      mediaHTML=`<video src="${p.mediaUrl}" class="post-media-video" controls playsinline muted></video>`;
+    } else {
+      mediaHTML=`<img src="${p.mediaUrl}" class="post-media" loading="lazy"/>`;
+    }
+  }
   let pollHTML='';
   if(p.type==='poll'&&p.poll){pollHTML=renderPollHTML(p);}
+  let quoteHTML='';
+  if(p.type==='quote'&&p.quotedPostId){
+    const qp=posts.find(x=>x.id===p.quotedPostId);
+    if(qp){quoteHTML=`<div class="quote-embed"><div class="quote-author">${esc(qp.displayName)} @${esc(qp.username)}</div><div class="quote-text">${esc(qp.content)}</div></div>`;}
+    else if(p.quotedContent){quoteHTML=`<div class="quote-embed"><div class="quote-author">${esc(p.quotedAuthor||'')}</div><div class="quote-text">${esc(p.quotedContent)}</div></div>`;}
+  }
+  const commentCount=(comments[p.id]||[]).length||p.comments||0;
+  const followBtn=(!isOwn)?`<button class="${following?'btn-following':'btn-follow'}" data-follow="${p.userId}" onclick="toggleFollow('${p.userId}')" style="margin-left:auto">${following?'已追蹤':'追蹤'}</button>`:'';
   return `<div class="post" id="post-${p.id}">
     <div class="post-header">
-      ${avatarHTML(p.displayName,p.avatarColor,'avatar-sm')}
+      <div style="cursor:pointer" onclick="openUserProfile('${p.userId}')">${avatarHTML(p.displayName,p.avatarColor,'avatar-sm')}</div>
       <div class="post-meta">
-        <span class="dname">${esc(p.displayName)}</span>
-        <span class="handle">@${esc(p.username)}</span>
+        <span class="dname" onclick="openUserProfile('${p.userId}')">${esc(p.displayName)}</span>
+        <span class="handle" onclick="openUserProfile('${p.userId}')">@${esc(p.username)}</span>
         <span class="time">${timeAgo(p.createdAt)}</span>
       </div>
+      ${followBtn}
     </div>
     <div class="post-content">${esc(p.content).replace(/\n/g,'<br>')}</div>
-    ${pollHTML}
+    ${mediaHTML}${quoteHTML}${pollHTML}
     <div class="post-actions">
       <button class="post-action ${liked?'liked':''}" onclick="toggleLike('${p.id}')">
         <i class="ti ${liked?'ti-heart-filled':'ti-heart'}"></i><span>${(p.likes||[]).length}</span>
       </button>
-      <button class="post-action" onclick="toast('留言功能開發中','info')">
-        <i class="ti ti-message-circle"></i><span>${p.comments||0}</span>
+      <button class="post-action" onclick="openComments('${p.id}')">
+        <i class="ti ti-message-circle"></i><span>${commentCount}</span>
       </button>
-      <button class="post-action ${reposted?'reposted':''}" onclick="toggleRepost('${p.id}')">
+      <button class="post-action ${reposted?'reposted':''}" onclick="showRepostMenu('${p.id}',this)" style="position:relative">
         <i class="ti ti-repeat"></i><span>${(p.reposts||[]).length}</span>
       </button>
-      <button class="post-action" onclick="toast('已複製連結','success')">
+      <button class="post-action ${bmd?'bookmarked':''}" onclick="toggleBookmark('${p.id}')">
+        <i class="ti ${bmd?'ti-bookmark-filled':'ti-bookmark'}"></i>
+      </button>
+      <button class="post-action" onclick="copyPostLink('${p.id}')">
         <i class="ti ti-share"></i>
       </button>
     </div>
   </div>`;
 }
+
+// ═══════════════════════════════════════════════════════════
+// POST ACTIONS
+// ═══════════════════════════════════════════════════════════
+function toggleLike(id){
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  if(!p.likes)p.likes=[];
+  const idx=p.likes.indexOf(session.userId);
+  if(idx>=0){p.likes.splice(idx,1);}
+  else{
+    p.likes.push(session.userId);
+    if(p.userId!==session.userId)addNotificationForUser('like',session.userId,p.userId,id,'');
+  }
+  savePosts();
+  const el=document.getElementById('post-'+id);
+  if(el){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);el.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+id));}
+}
+function showRepostMenu(id,btn){
+  document.querySelectorAll('.action-dropdown').forEach(d=>d.remove());
+  const menu=document.createElement('div');
+  menu.className='action-dropdown';
+  menu.innerHTML=`<div class="action-dropdown-item" onclick="directRepost('${id}')"><i class="ti ti-repeat"></i>直接轉發</div><div class="action-dropdown-item" onclick="openQuoteRepost('${id}')"><i class="ti ti-quote"></i>引用轉發</div>`;
+  const wrap=btn.closest('.post-actions');
+  if(wrap){wrap.style.position='relative';wrap.appendChild(menu);}
+  setTimeout(()=>document.addEventListener('click',function h(){menu.remove();document.removeEventListener('click',h);}),10);
+}
+function directRepost(id){
+  document.querySelectorAll('.action-dropdown').forEach(d=>d.remove());
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  if(!p.reposts)p.reposts=[];
+  const idx=p.reposts.indexOf(session.userId);
+  if(idx>=0){p.reposts.splice(idx,1);toast('取消轉發','info');}
+  else{
+    p.reposts.push(session.userId);
+    if(p.userId!==session.userId)addNotificationForUser('repost',session.userId,p.userId,id,'');
+    toast('已轉發','success');
+  }
+  savePosts();
+  const el=document.getElementById('post-'+id);
+  if(el){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);el.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+id));}
+}
+function openQuoteRepost(id){
+  document.querySelectorAll('.action-dropdown').forEach(d=>d.remove());
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  openDialog(`<h2>引用轉發</h2>
+    <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    <div class="form-group"><textarea id="quote-text" placeholder="加入你的想法..." rows="3"></textarea></div>
+    <div class="quote-embed"><div class="quote-author">${esc(p.displayName)} @${esc(p.username)}</div><div class="quote-text">${esc(p.content)}</div></div>
+    <div class="dialog-footer">
+      <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
+      <button class="btn btn-primary" onclick="submitQuoteRepost('${id}')">發布引用</button>
+    </div>`);
+}
+function submitQuoteRepost(quotedPostId){
+  const txt=document.getElementById('quote-text').value.trim();
+  const qp=posts.find(x=>x.id===quotedPostId);if(!qp)return;
+  const p={
+    id:uid(),userId:session.userId,username:session.username,
+    displayName:session.displayName,avatarColor:session.avatarColor,
+    content:txt||'',likes:[],reposts:[],comments:0,createdAt:Date.now(),
+    type:'quote',quotedPostId,quotedContent:qp.content,quotedAuthor:qp.displayName+' @'+qp.username
+  };
+  posts.unshift(p);savePosts();closeDialog();
+  if(qp.userId!==session.userId)addNotificationForUser('quote',session.userId,qp.userId,quotedPostId,'引用了你的貼文');
+  toast('引用轉發成功！','success');
+  const feed=document.getElementById('feed');
+  if(feed){const div=document.createElement('div');div.innerHTML=renderPostHTML(p);feed.insertBefore(div.firstChild,feed.firstChild);_applyIcons(feed);}
+}
+function toggleBookmark(id){
+  if(!bookmarks[session.userId])bookmarks[session.userId]=[];
+  const bms=bookmarks[session.userId];
+  const idx=bms.indexOf(id);
+  if(idx>=0){bms.splice(idx,1);toast('已移除收藏','info');}
+  else{bms.push(id);toast('已加入收藏','success');}
+  saveBookmarks();
+  const el=document.getElementById('post-'+id);
+  const p=posts.find(x=>x.id===id);
+  if(el&&p){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);el.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+id));}
+}
+function copyPostLink(id){toast('已複製貼文連結','success')}
+
+// ═══════════════════════════════════════════════════════════
+// COMMENTS
+// ═══════════════════════════════════════════════════════════
+function openComments(postId){
+  const p=posts.find(x=>x.id===postId);if(!p)return;
+  const clist=comments[postId]||[];
+  const cHTML=clist.map(c=>`
+    <div class="comment-item">
+      <div style="cursor:pointer" onclick="closeDialog();openUserProfile('${c.userId}')">${avatarHTML(c.displayName,c.avatarColor,'avatar-sm')}</div>
+      <div class="comment-body">
+        <div class="comment-author" style="cursor:pointer" onclick="closeDialog();openUserProfile('${c.userId}')">${esc(c.displayName)} <span style="color:var(--text3);font-weight:400">@${esc(c.username)}</span></div>
+        <div class="comment-text">${esc(c.text)}</div>
+        <div class="comment-time">${timeAgo(c.createdAt)}</div>
+      </div>
+    </div>`).join('');
+  openDialog(`<h2><i class="ti ti-message-circle"></i> 留言 (${clist.length})</h2>
+    <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div class="post-content" style="font-size:14px;color:var(--text2)">${esc(p.content)}</div>
+    </div>
+    <div id="comment-list" style="max-height:300px;overflow-y:auto;margin-bottom:16px">${cHTML||'<p style="color:var(--text3);text-align:center;padding:20px">還沒有留言</p>'}</div>
+    <div style="display:flex;gap:8px;align-items:flex-start">
+      ${avatarHTML(session.displayName,session.avatarColor,'avatar-sm')}
+      <div style="flex:1">
+        <textarea id="comment-input" placeholder="留言..." rows="2" style="margin-bottom:8px"></textarea>
+        <button class="btn btn-primary btn-sm" onclick="submitComment('${postId}')">發布留言</button>
+      </div>
+    </div>`);
+}
+function submitComment(postId){
+  const input=document.getElementById('comment-input');
+  if(!input)return;
+  const txt=input.value.trim();
+  if(!txt){toast('請輸入留言內容','error');return}
+  if(!comments[postId])comments[postId]=[];
+  const c={id:uid(),userId:session.userId,username:session.username,displayName:session.displayName,avatarColor:session.avatarColor,text:txt,createdAt:Date.now()};
+  comments[postId].push(c);saveComments();
+  const p=posts.find(x=>x.id===postId);
+  if(p){p.comments=(comments[postId]||[]).length;savePosts();}
+  if(p&&p.userId!==session.userId)addNotificationForUser('comment',session.userId,p.userId,postId,txt);
+  input.value='';
+  const list=document.getElementById('comment-list');
+  if(list){
+    const div=document.createElement('div');
+    div.innerHTML=`<div class="comment-item">
+      <div>${avatarHTML(c.displayName,c.avatarColor,'avatar-sm')}</div>
+      <div class="comment-body">
+        <div class="comment-author">${esc(c.displayName)} <span style="color:var(--text3);font-weight:400">@${esc(c.username)}</span></div>
+        <div class="comment-text">${esc(c.text)}</div>
+        <div class="comment-time">剛剛</div>
+      </div>
+    </div>`;
+    list.appendChild(div.firstChild);list.scrollTop=list.scrollHeight;
+    _applyIcons(list);
+  }
+  const h2=document.querySelector('#dialog-box h2');
+  if(h2)h2.innerHTML=`<i class="ti ti-message-circle"></i> 留言 (${comments[postId].length})`;
+  toast('留言成功！','success');
+  // Update comment count in feed
+  const postEl=document.getElementById('post-'+postId);
+  if(postEl&&p){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);postEl.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+postId));}
+}
+
+// ═══════════════════════════════════════════════════════════
+// POLL
+// ═══════════════════════════════════════════════════════════
 function renderPollHTML(p){
   const voted=pollVotes[p.id];
   const total=p.poll.options.reduce((a,o)=>a+o.votes,0)||1;
@@ -733,44 +1057,24 @@ function votePoll(postId,optIndex){
   pollVotes[postId]=optIndex;
   savePosts();savePollVotes();
   const el=document.getElementById('post-'+postId);
-  if(el){el.outerHTML=renderPostHTML(p);}
+  if(el){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);el.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+postId));}
   toast('投票成功！','success');
 }
-function toggleLike(id){
-  const p=posts.find(x=>x.id===id);if(!p)return;
-  if(!p.likes)p.likes=[];
-  const idx=p.likes.indexOf(session.userId);
-  if(idx>=0)p.likes.splice(idx,1);else p.likes.push(session.userId);
-  savePosts();
-  const el=document.getElementById('post-'+id);
-  if(el)el.outerHTML=renderPostHTML(p);
-}
-function toggleRepost(id){
-  const p=posts.find(x=>x.id===id);if(!p)return;
-  if(!p.reposts)p.reposts=[];
-  const idx=p.reposts.indexOf(session.userId);
-  if(idx>=0)p.reposts.splice(idx,1);else p.reposts.push(session.userId);
-  savePosts();
-  const el=document.getElementById('post-'+id);
-  if(el)el.outerHTML=renderPostHTML(p);
-  toast(idx>=0?'取消轉發':'已轉發','success');
-}
-
-let pollComposerData=null;
 function togglePollComposer(){
   const area=document.getElementById('poll-area');
+  if(!area)return;
   if(pollComposerData){
     pollComposerData=null;area.innerHTML='';
-    document.getElementById('poll-btn').style.color='';
+    const btn=document.getElementById('poll-btn');if(btn)btn.style.color='';
     return;
   }
   pollComposerData={question:'',options:['','']};
   renderPollComposer();
-  document.getElementById('poll-btn').style.color='var(--accent)';
+  const btn=document.getElementById('poll-btn');if(btn)btn.style.color='var(--accent)';
 }
 function renderPollComposer(){
   const area=document.getElementById('poll-area');
-  if(!area)return;
+  if(!area||!pollComposerData)return;
   let optsHTML=pollComposerData.options.map((o,i)=>`
     <div class="poll-option-input">
       <input type="text" placeholder="選項 ${i+1}" value="${esc(o)}" oninput="pollComposerData.options[${i}]=this.value" maxlength="40"/>
@@ -778,24 +1082,30 @@ function renderPollComposer(){
     </div>`).join('');
   area.innerHTML=`<div class="poll-create">
     <h4><i class="ti ti-chart-bar"></i> 建立投票</h4>
-    <div class="form-group"><input type="text" placeholder="投票問題" oninput="pollComposerData.question=this.value" maxlength="80"/></div>
+    <div class="form-group"><input type="text" placeholder="投票問題" oninput="pollComposerData.question=this.value" maxlength="80" value="${esc(pollComposerData.question)}"/></div>
     <div class="poll-options-list">${optsHTML}</div>
     ${pollComposerData.options.length<4?`<button class="btn btn-ghost btn-sm" onclick="addPollOption()"><i class="ti ti-plus"></i> 新增選項</button>`:''}
   </div>`;
+  _applyIcons(area);
 }
 function addPollOption(){if(pollComposerData&&pollComposerData.options.length<4){pollComposerData.options.push('');renderPollComposer();}}
 function removePollOption(i){if(pollComposerData){pollComposerData.options.splice(i,1);renderPollComposer();}}
-function attachFile(){toast('媒體上傳功能開發中','info')}
-function submitPost(){
+
+// ═══════════════════════════════════════════════════════════
+// SUBMIT POST
+// ═══════════════════════════════════════════════════════════
+function submitPost(galaxyId){
   const txt=document.getElementById('compose-text').value.trim();
-  if(!txt&&!pollComposerData){toast('請輸入內容','error');return}
+  if(!txt&&!pollComposerData&&!composerMediaUrl){toast('請輸入內容或選擇媒體','error');return}
   const p={
     id:uid(),userId:session.userId,username:session.username,
     displayName:session.displayName,avatarColor:session.avatarColor,
-    content:txt||pollComposerData.question,
+    content:txt||(pollComposerData?pollComposerData.question:'')||'',
     likes:[],reposts:[],comments:0,createdAt:Date.now(),
     type:pollComposerData?'poll':'post'
   };
+  if(composerMediaUrl){p.mediaUrl=composerMediaUrl;p.mediaType=composerMediaType;}
+  if(galaxyId)p.galaxyId=galaxyId;
   if(pollComposerData){
     const opts=pollComposerData.options.filter(o=>o.trim());
     if(opts.length<2){toast('請至少填寫2個選項','error');return}
@@ -803,29 +1113,35 @@ function submitPost(){
   }
   posts.unshift(p);savePosts();
   document.getElementById('compose-text').value='';
-  pollComposerData=null;
+  pollComposerData=null;composerMediaUrl=null;composerMediaType=null;
   const feed=document.getElementById('feed');
-  if(feed){const div=document.createElement('div');div.innerHTML=renderPostHTML(p);feed.insertBefore(div.firstChild,feed.firstChild);}
+  if(feed){const div=document.createElement('div');div.innerHTML=renderPostHTML(p);feed.insertBefore(div.firstChild,feed.firstChild);_applyIcons(feed);}
   const area=document.getElementById('poll-area');if(area)area.innerHTML='';
+  const mediaArea=document.getElementById('composer-media-area');if(mediaArea)mediaArea.innerHTML='';
+  const btn=document.getElementById('poll-btn');if(btn)btn.style.color='';
   toast('發布成功！','success');
 }
-function attachPageHandlers(page){}
 
 // ═══════════════════════════════════════════════════════════
 // BUBBLES (Stories)
 // ═══════════════════════════════════════════════════════════
 function renderBubbles(){
-  const grouped=groupStories();
-  let storyCardsHTML=stories.map(s=>`
-    <div class="card card-sm" style="cursor:pointer;background:${s.bg};aspect-ratio:9/16;border-radius:var(--radius);display:flex;flex-direction:column;justify-content:space-between;padding:14px;min-height:180px" onclick="openStoryViewerById('${s.id}')">
-      <div style="display:flex;align-items:center;gap:8px">${avatarHTML(s.displayName,s.avatarColor,'avatar-sm')}<span style="font-size:12px;font-weight:600;color:#fff">${esc(s.displayName)}</span></div>
-      <div style="color:#fff;font-size:14px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.5)">${esc(s.text).replace(/\n/g,'<br>')}</div>
-    </div>`).join('');
+  let storyCardsHTML=stories.map(s=>{
+    let previewContent='';
+    if(s.mediaUrl&&s.mediaType==='video'){
+      previewContent=`<video src="${s.mediaUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0" muted playsinline></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;font-size:36px">▶</div>`;
+    } else if(s.mediaUrl&&s.mediaType==='image'){
+      previewContent=`<img src="${s.mediaUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0"/>`;
+    }
+    return `<div class="card card-sm" style="cursor:pointer;background:${s.bg||'var(--panel2)'};aspect-ratio:9/16;border-radius:var(--radius);display:flex;flex-direction:column;justify-content:space-between;padding:14px;min-height:180px;position:relative;overflow:hidden" onclick="openStoryViewerById('${s.id}')">
+      ${previewContent}
+      <div style="display:flex;align-items:center;gap:8px;position:relative;z-index:2">${avatarHTML(s.displayName,s.avatarColor,'avatar-sm')}<span style="font-size:12px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7)">${esc(s.displayName)}</span></div>
+      <div style="color:#fff;font-size:14px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.7);position:relative;z-index:2">${esc(s.text||'').replace(/\n/g,'<br>')}</div>
+    </div>`;
+  }).join('');
   return `
   <div class="page-title"><i class="ti ti-bubble" style="color:var(--orange)"></i>泡泡故事</div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    ${renderStoryBarHTML()}
-  </div>
+  ${renderStoryBarHTML()}
   <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
     <button class="btn btn-primary" onclick="openCreateStoryDialog()"><i class="ti ti-plus"></i> 新增故事</button>
   </div>
@@ -846,15 +1162,33 @@ function openStoryViewer(groupIdx,storyIdx=0){
   document.getElementById('story-viewer').classList.remove('hidden');
 }
 function showCurrentStory(){
-  if(storyTimer)clearInterval(storyTimer);
+  if(storyTimer)clearTimeout(storyTimer);
   const g=storyGroups[storyGroupIndex];if(!g)return closeStoryViewer();
   const s=g.stories[storyIndex];if(!s)return closeStoryViewer();
   if(!s.seen.includes(session.userId)){s.seen.push(session.userId);saveStories();}
   const inner=document.getElementById('story-viewer-inner');
-  inner.style.background=s.bg||'var(--panel)';
-  document.getElementById('story-body').textContent=s.text;
+  const bodyEl=document.getElementById('story-body');
+  const videoEl=document.getElementById('story-video');
+  // Reset
+  videoEl.classList.add('hidden');videoEl.pause();videoEl.src='';
+  bodyEl.style.zIndex='1';
+  if(s.mediaType==='video'&&s.mediaUrl){
+    inner.style.background='#000';
+    videoEl.src=s.mediaUrl;videoEl.classList.remove('hidden');
+    videoEl.play().catch(()=>{});
+    bodyEl.textContent=s.text||'';
+    bodyEl.style.zIndex='2';
+    bodyEl.style.textShadow='0 2px 8px rgba(0,0,0,.8)';
+  } else if(s.mediaType==='image'&&s.mediaUrl){
+    inner.style.background=`url('${s.mediaUrl}') center/cover no-repeat`;
+    bodyEl.textContent=s.text||'';
+    bodyEl.style.textShadow='0 2px 8px rgba(0,0,0,.8)';
+  } else {
+    inner.style.background=s.bg||'var(--panel)';
+    bodyEl.textContent=s.text||'';
+    bodyEl.style.textShadow='';
+  }
   document.getElementById('story-author').innerHTML=`${avatarHTML(s.displayName,s.avatarColor,'avatar-sm')}<span class="dname">${esc(s.displayName)}</span>`;
-  // Progress bars
   const total=g.stories.length;
   let bars='';
   for(let i=0;i<total;i++){bars+=`<div class="story-seg"><div class="story-seg-fill ${i<storyIndex?'done':''}" id="seg-${i}"></div></div>`;}
@@ -866,8 +1200,8 @@ function showCurrentStory(){
   storyTimer=setTimeout(()=>storyNav(1),5100);
 }
 function storyNav(dir){
-  if(storyTimer)clearInterval(storyTimer);
-  const g=storyGroups[storyGroupIndex];
+  if(storyTimer)clearTimeout(storyTimer);
+  const g=storyGroups[storyGroupIndex];if(!g)return;
   if(dir>0){
     if(storyIndex<g.stories.length-1){storyIndex++;showCurrentStory();}
     else if(storyGroupIndex<storyGroups.length-1){storyGroupIndex++;storyIndex=0;showCurrentStory();}
@@ -878,44 +1212,49 @@ function storyNav(dir){
   }
 }
 function closeStoryViewer(){
-  if(storyTimer)clearInterval(storyTimer);
+  if(storyTimer)clearTimeout(storyTimer);
+  const v=document.getElementById('story-video');if(v){v.pause();v.src='';}
   document.getElementById('story-viewer').classList.add('hidden');
 }
 function openCreateStoryDialog(){
+  storyMediaUrl=null;storyMediaType=null;
   openDialog(`<h2>✨ 新增泡泡故事</h2>
     <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
-    <div class="form-group"><label>故事文字</label><textarea id="story-text" placeholder="分享你的時刻..." rows="4"></textarea></div>
+    <div class="form-group"><label>故事文字</label><textarea id="story-text" placeholder="分享你的時刻..." rows="3"></textarea></div>
+    <div class="form-group">
+      <label>媒體（選填）</label>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('story-media-input').click()"><i class="ti ti-photo"></i> 選擇圖片/影片</button>
+    </div>
     <div class="form-group"><label>背景顏色</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap" id="bg-picker">
-        ${['linear-gradient(135deg,#1e1b4b,#7c3aed)','linear-gradient(135deg,#0c4a6e,#0891b2)','linear-gradient(135deg,#1a1a2e,#e94560)','linear-gradient(135deg,#0f2027,#203a43,#2c5364)','linear-gradient(135deg,#1c1917,#44403c)','linear-gradient(135deg,#052e16,#14532d)','linear-gradient(135deg,#450a0a,#991b1b)','linear-gradient(135deg,#2d1b69,#11998e)'].map((bg,i)=>`
-          <div class="bg-opt" data-bg="${bg}" onclick="selectStoryBg(this,'${bg}')" style="width:40px;height:40px;border-radius:8px;background:${bg};cursor:pointer;border:2px solid transparent;transition:border-color .2s"></div>`).join('')}
+        ${['linear-gradient(135deg,#1e1b4b,#7c3aed)','linear-gradient(135deg,#0c4a6e,#0891b2)','linear-gradient(135deg,#1a1a2e,#e94560)','linear-gradient(135deg,#0f2027,#203a43,#2c5364)','linear-gradient(135deg,#1c1917,#44403c)','linear-gradient(135deg,#052e16,#14532d)','linear-gradient(135deg,#450a0a,#991b1b)','linear-gradient(135deg,#2d1b69,#11998e)'].map((bg,i)=>`<div class="bg-opt" data-bg="${bg}" onclick="selectStoryBg(this,'${bg}')" style="width:40px;height:40px;border-radius:8px;background:${bg};cursor:pointer;border:2px solid ${i===0?'#fff':'transparent'};transition:border-color .2s"></div>`).join('')}
       </div>
     </div>
-    <div id="story-preview" style="height:100px;border-radius:8px;background:linear-gradient(135deg,#1e1b4b,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;margin-bottom:16px;font-size:14px">預覽</div>
+    <div id="story-preview" style="height:120px;border-radius:8px;background:linear-gradient(135deg,#1e1b4b,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;margin-bottom:16px;font-size:14px;overflow:hidden;position:relative">預覽</div>
     <div class="dialog-footer">
       <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
       <button class="btn btn-primary" onclick="submitStory()">發布故事</button>
     </div>`);
   document.getElementById('story-text').addEventListener('input',function(){
     const prev=document.getElementById('story-preview');
-    if(prev)prev.textContent=this.value||'預覽';
+    if(prev&&!storyMediaUrl)prev.textContent=this.value||'預覽';
   });
 }
-let selectedStoryBg='linear-gradient(135deg,#1e1b4b,#7c3aed)';
 function selectStoryBg(el,bg){
   selectedStoryBg=bg;
   document.querySelectorAll('.bg-opt').forEach(e=>e.style.borderColor='transparent');
   el.style.borderColor='#fff';
   const prev=document.getElementById('story-preview');
-  if(prev)prev.style.background=bg;
+  if(prev&&!storyMediaUrl)prev.style.background=bg;
 }
 function submitStory(){
   const txt=document.getElementById('story-text').value.trim();
-  if(!txt){toast('請輸入故事內容','error');return}
+  if(!txt&&!storyMediaUrl){toast('請輸入故事內容或選擇媒體','error');return}
   const s={id:uid(),userId:session.userId,username:session.username,displayName:session.displayName,avatarColor:session.avatarColor,text:txt,bg:selectedStoryBg,createdAt:Date.now(),seen:[]};
+  if(storyMediaUrl){s.mediaUrl=storyMediaUrl;s.mediaType=storyMediaType;}
   stories.unshift(s);saveStories();
-  closeDialog();
-  toast('故事已發布！','success');
+  storyMediaUrl=null;storyMediaType=null;
+  closeDialog();toast('故事已發布！','success');
   if(currentPage==='bubbles'||currentPage==='home')renderPage(currentPage);
 }
 
@@ -930,9 +1269,7 @@ function renderVerse(){
   <div class="tag-bar">${TRENDING_TAGS.map(t=>`<span class="tag-pill" onclick="toast('篩選：'+this.textContent,'info')">${t}</span>`).join('')}</div>
   <div class="two-col">
     <div>
-      <div class="masonry">
-        ${versePosts.map(p=>renderVerseCard(p)).join('')}
-      </div>
+      <div class="masonry">${versePosts.map(p=>renderVerseCard(p)).join('')}</div>
     </div>
     <div>
       <div class="card" style="margin-bottom:14px">
@@ -941,20 +1278,29 @@ function renderVerse(){
       </div>
       <div class="card">
         <div class="section-title">✨ 演算法說明</div>
-        <p style="font-size:13px;color:var(--text2);line-height:1.7">詩篇頁面根據互動熱度、發布時間與個人興趣，為你精選最優質的內容。按讚、轉發越多的貼文，排名越前面。</p>
+        <p style="font-size:13px;color:var(--text2);line-height:1.7">詩篇頁面根據互動熱度、發布時間與個人興趣，為你精選最優質的內容。</p>
       </div>
     </div>
   </div>`;
 }
 function renderVerseCard(p){
   const liked=p.likes&&p.likes.includes(session.userId);
+  let mediaHTML='';
+  if(p.mediaUrl){
+    if(p.mediaType==='video'){mediaHTML=`<div class="media-grid-item" style="aspect-ratio:16/9;margin-bottom:8px"><video src="${p.mediaUrl}" style="width:100%;height:100%;object-fit:cover" muted></video><div class="video-play-overlay">▶</div></div>`;}
+    else{mediaHTML=`<img src="${p.mediaUrl}" style="width:100%;border-radius:8px;margin-bottom:8px;object-fit:cover;max-height:200px" loading="lazy"/>`;}
+  }
   return `<div class="verse-card masonry-item">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">${avatarHTML(p.displayName,p.avatarColor,'avatar-sm')}<div><div style="font-size:13px;font-weight:600">${esc(p.displayName)}</div><div style="font-size:11px;color:var(--text3)">@${esc(p.username)}</div></div></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="cursor:pointer" onclick="openUserProfile('${p.userId}')">${avatarHTML(p.displayName,p.avatarColor,'avatar-sm')}</div>
+      <div><div style="font-size:13px;font-weight:600;cursor:pointer" onclick="openUserProfile('${p.userId}')">${esc(p.displayName)}</div><div style="font-size:11px;color:var(--text3)">@${esc(p.username)}</div></div>
+    </div>
+    ${mediaHTML}
     <p>${esc(p.content).replace(/\n/g,'<br>')}</p>
     <div class="verse-stats">
       <span onclick="toggleLikeVerse('${p.id}',this)" class="${liked?'liked-vs':''}"><i class="ti ${liked?'ti-heart-filled':'ti-heart'}" style="${liked?'color:#ef4444':''}"></i>${(p.likes||[]).length}</span>
+      <span onclick="openComments('${p.id}')"><i class="ti ti-message-circle"></i>${(comments[p.id]||[]).length||p.comments||0}</span>
       <span><i class="ti ti-repeat" style="color:var(--teal)"></i>${(p.reposts||[]).length}</span>
-      <span><i class="ti ti-message-circle"></i>${p.comments||0}</span>
     </div>
   </div>`;
 }
@@ -972,7 +1318,6 @@ function toggleLikeVerse(id,el){
 // GALAXIES
 // ═══════════════════════════════════════════════════════════
 const GALAXY_CATS=['全部','藝術','科技','音樂','思想','生活','旅行'];
-let galaxyFilter='全部';
 function renderGalaxies(){
   if(activeGalaxy)return renderGalaxyDetail(activeGalaxy);
   const filtered=galaxyFilter==='全部'?galaxies:galaxies.filter(g=>g.category===galaxyFilter);
@@ -1010,7 +1355,7 @@ function openGalaxyDetail(id){activeGalaxy=id;renderPage('galaxies')}
 function renderGalaxyDetail(id){
   const g=galaxies.find(x=>x.id===id);if(!g)return'';
   const joined=g.members.includes(session.userId);
-  const gPosts=posts.filter(p=>Math.random()>.5).slice(0,3);
+  const gPosts=posts.filter(p=>p.galaxyId===id);
   return `
   <div class="back-btn" onclick="activeGalaxy=null;renderPage('galaxies')"><i class="ti ti-arrow-left"></i>返回星系</div>
   <div class="galaxy-detail">
@@ -1025,11 +1370,11 @@ function renderGalaxyDetail(id){
     </div>
     <div style="display:flex;gap:24px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:20px">
       <div class="profile-stat"><div class="num">${g.members.length}</div><div class="lbl">成員</div></div>
-      <div class="profile-stat"><div class="num">${Math.floor(Math.random()*500+100)}</div><div class="lbl">貼文</div></div>
-      <div class="profile-stat"><div class="num">${Math.floor(Math.random()*50+10)}</div><div class="lbl">活躍討論</div></div>
+      <div class="profile-stat"><div class="num">${gPosts.length}</div><div class="lbl">貼文</div></div>
     </div>
+    ${joined?renderComposerHTML(id):''}
     <div class="section-title">最新貼文</div>
-    ${gPosts.length?gPosts.map(p=>renderPostHTML(p)).join(''):'<div class="empty-state" style="padding:30px"><i class="ti ti-message-off"></i><p>還沒有貼文</p></div>'}
+    <div id="feed">${gPosts.length?renderFeedHTML(gPosts):'<div class="empty-state" style="padding:30px"><i class="ti ti-message-off"></i><p>還沒有貼文，加入並發表第一篇！</p></div>'}</div>
   </div>`;
 }
 function openCreateGalaxyDialog(){
@@ -1071,9 +1416,7 @@ function renderSpaceCard(s){
   const spkHTML=s.speakers.slice(0,3).map(sp=>`${avatarHTML(sp.displayName,sp.color,'avatar-sm')}`).join('');
   return `<div class="space-card" onclick="openSpaceDetail('${s.id}')">
     <div class="space-card-top">
-      <div>
-        <div class="live-badge"><div class="live-dot"></div>直播中</div>
-      </div>
+      <div class="live-badge"><div class="live-dot"></div>直播中</div>
       <div class="listener-count"><i class="ti ti-headphones"></i>${s.listeners}</div>
     </div>
     <h3>${esc(s.title)}</h3>
@@ -1122,8 +1465,7 @@ function sendSpaceChat(id){
   const inp=document.getElementById('space-chat-input');if(!inp)return;
   const txt=inp.value.trim();if(!txt)return;
   const s=spaces.find(x=>x.id===id);if(!s)return;
-  s.chat.push({name:session.displayName,text:txt});
-  inp.value='';saveSpaces();
+  s.chat.push({name:session.displayName,text:txt});inp.value='';saveSpaces();
   const chat=document.getElementById('space-chat');
   if(chat){const div=document.createElement('div');div.className='chat-msg';div.innerHTML=`<span class="chat-name">${esc(session.displayName)}</span><span class="chat-text">${esc(txt)}</span>`;chat.appendChild(div);chat.scrollTop=chat.scrollHeight;}
 }
@@ -1154,50 +1496,192 @@ function submitSpace(){
 // ═══════════════════════════════════════════════════════════
 // PROFILE
 // ═══════════════════════════════════════════════════════════
-let profileTab='posts';
 function renderProfile(){
-  const u=users.find(x=>x.id===session.userId)||{bio:'',username:session.username,displayName:session.displayName,avatarColor:session.avatarColor};
-  const myPosts=posts.filter(p=>p.userId===session.userId);
-  const followers=Math.floor(Math.random()*500+50);
-  const following=Math.floor(Math.random()*200+20);
-  return `
+  return renderUserProfileById(session.userId,true);
+}
+function openUserProfile(userId){
+  if(!userId)return;
+  viewingUserId=userId;
+  navigate('userprofile');
+}
+function renderUserProfile(){
+  return renderUserProfileById(viewingUserId||session.userId,viewingUserId===session.userId||!viewingUserId);
+}
+function renderUserProfileById(userId,isOwn){
+  const u=users.find(x=>x.id===userId)||{id:userId,bio:'',username:session.username,displayName:session.displayName,avatarColor:session.avatarColor,followers:[],following:[]};
+  const myPosts=posts.filter(p=>p.userId===userId);
+  const followersCount=(u.followers||[]).length;
+  const followingCount=(u.following||[]).length;
+  const bms=bookmarks[userId]||[];
+  const bookmarkedPosts=posts.filter(p=>bms.includes(p.id));
+  const mediaPosts=myPosts.filter(p=>p.mediaUrl);
+  const likedPosts=posts.filter(p=>p.likes&&p.likes.includes(userId));
+  const tab=isOwn?profileTab:(profileTab==='bookmarks'?'posts':profileTab);
+  const following=!isOwn&&isFollowing(userId);
+  let tabContent='';
+  if(tab==='posts'){tabContent=myPosts.length?renderFeedHTML(myPosts):'<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文</p></div>';}
+  else if(tab==='media'){
+    tabContent=mediaPosts.length?`<div class="media-grid">${mediaPosts.map(p=>{
+      if(p.mediaType==='video')return `<div class="media-grid-item" onclick="openComments('${p.id}')"><video src="${p.mediaUrl}" muted style="width:100%;height:100%;object-fit:cover"></video><div class="video-play-overlay">▶</div></div>`;
+      return `<div class="media-grid-item" onclick="openComments('${p.id}')"><img src="${p.mediaUrl}" loading="lazy"/></div>`;
+    }).join('')}</div>`:'<div class="empty-state"><i class="ti ti-photo-off"></i><p>還沒有媒體</p></div>';
+  }
+  else if(tab==='likes'){tabContent=likedPosts.length?renderFeedHTML(likedPosts):'<div class="empty-state"><i class="ti ti-heart-off"></i><p>還沒有喜歡的貼文</p></div>';}
+  else if(tab==='bookmarks'&&isOwn){tabContent=bookmarkedPosts.length?renderFeedHTML(bookmarkedPosts):'<div class="empty-state"><i class="ti ti-bookmark-off"></i><p>還沒有收藏的貼文</p></div>';}
+  const backBtn=(!isOwn)?`<div class="back-btn" onclick="history.back?history.back():navigate('home')"><i class="ti ti-arrow-left"></i>返回</div>`:'';
+  return `${backBtn}
   <div class="profile-header">
     <div class="profile-top">
       ${avatarHTML(u.displayName,u.avatarColor,'avatar-xl')}
-      <div>
+      <div style="flex:1">
         <div style="font-size:22px;font-weight:800">${esc(u.displayName)}</div>
         <div style="color:var(--text3);font-size:15px">@${esc(u.username)}</div>
+        ${u.bio?`<div class="profile-bio" style="margin-top:6px">${esc(u.bio)}</div>`:''}
       </div>
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="toast('編輯個人頁','info')"><i class="ti ti-edit"></i> 編輯</button>
-    </div>
-    <div class="profile-bio">
-      <input class="inline-edit" id="bio-input" value="${esc(u.bio||'')}" placeholder="新增個人簡介..." onblur="saveBio(this.value)" style="width:100%;font-size:14px;color:var(--text2)"/>
+      ${isOwn?`<button class="btn btn-ghost btn-sm" onclick="openEditProfile()"><i class="ti ti-edit"></i> 編輯</button>`:`<button class="${following?'btn-following':'btn-follow'}" data-follow="${userId}" onclick="toggleFollow('${userId}')">${following?'已追蹤':'追蹤'}</button>`}
     </div>
     <div class="profile-stats">
       <div class="profile-stat"><div class="num">${myPosts.length}</div><div class="lbl">貼文</div></div>
-      <div class="profile-stat"><div class="num">${followers}</div><div class="lbl">追蹤者</div></div>
-      <div class="profile-stat"><div class="num">${following}</div><div class="lbl">追蹤中</div></div>
+      <div class="profile-stat"><div class="num">${followersCount}</div><div class="lbl">追蹤者</div></div>
+      <div class="profile-stat"><div class="num">${followingCount}</div><div class="lbl">追蹤中</div></div>
     </div>
   </div>
   <div class="profile-tabs">
-    <div class="profile-tab ${profileTab==='posts'?'active':''}" onclick="setProfileTab('posts')">貼文</div>
-    <div class="profile-tab ${profileTab==='media'?'active':''}" onclick="setProfileTab('media')">媒體</div>
-    <div class="profile-tab ${profileTab==='likes'?'active':''}" onclick="setProfileTab('likes')">喜歡</div>
+    <div class="profile-tab ${tab==='posts'?'active':''}" onclick="setProfileTab('posts','${userId}','${isOwn}')">貼文</div>
+    <div class="profile-tab ${tab==='media'?'active':''}" onclick="setProfileTab('media','${userId}','${isOwn}')">媒體</div>
+    <div class="profile-tab ${tab==='likes'?'active':''}" onclick="setProfileTab('likes','${userId}','${isOwn}')">喜歡</div>
+    ${isOwn?`<div class="profile-tab ${tab==='bookmarks'?'active':''}" onclick="setProfileTab('bookmarks','${userId}','${isOwn}')">收藏</div>`:''}
   </div>
-  <div id="profile-content">${renderProfileContent()}</div>`;
+  <div id="profile-content">${tabContent}</div>`;
 }
-function setProfileTab(tab){profileTab=tab;const el=document.getElementById('profile-content');if(el)el.innerHTML=renderProfileContent();document.querySelectorAll('.profile-tab').forEach((t,i)=>{t.classList.toggle('active',['posts','media','likes'][i]===tab)});}
-function renderProfileContent(){
-  const myPosts=posts.filter(p=>p.userId===session.userId);
-  const likedPosts=posts.filter(p=>p.likes&&p.likes.includes(session.userId));
-  if(profileTab==='posts')return myPosts.length?myPosts.map(p=>renderPostHTML(p)).join(''):'<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文</p></div>';
-  if(profileTab==='media')return '<div class="empty-state"><i class="ti ti-photo-off"></i><p>還沒有媒體</p></div>';
-  if(profileTab==='likes')return likedPosts.length?likedPosts.map(p=>renderPostHTML(p)).join(''):'<div class="empty-state"><i class="ti ti-heart-off"></i><p>還沒有喜歡的貼文</p></div>';
-  return '';
+function setProfileTab(tab,userId,isOwn){
+  profileTab=tab;
+  const el=document.getElementById('profile-content');
+  if(el){
+    const uid2=userId||session.userId;
+    const own=isOwn==='true'||isOwn===true;
+    el.innerHTML=renderUserProfileById(uid2,own).split('<div id="profile-content">')[1]?.replace('</div>','').trim()||'';
+    // Simpler: re-render profile content only
+    const u=users.find(x=>x.id===uid2)||{id:uid2,bio:'',username:session.username,displayName:session.displayName,avatarColor:session.avatarColor,followers:[],following:[]};
+    const myPosts=posts.filter(p=>p.userId===uid2);
+    const bms=bookmarks[uid2]||[];
+    const bookmarkedPosts=posts.filter(p=>bms.includes(p.id));
+    const mediaPosts=myPosts.filter(p=>p.mediaUrl);
+    const likedPosts=posts.filter(p=>p.likes&&p.likes.includes(uid2));
+    let content='';
+    if(tab==='posts'){content=myPosts.length?renderFeedHTML(myPosts):'<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文</p></div>';}
+    else if(tab==='media'){content=mediaPosts.length?`<div class="media-grid">${mediaPosts.map(p=>{if(p.mediaType==='video')return`<div class="media-grid-item" onclick="openComments('${p.id}')"><video src="${p.mediaUrl}" muted style="width:100%;height:100%;object-fit:cover"></video><div class="video-play-overlay">▶</div></div>`;return`<div class="media-grid-item" onclick="openComments('${p.id}')"><img src="${p.mediaUrl}" loading="lazy"/></div>`;}).join('')}</div>`:'<div class="empty-state"><i class="ti ti-photo-off"></i><p>還沒有媒體</p></div>';}
+    else if(tab==='likes'){content=likedPosts.length?renderFeedHTML(likedPosts):'<div class="empty-state"><i class="ti ti-heart-off"></i><p>還沒有喜歡的貼文</p></div>';}
+    else if(tab==='bookmarks'){content=bookmarkedPosts.length?renderFeedHTML(bookmarkedPosts):'<div class="empty-state"><i class="ti ti-bookmark-off"></i><p>還沒有收藏的貼文</p></div>';}
+    el.innerHTML=content;_applyIcons(el);
+  }
+  document.querySelectorAll('.profile-tab').forEach(t=>{const map={posts:'貼文',media:'媒體',likes:'喜歡',bookmarks:'收藏'};t.classList.toggle('active',map[tab]===t.textContent.trim());});
 }
-function saveBio(val){
+function openEditProfile(){
+  const u=users.find(x=>x.id===session.userId)||{displayName:session.displayName,bio:''};
+  openDialog(`<h2><i class="ti ti-edit"></i> 編輯個人頁</h2>
+    <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    <div class="form-group"><label>顯示名稱</label><input id="ep-name" type="text" value="${esc(u.displayName)}"/></div>
+    <div class="form-group"><label>個人簡介</label><textarea id="ep-bio" rows="3" placeholder="介紹你自己...">${esc(u.bio||'')}</textarea></div>
+    <div class="dialog-footer">
+      <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
+      <button class="btn btn-primary" onclick="saveProfile()">儲存</button>
+    </div>`);
+}
+function saveProfile(){
+  const name=document.getElementById('ep-name').value.trim();
+  const bio=document.getElementById('ep-bio').value.trim();
+  if(!name){toast('名稱不得為空','error');return}
   const u=users.find(x=>x.id===session.userId);
-  if(u){u.bio=val;saveUsers();toast('個人簡介已更新','success');}
+  if(u){u.displayName=name;u.bio=bio;saveUsers();}
+  session.displayName=name;saveSession();
+  renderSidebarUser();closeDialog();
+  toast('個人頁已更新','success');
+  renderPage(currentPage);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════════
+function renderSearch(){
+  return `
+  <div class="page-title"><i class="ti ti-search"></i>搜尋</div>
+  <div class="search-input-wrap">
+    <i class="ti ti-search"></i>
+    <input type="text" id="search-input" placeholder="搜尋貼文或用戶..." oninput="runSearch(this.value)"/>
+  </div>
+  <div class="feed-tabs">
+    <div class="feed-tab ${searchTab==='posts'?'active':''}" onclick="setSearchTab('posts')">貼文</div>
+    <div class="feed-tab ${searchTab==='users'?'active':''}" onclick="setSearchTab('users')">用戶</div>
+  </div>
+  <div id="search-results">${renderSearchResults(document.getElementById('search-input')?.value||'')}</div>`;
+}
+function setSearchTab(tab){
+  searchTab=tab;
+  document.querySelectorAll('.feed-tab').forEach(t=>{t.classList.toggle('active',t.textContent===(tab==='posts'?'貼文':'用戶'));});
+  const q=document.getElementById('search-input')?.value||'';
+  const res=document.getElementById('search-results');
+  if(res){res.innerHTML=renderSearchResults(q);_applyIcons(res);}
+}
+function runSearch(q){
+  const res=document.getElementById('search-results');
+  if(res){res.innerHTML=renderSearchResults(q);_applyIcons(res);}
+}
+function renderSearchResults(q){
+  q=q.trim().toLowerCase();
+  if(!q)return '<div class="empty-state" style="padding:40px"><i class="ti ti-search"></i><p>輸入關鍵字開始搜尋</p></div>';
+  if(searchTab==='posts'){
+    const matched=posts.filter(p=>p.content&&p.content.toLowerCase().includes(q));
+    if(!matched.length)return '<div class="empty-state" style="padding:40px"><i class="ti ti-notes-off"></i><p>找不到相符的貼文</p></div>';
+    return renderFeedHTML(matched);
+  } else {
+    const matched=users.filter(u=>(u.displayName&&u.displayName.toLowerCase().includes(q))||(u.username&&u.username.toLowerCase().includes(q)));
+    if(!matched.length)return '<div class="empty-state" style="padding:40px"><i class="ti ti-user-off"></i><p>找不到相符的用戶</p></div>';
+    return `<div>${matched.map(u=>{
+      const following=isFollowing(u.id);
+      const isOwn=u.id===session.userId;
+      return `<div class="user-list-item">
+        <div style="cursor:pointer" onclick="openUserProfile('${u.id}')">${avatarHTML(u.displayName,u.avatarColor,'avatar-md')}</div>
+        <div style="flex:1;cursor:pointer" onclick="openUserProfile('${u.id}')">
+          <div style="font-weight:600">${esc(u.displayName)}</div>
+          <div style="color:var(--text3);font-size:13px">@${esc(u.username)}</div>
+          ${u.bio?`<div style="font-size:13px;color:var(--text2);margin-top:2px">${esc(u.bio)}</div>`:''}
+        </div>
+        ${!isOwn?`<button class="${following?'btn-following':'btn-follow'}" data-follow="${u.id}" onclick="toggleFollow('${u.id}')">${following?'已追蹤':'追蹤'}</button>`:''}
+      </div>`;
+    }).join('')}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════
+function renderNotifications(){
+  const notifHTML=notifications.length?notifications.map(n=>{
+    const icons={like:'ti-heart-filled',comment:'ti-message-circle',follow:'ti-user-plus',repost:'ti-repeat',quote:'ti-quote'};
+    const labels={like:'喜歡了你的貼文',comment:'留言了你的貼文',follow:'開始追蹤你',repost:'轉發了你的貼文',quote:'引用了你的貼文'};
+    const p=n.postId?posts.find(x=>x.id===n.postId):null;
+    return `<div class="notif-item ${n.read?'':'unread'}">
+      <div class="avatar avatar-sm" style="background:${n.fromAvatarColor||hashColor(n.fromDisplayName||'')};flex-shrink:0">${(n.fromDisplayName||'?')[0]}</div>
+      <div style="flex:1">
+        <div style="font-size:14px"><span style="font-weight:600;cursor:pointer" onclick="openUserProfile('${n.fromUserId}')">${esc(n.fromDisplayName)}</span> ${labels[n.type]||n.text}</div>
+        ${p?`<div style="font-size:12px;color:var(--text2);margin-top:4px;cursor:pointer" onclick="openComments('${p.id}')">${esc(p.content).slice(0,60)}${p.content.length>60?'...':''}</div>`:''}
+        ${n.type==='comment'&&n.text?`<div style="font-size:12px;background:var(--panel2);padding:6px 10px;border-radius:8px;margin-top:6px;color:var(--text2)">${esc(n.text)}</div>`:''}
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">${timeAgo(n.createdAt)}</div>
+      </div>
+      <i class="ti ${icons[n.type]||'ti-bell'}" style="color:${n.type==='like'?'#ef4444':n.type==='follow'?'var(--accent2)':n.type==='repost'?'var(--teal)':'var(--accent2)'}"></i>
+    </div>`;
+  }).join(''):
+  '<div class="empty-state"><i class="ti ti-bell-off"></i><p>還沒有通知</p></div>';
+  return `
+  <div class="page-title"><i class="ti ti-bell"></i>通知</div>
+  ${notifications.length?`<div style="display:flex;justify-content:flex-end;margin-bottom:12px"><button class="btn btn-ghost btn-sm" onclick="markAllRead()"><i class="ti ti-check"></i> 全部已讀</button></div>`:''}
+  ${notifHTML}`;
+}
+function markAllRead(){
+  notifications.forEach(n=>n.read=true);
+  saveNotifications();updateNotifBadge();
+  renderPage('notifications');toast('全部已讀','success');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1248,8 +1732,7 @@ function saveDisplayName(){
   if(!name){toast('名稱不得為空','error');return}
   const u=users.find(x=>x.id===session.userId);
   if(u){u.displayName=name;saveUsers();}
-  session.displayName=name;saveSession();
-  renderSidebarUser();toast('顯示名稱已更新','success');
+  session.displayName=name;saveSession();renderSidebarUser();toast('顯示名稱已更新','success');
 }
 function changePassword(){
   const oldp=document.getElementById('set-oldpass').value;
@@ -1281,10 +1764,40 @@ function deleteAccount(){
   if(val!==session.username){toast('帳號名稱不符','error');return}
   users=users.filter(u=>u.id!==session.userId);
   posts=posts.filter(p=>p.userId!==session.userId);
-  saveUsers();savePosts();
-  closeDialog();doLogout();
+  saveUsers();savePosts();closeDialog();doLogout();
   toast('帳號已刪除','info');
 }
+
+// ═══════════════════════════════════════════════════════════
+// ICON SYSTEM
+// ═══════════════════════════════════════════════════════════
+const _ICONS={
+  'ti-home':'🏠','ti-bubble':'💬','ti-universe':'🌌','ti-galaxy':'🌠',
+  'ti-broadcast':'📡','ti-user':'👤','ti-users':'👥','ti-settings':'⚙️',
+  'ti-logout':'🚪','ti-menu-2':'☰','ti-plus':'＋','ti-photo':'📷',
+  'ti-photo-off':'🖼','ti-chart-bar':'📊','ti-heart':'♡',
+  'ti-heart-filled':'❤️','ti-heart-off':'💔','ti-message-circle':'💬',
+  'ti-message-off':'🔕','ti-repeat':'↺','ti-share':'↗','ti-arrow-left':'←',
+  'ti-x':'✕','ti-check':'✓','ti-info-circle':'ℹ️','ti-compass':'🧭',
+  'ti-shield':'🛡','ti-headphones':'🎧','ti-microphone':'🎙',
+  'ti-microphone-off':'🔇','ti-notes-off':'📋','ti-hand-stop':'✋',
+  'ti-phone-off':'📵','ti-alert-triangle':'⚠️','ti-trash':'🗑',
+  'ti-lock':'🔒','ti-bell':'🔔','ti-bell-off':'🔕','ti-edit':'✏️',
+  'ti-search':'🔍','ti-quote':'❝','ti-repeat':'↺','ti-user-plus':'👤',
+  'ti-user-off':'👤','ti-bookmark':'🔖','ti-bookmark-filled':'🔖',
+  'ti-bookmark-off':'🔖','ti-arrow-right':'→'
+};
+function _applyIcons(root){
+  (root||document).querySelectorAll('i.ti').forEach(el=>{
+    for(const c of el.classList){
+      if(c!=='ti'&&_ICONS[c]){el.textContent=_ICONS[c];break;}
+    }
+  });
+}
+const _obs=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{
+  if(n.nodeType===1){_applyIcons(n);}
+})));
+_obs.observe(document.documentElement,{childList:true,subtree:true});
 
 // ═══════════════════════════════════════════════════════════
 // INIT
@@ -1292,6 +1805,7 @@ function deleteAccount(){
 seedData();
 if(session){showApp();}
 else{document.getElementById('auth-screen').classList.remove('hidden');}
+_applyIcons(document);
 </script>
 </body>
 </html>
