@@ -246,6 +246,34 @@ img{max-width:100%}
 .toast.info{border-left:3px solid var(--accent)}
 .page-title{font-size:22px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
 .page-title i{font-size:24px}
+
+/* ── Instagram-style home header ── */
+.home-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 0 14px;border-bottom:1px solid var(--border);margin-bottom:16px;position:sticky;top:0;background:var(--bg);z-index:50}
+.home-logo{font-size:26px;font-weight:900;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#bc1888,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.5px;cursor:pointer}
+.topbar-actions{display:flex;gap:2px;align-items:center}
+.topbar-btn{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px;background:transparent;transition:background .15s;position:relative;cursor:pointer;border:none;color:var(--text)}
+.topbar-btn:hover{background:var(--panel2)}
+.topbar-badge{position:absolute;top:6px;right:6px;width:9px;height:9px;border-radius:50%;background:#ef4444;border:2px solid var(--bg)}
+
+/* ── Instagram-style settings ── */
+.ig-settings-header{display:flex;align-items:center;gap:14px;padding:16px 0 20px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.ig-settings-avatar-wrap{position:relative;cursor:pointer}
+.ig-settings-userinfo .dname{font-size:18px;font-weight:700}
+.ig-settings-userinfo .handle{font-size:14px;color:var(--text3);margin-top:2px}
+.settings-group{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden}
+.settings-group-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:14px 16px 6px}
+.settings-row-ig{display:flex;align-items:center;gap:14px;padding:13px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.settings-row-ig:last-child{border-bottom:none}
+.settings-row-ig:hover{background:var(--panel2)}
+.settings-row-ig .row-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.settings-row-ig .row-label{flex:1}
+.settings-row-ig .row-label strong{display:block;font-size:14px;font-weight:500}
+.settings-row-ig .row-label span{display:block;font-size:12px;color:var(--text3);margin-top:1px}
+.settings-row-ig .row-right{color:var(--text3);font-size:16px}
+.settings-panel{display:none;padding:16px;border-top:1px solid var(--border);background:var(--panel2)}
+.settings-panel.open{display:block}
+.settings-row-danger{color:#ef4444}
+.settings-row-danger .row-icon{background:rgba(239,68,68,.15)}
 .section-title{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text2)}
 .flex-between{display:flex;justify-content:space-between;align-items:center}
 .mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
@@ -753,8 +781,18 @@ function handleStoryMedia(input){
 // HOME PAGE
 // ═══════════════════════════════════════════════════════════
 function renderHome(){
+  const unread=(JSON.parse(localStorage.getItem('bv_notifications')||'[]')).filter(n=>!n.read&&n.toUserId===session.userId).length;
   return `
-  <div class="page-title"><i class="ti ti-home"></i>首頁</div>
+  <div class="home-topbar">
+    <span class="home-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Bubble Verse</span>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="openCreateStoryDialog()" title="新增故事">➕</button>
+      <button class="topbar-btn" onclick="navigate('notifications')" title="通知">
+        🔔${unread>0?`<span class="topbar-badge"></span>`:''}
+      </button>
+      <button class="topbar-btn" onclick="navigate('settings')" title="設定">⚙️</button>
+    </div>
+  </div>
   ${renderStoryBarHTML()}
   ${renderComposerHTML()}
   <div class="feed-tabs">
@@ -1688,51 +1726,257 @@ function markAllRead(){
 // SETTINGS
 // ═══════════════════════════════════════════════════════════
 function renderSettings(){
+  const u=users.find(x=>x.id===session.userId)||{};
+  const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
+  const tog=(key,def=false)=>sets[key]!==undefined?sets[key]:def;
   return `
-  <div class="page-title"><i class="ti ti-settings"></i>設定</div>
-  <div class="settings-section">
-    <h3><i class="ti ti-user"></i> 帳號設定</h3>
-    <div class="form-group"><label>顯示名稱</label><input id="set-name" type="text" value="${esc(session.displayName)}"/></div>
-    <button class="btn btn-primary btn-sm" onclick="saveDisplayName()">儲存名稱</button>
-  </div>
-  <div class="settings-section">
-    <h3><i class="ti ti-lock"></i> 更改密碼</h3>
-    <div class="form-group"><label>目前密碼</label><input id="set-oldpass" type="password"/></div>
-    <div class="form-group"><label>新密碼</label><input id="set-newpass" type="password"/></div>
-    <div class="form-group"><label>確認新密碼</label><input id="set-newpass2" type="password"/></div>
-    <button class="btn btn-primary btn-sm" onclick="changePassword()">更改密碼</button>
-  </div>
-  <div class="settings-section">
-    <h3><i class="ti ti-shield"></i> 隱私設定</h3>
-    <div class="settings-row">
-      <div><div style="font-weight:500">帳號隱私</div><div style="font-size:13px;color:var(--text3)">開啟後，只有獲批准的追蹤者可以看到你的貼文</div></div>
-      <div class="toggle" id="privacy-toggle" onclick="toggleSetting('privacy-toggle')"></div>
-    </div>
-    <div class="settings-row">
-      <div><div style="font-weight:500">顯示線上狀態</div><div style="font-size:13px;color:var(--text3)">讓其他人看到你是否在線</div></div>
-      <div class="toggle on" id="online-toggle" onclick="toggleSetting('online-toggle')"></div>
+  <div class="ig-settings-header">
+    ${avatarHTML(session.displayName,session.avatarColor,'avatar-lg')}
+    <div class="ig-settings-userinfo">
+      <div class="dname">${esc(session.displayName)}</div>
+      <div class="handle">@${esc(session.username)}</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="navigate('profile')">查看個人頁</button>
     </div>
   </div>
-  <div class="settings-section">
-    <h3><i class="ti ti-bell"></i> 通知設定</h3>
-    <div class="settings-row"><label class="checkbox-label"><input type="checkbox" checked/> 新追蹤者通知</label></div>
-    <div class="settings-row"><label class="checkbox-label"><input type="checkbox" checked/> 按讚通知</label></div>
-    <div class="settings-row"><label class="checkbox-label"><input type="checkbox" checked/> 留言通知</label></div>
-    <div class="settings-row"><label class="checkbox-label"><input type="checkbox"/> 每週摘要電子報</label></div>
+
+  <!-- 帳號 -->
+  <div class="settings-group">
+    <div class="settings-group-title">帳號</div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-profile')">
+      <div class="row-icon" style="background:rgba(124,58,237,.15)">👤</div>
+      <div class="row-label"><strong>編輯個人資料</strong><span>名稱、簡介</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-profile">
+      <div class="form-group"><label>顯示名稱</label><input id="set-name" type="text" value="${esc(session.displayName)}"/></div>
+      <div class="form-group"><label>個人簡介</label><textarea id="set-bio" rows="3">${esc(u.bio||'')}</textarea></div>
+      <button class="btn btn-primary btn-sm" onclick="saveProfile()">儲存</button>
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-password')">
+      <div class="row-icon" style="background:rgba(14,165,233,.15)">🔑</div>
+      <div class="row-label"><strong>更改密碼</strong><span>建議使用強密碼</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-password">
+      <div class="form-group"><label>目前密碼</label><input id="set-oldpass" type="password" placeholder="••••••"/></div>
+      <div class="form-group"><label>新密碼</label><input id="set-newpass" type="password" placeholder="••••••"/></div>
+      <div class="form-group"><label>確認新密碼</label><input id="set-newpass2" type="password" placeholder="••••••"/></div>
+      <button class="btn btn-primary btn-sm" onclick="changePassword()">更改密碼</button>
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-username')">
+      <div class="row-icon" style="background:rgba(20,184,166,.15)">🆔</div>
+      <div class="row-label"><strong>更改帳號名稱</strong><span>@${esc(session.username)}</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-username">
+      <div class="form-group"><label>新帳號名稱（小寫英文/數字/_）</label><input id="set-username" type="text" value="${esc(session.username)}" maxlength="30"/></div>
+      <button class="btn btn-primary btn-sm" onclick="changeUsername()">更改帳號</button>
+    </div>
   </div>
-  <div class="settings-section danger-zone">
-    <h3><i class="ti ti-alert-triangle"></i> 危險區域</h3>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px">刪除帳號後，所有資料將永久清除且無法復原。</p>
-    <button class="btn btn-danger btn-sm" onclick="confirmDeleteAccount()"><i class="ti ti-trash"></i> 刪除帳號</button>
+
+  <!-- 隱私設定 -->
+  <div class="settings-group">
+    <div class="settings-group-title">隱私設定</div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-privacy')">
+      <div class="row-icon" style="background:rgba(239,68,68,.12)">🔒</div>
+      <div class="row-label"><strong>帳號隱私</strong><span>${tog('privateAccount')?'私人帳號（僅追蹤者可見）':'公開帳號'}</span></div>
+      <div class="toggle ${tog('privateAccount')?'on':''}" id="set-private" onclick="event.stopPropagation();toggleBoolSetting('privateAccount','set-private')"></div>
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-activity')">
+      <div class="row-icon" style="background:rgba(16,185,129,.12)">👁</div>
+      <div class="row-label"><strong>顯示線上狀態</strong><span>讓其他人看到你的活躍時間</span></div>
+      <div class="toggle ${tog('showActivity',true)?'on':''}" id="set-activity" onclick="event.stopPropagation();toggleBoolSetting('showActivity','set-activity')"></div>
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-story-priv')">
+      <div class="row-icon" style="background:rgba(249,115,22,.12)">📸</div>
+      <div class="row-label"><strong>故事隱私</strong><span>控制誰可以看到你的泡泡故事</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-story-priv">
+      ${['所有人','僅追蹤者','僅自己'].map((opt,i)=>`
+      <label class="checkbox-label" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <input type="radio" name="story-vis" ${(sets.storyVisibility||0)===i?'checked':''} onchange="saveSetting('storyVisibility',${i})"/> ${opt}
+      </label>`).join('')}
+    </div>
+    <div class="settings-row-ig">
+      <div class="row-icon" style="background:rgba(139,92,246,.12)">💬</div>
+      <div class="row-label"><strong>誰可以留言</strong><span>控制留言權限</span></div>
+      <div class="toggle ${tog('commentsAll',true)?'on':''}" id="set-comments" onclick="toggleBoolSetting('commentsAll','set-comments')"></div>
+    </div>
+    <div class="settings-row-ig">
+      <div class="row-icon" style="background:rgba(236,72,153,.12)">🔁</div>
+      <div class="row-label"><strong>允許被轉發</strong><span>其他人可以轉發你的貼文</span></div>
+      <div class="toggle ${tog('allowRepost',true)?'on':''}" id="set-repost" onclick="toggleBoolSetting('allowRepost','set-repost')"></div>
+    </div>
+  </div>
+
+  <!-- 通知 -->
+  <div class="settings-group">
+    <div class="settings-group-title">通知</div>
+    ${[
+      {key:'notif_like',icon:'❤️',label:'按讚',desc:'有人按讚你的貼文時通知',bg:'rgba(239,68,68,.12)',def:true},
+      {key:'notif_comment',icon:'💬',label:'留言',desc:'有人留言你的貼文時通知',bg:'rgba(124,58,237,.12)',def:true},
+      {key:'notif_follow',icon:'👥',label:'新追蹤者',desc:'有人追蹤你時通知',bg:'rgba(14,165,233,.12)',def:true},
+      {key:'notif_repost',icon:'🔁',label:'轉發',desc:'有人轉發你的貼文時通知',bg:'rgba(20,184,166,.12)',def:false},
+      {key:'notif_mention',icon:'@',label:'提及',desc:'有人在貼文中提及你',bg:'rgba(249,115,22,.12)',def:true},
+    ].map(n=>`
+    <div class="settings-row-ig">
+      <div class="row-icon" style="background:${n.bg}">${n.icon}</div>
+      <div class="row-label"><strong>${n.label}</strong><span>${n.desc}</span></div>
+      <div class="toggle ${tog(n.key,n.def)?'on':''}" id="set-${n.key}" onclick="toggleBoolSetting('${n.key}','set-${n.key}')"></div>
+    </div>`).join('')}
+  </div>
+
+  <!-- 外觀 -->
+  <div class="settings-group">
+    <div class="settings-group-title">外觀與語言</div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-theme')">
+      <div class="row-icon" style="background:rgba(124,58,237,.15)">🎨</div>
+      <div class="row-label"><strong>主題色彩</strong><span>自訂 Bubble Verse 主題色</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-theme">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${[['#7c3aed','紫羅蘭'],['#ec4899','玫瑰粉'],['#0ea5e9','星空藍'],['#14b8a6','翡翠綠'],['#f97316','日落橙'],['#dc2626','赤紅']].map(([color,name])=>`
+        <div onclick="setAccentColor('${color}')" style="width:44px;height:44px;border-radius:50%;background:${color};cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;border:3px solid ${sets.accentColor===color?'#fff':'transparent'}">${name[0]}</div>`).join('')}
+      </div>
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-lang')">
+      <div class="row-icon" style="background:rgba(20,184,166,.15)">🌐</div>
+      <div class="row-label"><strong>語言</strong><span>繁體中文</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-lang">
+      ${['繁體中文','English','日本語','한국어','Español'].map((l,i)=>`
+      <label class="checkbox-label" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <input type="radio" name="lang" ${i===0?'checked':''}/> ${l}
+      </label>`).join('')}
+    </div>
+  </div>
+
+  <!-- 安全性 -->
+  <div class="settings-group">
+    <div class="settings-group-title">安全性</div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-sessions')">
+      <div class="row-icon" style="background:rgba(14,165,233,.15)">📱</div>
+      <div class="row-label"><strong>登入裝置</strong><span>查看目前登入的裝置</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-sessions">
+      <div class="card card-sm" style="display:flex;gap:12px;align-items:center">
+        <span style="font-size:28px">💻</span>
+        <div><div style="font-weight:600;font-size:14px">目前裝置</div><div style="font-size:12px;color:var(--text3)">台灣 · 此瀏覽器 · 目前使用中</div></div>
+        <span style="margin-left:auto;font-size:12px;background:rgba(20,184,166,.2);color:var(--teal);padding:3px 8px;border-radius:99px">使用中</span>
+      </div>
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-2fa')">
+      <div class="row-icon" style="background:rgba(249,115,22,.15)">🛡</div>
+      <div class="row-label"><strong>雙重驗證</strong><span>增加帳號安全性</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-2fa">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">雙重驗證為 Bubble Verse 去中心化節點功能，將在正式版啟用。</p>
+      <div class="toggle" id="set-2fa" onclick="toast('雙重驗證將在正式版推出','info')"></div>
+    </div>
+  </div>
+
+  <!-- 關於 -->
+  <div class="settings-group">
+    <div class="settings-group-title">關於</div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-about')">
+      <div class="row-icon" style="background:rgba(124,58,237,.15)">🫧</div>
+      <div class="row-label"><strong>關於 Bubble Verse</strong><span>版本、授權、開源資訊</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-about">
+      <div style="text-align:center;padding:16px 0">
+        <div style="font-size:36px;margin-bottom:8px">🫧</div>
+        <div style="font-size:18px;font-weight:800;background:linear-gradient(135deg,#f09433,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Bubble Verse</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:4px">版本 1.0.0 · 基於 Misskey / ActivityPub</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:8px;line-height:1.7">去中心化 · 聯邦宇宙 · 開源免費<br/>AGPL-3.0 License</div>
+      </div>
+    </div>
+    <div class="settings-row-ig" onclick="toast('隱私政策：你的資料存在你自己的節點','info')">
+      <div class="row-icon" style="background:rgba(16,185,129,.12)">📄</div>
+      <div class="row-label"><strong>隱私政策</strong></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-row-ig" onclick="toast('服務條款：自由分享，互相尊重','info')">
+      <div class="row-icon" style="background:rgba(14,165,233,.12)">📋</div>
+      <div class="row-label"><strong>服務條款</strong></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-row-ig" onclick="toast('回報問題：感謝你的反饋！','success')">
+      <div class="row-icon" style="background:rgba(249,115,22,.12)">🐛</div>
+      <div class="row-label"><strong>回報問題</strong></div>
+      <span class="row-right">›</span>
+    </div>
+  </div>
+
+  <!-- 登出 -->
+  <div class="settings-group">
+    <div class="settings-row-ig settings-row-danger" onclick="doLogout()" style="justify-content:center">
+      <div class="row-icon">🚪</div>
+      <div class="row-label"><strong style="color:#ef4444">登出 @${esc(session.username)}</strong></div>
+    </div>
+    <div class="settings-row-ig" onclick="confirmDeleteAccount()" style="justify-content:center">
+      <div class="row-icon">🗑</div>
+      <div class="row-label"><strong style="color:var(--text3)">刪除帳號</strong></div>
+    </div>
   </div>`;
 }
 function toggleSetting(id){document.getElementById(id).classList.toggle('on');toast('設定已更新','success')}
+
+// ── Instagram-style settings helpers ──
+function toggleSettingsPanel(id){
+  const p=document.getElementById(id);if(!p)return;
+  p.classList.toggle('open');
+}
+function toggleBoolSetting(key,toggleId){
+  const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
+  sets[key]=!sets[key];
+  localStorage.setItem('bv_settings',JSON.stringify(sets));
+  const el=document.getElementById(toggleId);
+  if(el)el.classList.toggle('on',sets[key]);
+  toast('設定已更新','success');
+}
+function saveSetting(key,val){
+  const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
+  sets[key]=val;localStorage.setItem('bv_settings',JSON.stringify(sets));
+  toast('設定已更新','success');
+}
+function setAccentColor(color){
+  document.documentElement.style.setProperty('--accent',color);
+  saveSetting('accentColor',color);
+  renderPage('settings');
+  toast('主題色彩已更新','success');
+}
+function saveProfile(){
+  const name=(document.getElementById('set-name')||{}).value?.trim();
+  const bio=(document.getElementById('set-bio')||{}).value?.trim();
+  if(name){
+    const u=users.find(x=>x.id===session.userId);
+    if(u){u.displayName=name;if(bio!==undefined)u.bio=bio;saveUsers();}
+    session.displayName=name;saveSession();renderSidebarUser();
+  }
+  toast('個人資料已更新','success');
+  renderPage('settings');
+}
 function saveDisplayName(){
-  const name=document.getElementById('set-name').value.trim();
+  const name=(document.getElementById('set-name')||{}).value?.trim();
   if(!name){toast('名稱不得為空','error');return}
   const u=users.find(x=>x.id===session.userId);
   if(u){u.displayName=name;saveUsers();}
   session.displayName=name;saveSession();renderSidebarUser();toast('顯示名稱已更新','success');
+}
+function changeUsername(){
+  const newu=(document.getElementById('set-username')||{}).value?.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if(!newu){toast('請輸入有效帳號','error');return}
+  if(users.find(x=>x.username===newu&&x.id!==session.userId)){toast('帳號已被使用','error');return}
+  const u=users.find(x=>x.id===session.userId);
+  if(u){u.username=newu;saveUsers();}
+  session.username=newu;saveSession();renderSidebarUser();
+  toast('帳號名稱已更新','success');renderPage('settings');
 }
 function changePassword(){
   const oldp=document.getElementById('set-oldpass').value;
