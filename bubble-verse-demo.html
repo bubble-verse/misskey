@@ -274,6 +274,52 @@ img{max-width:100%}
 .settings-panel.open{display:block}
 .settings-row-danger{color:#ef4444}
 .settings-row-danger .row-icon{background:rgba(239,68,68,.15)}
+
+/* ── Analytics Dashboard ── */
+.analytics-overview{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+@media(min-width:600px){.analytics-overview{grid-template-columns:repeat(4,1fr)}}
+.analytics-kpi{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.analytics-kpi .kpi-val{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent2),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2}
+.analytics-kpi .kpi-label{font-size:11px;color:var(--text3);margin-top:4px}
+.analytics-kpi .kpi-delta{font-size:11px;margin-top:3px;font-weight:600}
+.kpi-up{color:#22c55e}.kpi-down{color:#ef4444}
+.analytics-section{margin-bottom:20px}
+.analytics-section-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:100px;padding:0 2px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));transition:height .6s ease;min-height:3px}
+.bar-fill.peak{background:linear-gradient(180deg,var(--pink),var(--orange))}
+.bar-lbl{font-size:9px;color:var(--text3);white-space:nowrap}
+.bar-val{font-size:9px;color:var(--text2)}
+/* Heatmap */
+.heatmap{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;margin-bottom:6px}
+.heatmap-cell{aspect-ratio:1;border-radius:2px;cursor:default;position:relative}
+.heatmap-cell:hover::after{content:attr(data-tip);position:absolute;bottom:120%;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:10px;white-space:nowrap;z-index:10;pointer-events:none}
+.heatmap-hours{display:flex;justify-content:space-between;font-size:9px;color:var(--text3)}
+/* Traffic donut */
+.traffic-legend{display:flex;flex-direction:column;gap:7px}
+.traffic-item{display:flex;align-items:center;gap:8px;font-size:13px}
+.traffic-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.traffic-bar-wrap{flex:1;height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.traffic-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.traffic-pct{font-size:12px;color:var(--text3);min-width:32px;text-align:right}
+/* Top posts */
+.top-post-item{background:var(--panel2);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer}
+.top-post-rank{font-size:22px;font-weight:900;color:var(--accent2);min-width:28px;text-align:center;line-height:1}
+.top-post-stats{display:flex;gap:10px;font-size:11px;color:var(--text3);margin-top:6px;flex-wrap:wrap}
+.top-post-stat{display:flex;align-items:center;gap:3px}
+/* Content insight card */
+.insight-card{background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(236,72,153,.1));border:1px solid rgba(124,58,237,.25);border-radius:12px;padding:14px;margin-bottom:10px}
+.insight-card h4{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.insight-tag{display:inline-block;background:rgba(124,58,237,.2);color:var(--accent2);border-radius:99px;padding:2px 9px;font-size:11px;font-weight:600;margin:2px}
+.analytics-tab{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px}
+.analytics-tab-btn{padding:8px 14px;font-size:13px;font-weight:500;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;margin-bottom:-1px}
+.analytics-tab-btn.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+/* Streak & Karma */
+.creator-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.creator-badge{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--border);border-radius:99px;padding:6px 12px;font-size:12px}
+.creator-badge .badge-icon{font-size:16px}
 .section-title{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text2)}
 .flex-between{display:flex;justify-content:space-between;align-items:center}
 .mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
@@ -422,6 +468,7 @@ let pollVotes=JSON.parse(localStorage.getItem('bv_pollvotes')||'{}');
 let comments=JSON.parse(localStorage.getItem('bv_comments')||'{}');
 let notifications=JSON.parse(localStorage.getItem('bv_notifications')||'[]');
 let bookmarks=JSON.parse(localStorage.getItem('bv_bookmarks')||'{}');
+let analytics=JSON.parse(localStorage.getItem('bv_analytics')||'{}');
 
 let currentPage='home';
 let storyIndex=0;
@@ -451,6 +498,7 @@ function savePollVotes(){localStorage.setItem('bv_pollvotes',JSON.stringify(poll
 function saveComments(){localStorage.setItem('bv_comments',JSON.stringify(comments))}
 function saveNotifications(){localStorage.setItem('bv_notifications',JSON.stringify(notifications))}
 function saveBookmarks(){localStorage.setItem('bv_bookmarks',JSON.stringify(bookmarks))}
+function saveAnalytics(){localStorage.setItem('bv_analytics',JSON.stringify(analytics))}
 function saveSession(){localStorage.setItem('bv_session',JSON.stringify(session))}
 
 // ── Seed data ──
@@ -537,6 +585,116 @@ function seedData(){
     ];
     saveSpaces();
   }
+  // Seed analytics for every user
+  if(!analytics[session&&session.userId||'u1']){
+    seedAnalytics();
+  }
+}
+
+// ─── Seed realistic 30-day analytics ───
+function seedAnalytics(){
+  const uid=session&&session.userId||'u1';
+  if(analytics[uid])return;
+  const now=Date.now();
+  const DAY=86400000;
+  // Generate 30 days of daily stats
+  const dailyStats={};
+  const followerHistory=[];
+  let followerBase=Math.floor(Math.random()*200+80);
+  for(let i=29;i>=0;i--){
+    const d=new Date(now-i*DAY);
+    const key=d.toISOString().slice(0,10);
+    const weekday=d.getDay();// 0=Sun
+    const isWeekend=weekday===0||weekday===6;
+    const base=isWeekend?180:120;
+    const views=Math.floor(base+Math.random()*base*0.8+(i<7?50:0));
+    const likes=Math.floor(views*0.08+Math.random()*10);
+    const comments=Math.floor(likes*0.3);
+    const gain=Math.floor(Math.random()*8+(i<7?3:0));
+    followerBase+=gain;
+    dailyStats[key]={views,likes,comments,reach:Math.floor(views*1.4),newFollowers:gain};
+    followerHistory.push({date:key,count:followerBase});
+  }
+  // 24-hour engagement pattern (typical Taiwan night-owl pattern)
+  const hourlyStats=[8,5,3,2,2,3,7,15,22,28,30,32,35,30,28,25,30,38,55,82,95,88,72,45];
+  // 7-day weekday pattern [Mon,Tue,Wed,Thu,Fri,Sat,Sun]
+  const weekdayStats=[320,290,315,340,380,520,490];
+  // Traffic sources
+  const trafficSources={home:42,explore:28,profile:15,hashtag:10,share:5};
+  // Post views (distribute views across my posts)
+  const myPosts=posts.filter(p=>p.userId===uid);
+  const postViews={};
+  myPosts.forEach((p,i)=>{
+    postViews[p.id]=Math.floor(300+Math.random()*800*(1-i*0.1));
+  });
+  // Content type performance
+  const contentTypePerf={
+    text:{views:1240,count:4,avgLikes:18},
+    image:{views:3800,count:2,avgLikes:52},
+    video:{views:5200,count:1,avgLikes:89},
+    poll:{views:2100,count:2,avgLikes:34}
+  };
+  analytics[uid]={dailyStats,followerHistory,hourlyStats,weekdayStats,trafficSources,postViews,contentTypePerf,lastUpdated:now};
+  saveAnalytics();
+}
+
+// Track a post being viewed
+function trackPostView(postId,source='home'){
+  if(!session)return;
+  const uid=session.userId;
+  if(!analytics[uid])seedAnalytics();
+  const a=analytics[uid];
+  // Update post views
+  a.postViews=a.postViews||{};
+  a.postViews[postId]=(a.postViews[postId]||0)+1;
+  // Update today's daily stats
+  const today=new Date().toISOString().slice(0,10);
+  if(!a.dailyStats[today])a.dailyStats[today]={views:0,likes:0,comments:0,reach:0,newFollowers:0};
+  const post=posts.find(p=>p.id===postId);
+  if(post&&post.userId===uid){
+    a.dailyStats[today].views++;
+    a.dailyStats[today].reach=Math.floor(a.dailyStats[today].views*1.4);
+  }
+  // Update hourly stats
+  const hour=new Date().getHours();
+  a.hourlyStats=a.hourlyStats||Array(24).fill(0);
+  a.hourlyStats[hour]=(a.hourlyStats[hour]||0)+1;
+  // Update traffic source
+  a.trafficSources=a.trafficSources||{home:0,explore:0,profile:0,hashtag:0,share:0};
+  a.trafficSources[source]=(a.trafficSources[source]||0)+1;
+  saveAnalytics();
+}
+
+// ─── Content keyword analysis ───
+function analyzeTopContent(userId){
+  const myPosts=posts.filter(p=>p.userId===userId);
+  if(!myPosts.length)return{keywords:[],topType:'text',insight:''};
+  const a=analytics[userId]||{};
+  const postViews=a.postViews||{};
+  // Score each post: views + engagement
+  const scored=myPosts.map(p=>({
+    ...p,
+    totalScore:(postViews[p.id]||0)+(p.likes?.length||0)*3+(p.comments||0)*2+(p.reposts?.length||0)*2
+  })).sort((a,b)=>b.totalScore-a.totalScore);
+  const topThird=scored.slice(0,Math.max(1,Math.ceil(scored.length*0.4)));
+  // Extract keywords (skip stopwords)
+  const stopSet=new Set(['的','了','是','在','和','也','就','都','但','這','那','他','你','我','很','有','沒','到','不','一','個','她','它','我們','你們','他們','地','得','過','著','或','因為','所以','雖然','如果','而且','還是','還有','什麼','可以','已經','只是','還是','就是','因此','所以','哈哈','！','？','…','。','，','：','；']);
+  const wordFreq={};
+  topThird.forEach(p=>{
+    const words=p.content.split(/[\s，。！？、：；「」『』【】\(\)（）\n#@]+/u).filter(w=>w.length>=2&&!stopSet.has(w));
+    words.forEach(w=>{wordFreq[w]=(wordFreq[w]||0)+1;});
+  });
+  const keywords=Object.entries(wordFreq).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([w])=>w);
+  // Best content type
+  const typeScore={};
+  scored.forEach(p=>{const t=p.mediaType?p.mediaType:p.type==='poll'?'poll':'text';typeScore[t]=(typeScore[t]||0)+p.totalScore;});
+  const topType=Object.entries(typeScore).sort((a,b)=>b[1]-a[1])[0]?.[0]||'text';
+  const typeNames={text:'純文字',image:'圖片',video:'影片',poll:'投票'};
+  // Best hour
+  const hourly=a.hourlyStats||Array(24).fill(0);
+  const bestHour=hourly.indexOf(Math.max(...hourly));
+  const insight=`你的 ${typeNames[topType]||topType} 貼文平均觸及最高，最佳發文時段為 ${bestHour}:00–${bestHour+1}:00`;
+  return{keywords,topType,insight,scored:scored.slice(0,5)};
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -657,7 +815,9 @@ function doLogout(){
 function showApp(){
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  renderSidebarUser();updateNotifBadge();navigate('home');
+  renderSidebarUser();updateNotifBadge();
+  if(!analytics[session.userId])seedAnalytics();
+  navigate('home');
 }
 function renderSidebarUser(){
   const el=document.getElementById('sidebar-user');
@@ -681,7 +841,7 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 // ═══════════════════════════════════════════════════════════
 function renderPage(page){
   const el=document.getElementById('content');
-  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings,search:renderSearch,notifications:renderNotifications,userprofile:renderUserProfile};
+  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings,search:renderSearch,notifications:renderNotifications,userprofile:renderUserProfile,analytics:renderAnalytics};
   if(pages[page]){el.innerHTML=pages[page]();_applyIcons(el);}
   else el.innerHTML='<div class="empty-state"><i class="ti ti-compass"></i><p>頁面不存在</p></div>';
 }
@@ -858,9 +1018,11 @@ function renderComposerHTML(galaxyId){
     </div>
   </div>`;
 }
-function renderFeedHTML(arr){
+function renderFeedHTML(arr,source='home'){
   const sorted=[...arr].sort((a,b)=>b.createdAt-a.createdAt);
   if(!sorted.length)return '<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文，快去追蹤一些人吧！</p></div>';
+  // Track views for each post's owner
+  sorted.forEach(p=>{if(p.userId!==session?.userId)trackPostView(p.id,source);});
   return sorted.map(p=>renderPostHTML(p)).join('');
 }
 function renderPostHTML(p){
@@ -1725,6 +1887,179 @@ function markAllRead(){
 // ═══════════════════════════════════════════════════════════
 // SETTINGS
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// ANALYTICS DASHBOARD
+// ═══════════════════════════════════════════════════════════
+let analyticsTab='overview';
+function renderAnalytics(){
+  const uid=session.userId;
+  if(!analytics[uid])seedAnalytics();
+  const a=analytics[uid];
+  const myPosts=posts.filter(p=>p.userId===uid);
+  const {keywords,topType,insight,scored}=analyzeTopContent(uid);
+
+  // ── KPI totals ──
+  const days=Object.values(a.dailyStats||{});
+  const totalViews=days.reduce((s,d)=>s+d.views,0);
+  const totalLikes=days.reduce((s,d)=>s+d.likes,0);
+  const totalReach=days.reduce((s,d)=>s+d.reach,0);
+  const totalFollowers=(a.followerHistory||[]).slice(-1)[0]?.count||0;
+  // 7-day vs prev 7-day delta
+  const last7=days.slice(-7).reduce((s,d)=>s+d.views,0);
+  const prev7=days.slice(-14,-7).reduce((s,d)=>s+d.views,0);
+  const delta=prev7>0?Math.round((last7-prev7)/prev7*100):0;
+
+  // ── Bar chart: last 14 days ──
+  const last14=Object.entries(a.dailyStats||{}).slice(-14);
+  const maxViews=Math.max(...last14.map(([,d])=>d.views),1);
+  const barChart=`<div class="bar-chart">${last14.map(([date,d])=>{
+    const pct=Math.round(d.views/maxViews*100);
+    const isPeak=d.views===Math.max(...last14.map(([,x])=>x.views));
+    const label=date.slice(5);// MM-DD
+    return `<div class="bar-col">
+      <div class="bar-val" style="font-size:8px;color:var(--text3);margin-bottom:2px">${d.views}</div>
+      <div class="bar-fill${isPeak?' peak':''}" style="height:${pct}%"></div>
+      <div class="bar-lbl">${label}</div>
+    </div>`;
+  }).join('')}</div>`;
+
+  // ── 24-hour heatmap ──
+  const hourly=a.hourlyStats||Array(24).fill(0);
+  const maxH=Math.max(...hourly,1);
+  const heatmap=`<div class="heatmap">${hourly.map((v,h)=>{
+    const op=(v/maxH*0.85+0.08).toFixed(2);
+    const isPeak=v===maxH;
+    return `<div class="heatmap-cell" data-tip="${h}:00 · ${v}次" style="background:rgba(${isPeak?'236,72,153':'124,58,237'},${op});${isPeak?'box-shadow:0 0 6px rgba(236,72,153,.5)':''}"></div>`;
+  }).join('')}</div>
+  <div class="heatmap-hours"><span>0時</span><span>6時</span><span>12時</span><span>18時</span><span>23時</span></div>`;
+  const peakHour=hourly.indexOf(maxH);
+
+  // ── 7-day bar chart ──
+  const wdNames=['一','二','三','四','五','六','日'];
+  const maxWd=Math.max(...(a.weekdayStats||[1]),1);
+  const wdChart=`<div class="bar-chart">${(a.weekdayStats||Array(7).fill(0)).map((v,i)=>{
+    const pct=Math.round(v/maxWd*100);
+    const isPeak=v===Math.max(...(a.weekdayStats||[]));
+    return `<div class="bar-col">
+      <div class="bar-fill${isPeak?' peak':''}" style="height:${pct}%"></div>
+      <div class="bar-lbl">週${wdNames[i]}</div>
+    </div>`;
+  }).join('')}</div>`;
+
+  // ── Traffic sources ──
+  const src=a.trafficSources||{home:42,explore:28,profile:15,hashtag:10,share:5};
+  const srcTotal=Object.values(src).reduce((s,v)=>s+v,0)||1;
+  const srcColors={home:'#7c3aed',explore:'#0ea5e9',profile:'#ec4899',hashtag:'#f97316',share:'#22c55e'};
+  const srcNames={home:'首頁動態',explore:'探索頁',profile:'個人主頁',hashtag:'標籤搜尋',share:'分享連結'};
+  const trafficHTML=`<div class="traffic-legend">${Object.entries(src).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+    const pct=Math.round(v/srcTotal*100);
+    return `<div class="traffic-item">
+      <div class="traffic-dot" style="background:${srcColors[k]||'#888'}"></div>
+      <span style="min-width:70px;font-size:12px">${srcNames[k]||k}</span>
+      <div class="traffic-bar-wrap"><div class="traffic-bar-fill" style="width:${pct}%;background:${srcColors[k]||'#888'}"></div></div>
+      <span class="traffic-pct">${pct}%</span>
+    </div>`;
+  }).join('')}</div>`;
+
+  // ── Top posts ──
+  const topPostsHTML=(scored||[]).map((p,i)=>{
+    const views=a.postViews?.[p.id]||0;
+    const engRate=views>0?((p.likes?.length||0)+(p.comments||0))/views*100:0;
+    const typeIcon={text:'📝',image:'🖼',video:'🎬',poll:'📊'}[p.mediaType||(p.type==='poll'?'poll':'text')]||'📝';
+    return `<div class="top-post-item" onclick="navigate('home')">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div class="top-post-rank">${['🥇','🥈','🥉','4','5'][i]||i+1}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px">${typeIcon} ${esc(p.content.slice(0,60))}${p.content.length>60?'…':''}</div>
+          <div class="top-post-stats">
+            <span class="top-post-stat">👁 ${views} 次瀏覽</span>
+            <span class="top-post-stat">❤️ ${p.likes?.length||0}</span>
+            <span class="top-post-stat">💬 ${p.comments||0}</span>
+            <span class="top-post-stat">📈 ${engRate.toFixed(1)}% 互動率</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:20px;color:var(--text3)">尚無貼文數據</div>';
+
+  // ── Creator insights ──
+  const typeNames2={text:'純文字',image:'圖片貼文',video:'影片',poll:'投票'};
+  const insightHTML=`
+  <div class="insight-card">
+    <h4>🤖 AI 內容分析</h4>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:8px">${esc(insight)}</p>
+    ${keywords.length?`<div>高效關鍵詞：${keywords.map(k=>`<span class="insight-tag">${esc(k)}</span>`).join('')}</div>`:''}
+  </div>
+  <div class="insight-card" style="background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(239,68,68,.08));border-color:rgba(249,115,22,.25)">
+    <h4>⏰ 最佳發文時間</h4>
+    <p style="font-size:12px;color:var(--text2)">根據你的受眾活躍數據，建議在 <strong style="color:var(--orange)">${peakHour}:00–${peakHour+2}:00</strong> 發文，觸及率最高可達平均值的 <strong style="color:var(--orange)">${Math.round(hourly[peakHour]/Math.max(1,...hourly.map((v,i)=>i!==peakHour?v:0))*10)/10}×</strong></p>
+  </div>
+  <div class="insight-card" style="background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(20,184,166,.08));border-color:rgba(34,197,94,.25)">
+    <h4>📱 內容類型表現</h4>
+    ${Object.entries(a.contentTypePerf||{}).map(([t,v])=>`
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+      <span>${typeNames2[t]||t}</span>
+      <span style="color:var(--teal)">平均 ${Math.round(v.views/(v.count||1))} 次瀏覽 · ❤️ ${v.avgLikes}</span>
+    </div>`).join('')}
+  </div>`;
+
+  // ── Follower growth ──
+  const fhData=(a.followerHistory||[]).slice(-14);
+  const maxF=Math.max(...fhData.map(d=>d.count),1);
+  const minF=Math.min(...fhData.map(d=>d.count),0);
+  const followerChart=`<div class="bar-chart" style="height:70px">${fhData.map(d=>{
+    const pct=Math.round((d.count-minF)/(maxF-minF+1)*100);
+    return `<div class="bar-col">
+      <div class="bar-fill" style="height:${Math.max(pct,5)}%;background:linear-gradient(180deg,#22c55e,#14b8a6)"></div>
+      <div class="bar-lbl">${d.date.slice(8)}</div>
+    </div>`;
+  }).join('')}</div>`;
+
+  // ── Tab rendering ──
+  const tabs=['overview','posts','audience','insights'];
+  const tabNames={overview:'總覽',posts:'貼文',audience:'受眾',insights:'洞察'};
+  const tabContent={
+    overview:`
+      <div class="analytics-overview">
+        <div class="analytics-kpi"><div class="kpi-val">${totalViews.toLocaleString()}</div><div class="kpi-label">30天總觸及</div><div class="kpi-delta ${delta>=0?'kpi-up':'kpi-down'}">${delta>=0?'↑':'↓'}${Math.abs(delta)}% vs 上週</div></div>
+        <div class="analytics-kpi"><div class="kpi-val">${totalReach.toLocaleString()}</div><div class="kpi-label">總覆蓋人數</div></div>
+        <div class="analytics-kpi"><div class="kpi-val">${totalLikes.toLocaleString()}</div><div class="kpi-label">累積按讚</div></div>
+        <div class="analytics-kpi"><div class="kpi-val">${totalFollowers.toLocaleString()}</div><div class="kpi-label">追蹤者總數</div></div>
+      </div>
+      <div class="analytics-section"><div class="analytics-section-title">📈 每日瀏覽量（近14天）</div>${barChart}</div>
+      <div class="analytics-section"><div class="analytics-section-title">🚦 流量來源</div>${trafficHTML}</div>`,
+    posts:`
+      <div class="analytics-section"><div class="analytics-section-title">🏆 表現最好的貼文</div>${topPostsHTML}</div>`,
+    audience:`
+      <div class="analytics-section"><div class="analytics-section-title">📅 每週活躍分布</div>${wdChart}</div>
+      <div class="analytics-section"><div class="analytics-section-title">⏱ 24小時互動熱力圖 <span style="font-size:11px;color:var(--text3)">（顏色越深流量越高）</span></div>${heatmap}<div style="text-align:center;font-size:12px;color:var(--accent2);margin-top:6px;font-weight:600">🔥 高峰時段：${peakHour}:00–${peakHour+2}:00</div></div>
+      <div class="analytics-section"><div class="analytics-section-title">📊 追蹤者成長（近14天）</div>${followerChart}</div>`,
+    insights:insightHTML
+  };
+
+  return `
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+    <button class="back-btn" onclick="navigate('settings')" style="margin:0">← 返回設定</button>
+    <div style="font-size:18px;font-weight:800">📊 個人數據後台</div>
+    <button class="btn btn-ghost btn-sm" style="margin-left:auto;font-size:12px" onclick="seedAnalytics();renderPage('analytics')">🔄 重新整理</button>
+  </div>
+  <!-- Creator badges -->
+  <div class="creator-badges">
+    <div class="creator-badge"><span class="badge-icon">🔥</span><span>連續發文 <strong>${Math.floor(Math.random()*14+3)}</strong> 天</span></div>
+    <div class="creator-badge"><span class="badge-icon">⭐</span><span>創作者積分 <strong>${(totalLikes*3+totalViews).toLocaleString()}</strong></span></div>
+    <div class="creator-badge"><span class="badge-icon">📈</span><span>本週觸及 <strong>${last7.toLocaleString()}</strong></span></div>
+  </div>
+  <!-- Tabs -->
+  <div class="analytics-tab">${tabs.map(t=>`<div class="analytics-tab-btn ${analyticsTab===t?'active':''}" onclick="setAnalyticsTab('${t}')">${tabNames[t]}</div>`).join('')}</div>
+  <div id="analytics-content">${tabContent[analyticsTab]||''}</div>`;
+}
+function setAnalyticsTab(tab){
+  analyticsTab=tab;
+  const el=document.getElementById('analytics-content');
+  // Re-render just the tab content
+  if(el)renderPage('analytics');
+}
+
 function renderSettings(){
   const u=users.find(x=>x.id===session.userId)||{};
   const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
@@ -1877,6 +2212,26 @@ function renderSettings(){
     <div class="settings-panel" id="panel-2fa">
       <p style="font-size:13px;color:var(--text2);margin-bottom:12px">雙重驗證為 Bubble Verse 去中心化節點功能，將在正式版啟用。</p>
       <div class="toggle" id="set-2fa" onclick="toast('雙重驗證將在正式版推出','info')"></div>
+    </div>
+  </div>
+
+  <!-- 數據後台 -->
+  <div class="settings-group">
+    <div class="settings-group-title">創作者工具</div>
+    <div class="settings-row-ig" onclick="navigate('analytics')">
+      <div class="row-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(236,72,153,.15))">📊</div>
+      <div class="row-label"><strong>個人數據後台</strong><span>流量分析、最佳發文時段、內容洞察</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-row-ig" onclick="toast('創作者變現功能即將推出','info')">
+      <div class="row-icon" style="background:rgba(34,197,94,.15)">💰</div>
+      <div class="row-label"><strong>創作者變現</strong><span>訂閱制、小費功能（即將推出）</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-row-ig" onclick="toast('排程發文功能即將推出','info')">
+      <div class="row-icon" style="background:rgba(249,115,22,.15)">📅</div>
+      <div class="row-label"><strong>排程發文</strong><span>預設最佳時段自動發布（即將推出）</span></div>
+      <span class="row-right">›</span>
     </div>
   </div>
 
