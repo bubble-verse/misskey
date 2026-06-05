@@ -432,6 +432,52 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
 /* Live on profile badge */
 .live-profile-badge{display:inline-flex;align-items:center;gap:5px;background:#ef4444;color:#fff;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:800;cursor:pointer;animation:liveBadgePulse 2s ease infinite}
 @keyframes liveBadgePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+/* ── Live camera real feed ── */
+#live-camera-feed{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.live-cam-controls{position:absolute;top:56px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:12}
+.live-cam-btn{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.live-cam-btn:hover{background:rgba(0,0,0,.75)}
+/* ── Permission banner ── */
+.perm-banner{background:rgba(30,20,60,.95);border:1px solid rgba(124,58,237,.4);border-radius:12px;padding:14px 18px;margin:12px 0;display:flex;align-items:center;gap:12px;font-size:13px}
+.perm-banner-icon{font-size:28px;flex-shrink:0}
+.perm-banner-btn{margin-left:auto;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+/* ── DM System ── */
+.dm-list{display:flex;flex-direction:column;gap:2px}
+.dm-row{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;border-radius:12px;transition:background .15s}
+.dm-row:hover{background:var(--surface2)}
+.dm-row-info{flex:1;min-width:0}
+.dm-row-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-row-preview{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.dm-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.dm-row-time{font-size:11px;color:var(--text3)}
+.dm-unread-badge{background:var(--accent);color:#fff;border-radius:99px;padding:2px 7px;font-size:11px;font-weight:700}
+.dm-thread{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 180px)}
+.dm-msg{display:flex;flex-direction:column;max-width:72%}
+.dm-msg-me{align-self:flex-end;align-items:flex-end}
+.dm-msg-them{align-self:flex-start;align-items:flex-start}
+.dm-bubble{padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.5;word-break:break-word}
+.dm-msg-me .dm-bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.dm-msg-them .dm-bubble{background:var(--surface2);color:var(--text1);border-bottom-left-radius:4px}
+.dm-time{font-size:10px;color:var(--text3);margin-top:3px;padding:0 4px}
+.dm-input-bar{position:sticky;bottom:0;background:var(--bg);padding:12px 20px;display:flex;gap:10px;align-items:center;border-top:1px solid var(--border)}
+.dm-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text1);font-size:14px;outline:none}
+.dm-input:focus{border-color:var(--accent)}
+/* ── Post Reactions ── */
+.react-btn{position:relative}
+.reaction-picker{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:40px;padding:6px 10px;display:flex;gap:4px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:chatIn .15s ease}
+.reaction-option{font-size:26px;cursor:pointer;border:none;background:none;padding:3px;border-radius:8px;transition:transform .1s;line-height:1}
+.reaction-option:hover{transform:scale(1.3)}
+.react-summary{font-size:12px;color:var(--text2);margin-left:4px;vertical-align:middle}
+.my-react{filter:drop-shadow(0 0 4px var(--accent))}
+/* ── Coin Top-Up ── */
+.coin-topup-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px;max-width:480px;width:100%}
+.coin-topup-header{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700;color:#fcd34d;margin-bottom:16px}
+.coin-packages{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.coin-pkg{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.coin-pkg:hover{border-color:var(--accent);background:rgba(124,58,237,.12)}
+.coin-pkg-coins{font-size:18px;font-weight:800;color:#fcd34d;margin-bottom:4px}
+.coin-pkg-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.coin-pkg-price{font-size:14px;font-weight:700;color:var(--text1);background:var(--accent);border-radius:8px;padding:4px 12px;display:inline-block}
 </style>
 </head>
 <body>
@@ -477,6 +523,7 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
     <div class="nav-divider"></div>
     <div class="nav-item" data-page="search" onclick="navigate('search')"><i class="ti ti-search"></i><span>搜尋</span></div>
     <div class="nav-item" data-page="notifications" onclick="navigate('notifications')"><i class="ti ti-bell"></i><span>通知</span><span id="notif-badge" class="nav-badge hidden">0</span></div>
+    <div class="nav-item" data-page="dms" onclick="navigate('dms')"><i class="ti ti-message-2"></i><span>私訊</span><span id="dm-badge" class="nav-badge hidden">0</span></div>
     <div class="nav-item" data-page="profile" onclick="navigate('profile')"><i class="ti ti-user" style="color:var(--accent2)"></i><span>個人主頁</span></div>
     <div class="nav-item" data-page="settings" onclick="navigate('settings')"><i class="ti ti-settings"></i><span>設定</span></div>
     <div class="nav-divider"></div>
@@ -512,7 +559,13 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
 <div id="live-overlay" class="hidden">
   <div class="live-video-area" id="live-video-area">
     <div class="live-video-bg" id="live-video-bg"></div>
+    <video id="live-camera-feed" class="hidden" autoplay playsinline muted></video>
     <div class="live-scanlines"></div>
+    <!-- Camera controls (host only) -->
+    <div class="live-cam-controls hidden" id="live-cam-controls">
+      <button class="live-cam-btn" onclick="_flipCamera()" title="切換鏡頭">🔄</button>
+      <button class="live-cam-btn" onclick="_toggleScreenShare()" title="分享畫面" id="screen-share-btn">🖥</button>
+    </div>
     <!-- Top bar -->
     <div class="live-topbar">
       <div class="live-badge-red"><div class="live-dot"></div>LIVE</div>
@@ -528,7 +581,7 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
     <div class="live-chat-overlay" id="live-chat-overlay"></div>
     <!-- Gift sheet (hidden by default) -->
     <div class="gift-sheet hidden" id="gift-sheet">
-      <div class="coin-display">💰 <span id="my-coins">1000</span> 金幣</div>
+      <div class="coin-display">💰 <span id="my-coins">1000</span> 金幣 <button onclick="openCoinTopup()" style="margin-left:10px;background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);color:#fcd34d;border-radius:8px;padding:3px 10px;font-size:11px;cursor:pointer">+ 充值</button></div>
       <div class="gift-grid" id="gift-grid"></div>
       <div style="display:flex;gap:10px">
         <button class="btn btn-ghost btn-sm" style="flex:1" onclick="closeGiftSheet()">取消</button>
@@ -573,6 +626,9 @@ let comments=JSON.parse(localStorage.getItem('bv_comments')||'{}');
 let notifications=JSON.parse(localStorage.getItem('bv_notifications')||'[]');
 let bookmarks=JSON.parse(localStorage.getItem('bv_bookmarks')||'{}');
 let analytics=JSON.parse(localStorage.getItem('bv_analytics')||'{}');
+let reactions=JSON.parse(localStorage.getItem('bv_reactions')||'{}');
+let dms=JSON.parse(localStorage.getItem('bv_dms')||'{}');
+let _cameraStream=null;
 
 let currentPage='home';
 let storyIndex=0;
@@ -603,6 +659,8 @@ function saveComments(){localStorage.setItem('bv_comments',JSON.stringify(commen
 function saveNotifications(){localStorage.setItem('bv_notifications',JSON.stringify(notifications))}
 function saveBookmarks(){localStorage.setItem('bv_bookmarks',JSON.stringify(bookmarks))}
 function saveAnalytics(){localStorage.setItem('bv_analytics',JSON.stringify(analytics))}
+function saveReactions(){localStorage.setItem('bv_reactions',JSON.stringify(reactions))}
+function saveDMs(){localStorage.setItem('bv_dms',JSON.stringify(dms))}
 function saveSession(){localStorage.setItem('bv_session',JSON.stringify(session))}
 
 // ── Seed data ──
@@ -927,14 +985,17 @@ function doLogout(){
 function showApp(){
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  renderSidebarUser();updateNotifBadge();
+  renderSidebarUser();updateNotifBadge();updateDMBadge();
   if(!analytics[session.userId])seedAnalytics();
+  setTimeout(requestNotifPermission,1500);
   navigate('home');
 }
 function renderSidebarUser(){
   const el=document.getElementById('sidebar-user');
   if(!el||!session)return;
-  el.innerHTML=`<div class="avatar avatar-sm" style="background:${session.avatarColor}">${session.displayName[0]}</div><div><div class="uname">${esc(session.displayName)}</div><div class="uhandle">@${esc(session.username)}</div></div>`;
+  const u=users.find(x=>x.id===session?.userId);
+  const url=u?.avatarUrl||session?.avatarUrl||null;
+  el.innerHTML=`${avatarHTML(session.displayName,session.avatarColor,'avatar-sm',url)}<div><div class="uname">${esc(session.displayName)}</div><div class="uhandle">@${esc(session.username)}</div></div>`;
 }
 function navigate(page,uid2){
   currentPage=page;
@@ -953,7 +1014,7 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 // ═══════════════════════════════════════════════════════════
 function renderPage(page){
   const el=document.getElementById('content');
-  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings,search:renderSearch,notifications:renderNotifications,userprofile:renderUserProfile,analytics:renderAnalytics};
+  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings,search:renderSearch,notifications:renderNotifications,userprofile:renderUserProfile,analytics:renderAnalytics,dms:renderDMs};
   if(pages[page]){el.innerHTML=pages[page]();_applyIcons(el);}
   else el.innerHTML='<div class="empty-state"><i class="ti ti-compass"></i><p>頁面不存在</p></div>';
 }
@@ -1177,8 +1238,8 @@ function renderPostHTML(p){
     <div class="post-content">${esc(p.content).replace(/\n/g,'<br>')}</div>
     ${mediaHTML}${quoteHTML}${pollHTML}
     <div class="post-actions">
-      <button class="post-action ${liked?'liked':''}" onclick="toggleLike('${p.id}')">
-        <i class="ti ${liked?'ti-heart-filled':'ti-heart'}"></i><span>${(p.likes||[]).length}</span>
+      <button class="post-action react-btn ${liked?'liked':''}" onclick="showReactionPicker('${p.id}',this)" title="按讚或選擇反應">
+        <span class="${myReactionEmoji(p.id)?'my-react':''}">${myReactionEmoji(p.id)||'<i class="ti ti-heart"></i>'}</span><span>${(p.likes||[]).length}</span><span id="react-summary-${p.id}">${buildReactSummaryHTML(p.id)}</span>
       </button>
       <button class="post-action" onclick="openComments('${p.id}')">
         <i class="ti ti-message-circle"></i><span>${commentCount}</span>
@@ -1862,7 +1923,12 @@ function renderUserProfileById(userId,isOwn){
         ${u.bio?`<div class="profile-bio" style="margin-top:6px">${esc(u.bio)}</div>`:''}
         ${liveBtn}
       </div>
-      ${isOwn?`<button class="btn btn-ghost btn-sm" onclick="openEditProfile()"><i class="ti ti-edit"></i> 編輯</button>`:`<button class="${following?'btn-following':'btn-follow'}" data-follow="${userId}" onclick="toggleFollow('${userId}')">${following?'已追蹤':'追蹤'}</button>`}
+      <div style="display:flex;gap:8px;align-items:center">
+        ${isOwn
+          ?`<button class="btn btn-ghost btn-sm" onclick="openEditProfile()"><i class="ti ti-edit"></i> 編輯</button>`
+          :`<button class="${following?'btn-following':'btn-follow'}" data-follow="${userId}" onclick="toggleFollow('${userId}')">${following?'已追蹤':'追蹤'}</button>
+            <button class="btn btn-ghost btn-sm" onclick="openDMWith('${userId}')" title="傳送私訊">💌 私訊</button>`}
+      </div>
     </div>
     <div class="profile-stats">
       <div class="profile-stat"><div class="num">${myPosts.length}</div><div class="lbl">貼文</div></div>
@@ -1982,8 +2048,8 @@ function renderSearchResults(q){
 // ═══════════════════════════════════════════════════════════
 function renderNotifications(){
   const notifHTML=notifications.length?notifications.map(n=>{
-    const icons={like:'ti-heart-filled',comment:'ti-message-circle',follow:'ti-user-plus',repost:'ti-repeat',quote:'ti-quote'};
-    const labels={like:'喜歡了你的貼文',comment:'留言了你的貼文',follow:'開始追蹤你',repost:'轉發了你的貼文',quote:'引用了你的貼文'};
+    const icons={like:'ti-heart-filled',comment:'ti-message-circle',follow:'ti-user-plus',repost:'ti-repeat',quote:'ti-quote',dm:'ti-message-2'};
+    const labels={like:'喜歡了你的貼文',comment:'留言了你的貼文',follow:'開始追蹤你',repost:'轉發了你的貼文',quote:'引用了你的貼文',dm:'傳訊息給你'};
     const p=n.postId?posts.find(x=>x.id===n.postId):null;
     return `<div class="notif-item ${n.read?'':'unread'}">
       <div class="avatar avatar-sm" style="background:${n.fromAvatarColor||hashColor(n.fromDisplayName||'')};flex-shrink:0">${(n.fromDisplayName||'?')[0]}</div>
@@ -1991,6 +2057,7 @@ function renderNotifications(){
         <div style="font-size:14px"><span style="font-weight:600;cursor:pointer" onclick="openUserProfile('${n.fromUserId}')">${esc(n.fromDisplayName)}</span> ${labels[n.type]||n.text}</div>
         ${p?`<div style="font-size:12px;color:var(--text2);margin-top:4px;cursor:pointer" onclick="openComments('${p.id}')">${esc(p.content).slice(0,60)}${p.content.length>60?'...':''}</div>`:''}
         ${n.type==='comment'&&n.text?`<div style="font-size:12px;background:var(--panel2);padding:6px 10px;border-radius:8px;margin-top:6px;color:var(--text2)">${esc(n.text)}</div>`:''}
+        ${n.type==='dm'&&n.text?`<div style="font-size:12px;background:var(--panel2);padding:6px 10px;border-radius:8px;margin-top:6px;color:var(--text2);cursor:pointer" onclick="openDMWith('${n.fromUserId}')">${esc(n.text)}</div>`:''}
         <div style="font-size:11px;color:var(--text3);margin-top:4px">${timeAgo(n.createdAt)}</div>
       </div>
       <i class="ti ${icons[n.type]||'ti-bell'}" style="color:${n.type==='like'?'#ef4444':n.type==='follow'?'var(--accent2)':n.type==='repost'?'var(--teal)':'var(--accent2)'}"></i>
@@ -2573,6 +2640,12 @@ function _openLiveStream(hostUserId,isHost){
   // Show overlay
   document.getElementById('live-overlay').classList.remove('hidden');
   document.body.style.overflow='hidden';
+  // Request camera for host
+  if(isHost){
+    const controls=document.getElementById('live-cam-controls');
+    if(controls)controls.classList.remove('hidden');
+    _requestCameraForLive();
+  }
   // Seed initial chat messages
   _initLiveChat(host);
   // Start auto messages
@@ -2732,6 +2805,17 @@ function closeLiveStream(){
   liveState.active=false;
   clearInterval(liveState.autoInterval);
   clearInterval(liveState.viewerInterval);
+  // Stop camera/mic tracks
+  if(_cameraStream){
+    _cameraStream.getTracks().forEach(t=>t.stop());
+    _cameraStream=null;
+  }
+  const camVid=document.getElementById('live-camera-feed');
+  if(camVid){camVid.srcObject=null;camVid.classList.add('hidden');}
+  const bg=document.getElementById('live-video-bg');
+  if(bg)bg.classList.remove('hidden');
+  const controls=document.getElementById('live-cam-controls');
+  if(controls)controls.classList.add('hidden');
   document.getElementById('live-overlay').classList.add('hidden');
   document.getElementById('live-chat-overlay').innerHTML='';
   const sheet=document.getElementById('gift-sheet');
@@ -2739,6 +2823,352 @@ function closeLiveStream(){
   document.body.style.overflow='';
   liveState.selectedGift=null;
   toast('已離開直播間','info');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CAMERA & MEDIA PERMISSIONS
+// ═══════════════════════════════════════════════════════════
+async function _requestCameraForLive(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    toast('此瀏覽器不支援相機存取','info');return;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},
+      audio:true
+    });
+    _cameraStream=stream;
+    const vid=document.getElementById('live-camera-feed');
+    if(vid){
+      vid.srcObject=stream;
+      vid.classList.remove('hidden');
+      vid.play().catch(()=>{});
+    }
+    const bg=document.getElementById('live-video-bg');
+    if(bg)bg.classList.add('hidden');
+    toast('📷 相機已開啟','success');
+  } catch(err){
+    const name=err?.name||'';
+    if(name==='NotAllowedError'||name==='PermissionDeniedError'){
+      toast('相機權限被拒絕，使用模擬畫面 🎥','info');
+    } else if(name==='NotFoundError'||name==='DevicesNotFoundError'){
+      toast('找不到相機裝置，使用模擬畫面','info');
+    } else if(name==='NotReadableError'||name==='TrackStartError'){
+      toast('相機被其他應用佔用，使用模擬畫面','info');
+    } else {
+      toast('無法存取相機，使用模擬畫面','info');
+    }
+  }
+}
+
+async function _flipCamera(){
+  if(!_cameraStream){toast('相機未開啟','error');return;}
+  const track=_cameraStream.getVideoTracks()[0];
+  const settings=track?track.getSettings():{};
+  const newFacing=settings.facingMode==='environment'?'user':'environment';
+  _cameraStream.getTracks().forEach(t=>t.stop());
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:newFacing},audio:true
+    });
+    _cameraStream=stream;
+    const vid=document.getElementById('live-camera-feed');
+    if(vid){vid.srcObject=stream;vid.play().catch(()=>{});}
+    toast(newFacing==='environment'?'後置相機':'前置相機','info');
+  } catch(e){toast('切換鏡頭失敗','error');}
+}
+
+async function _toggleScreenShare(){
+  const btn=document.getElementById('screen-share-btn');
+  if(!navigator.mediaDevices?.getDisplayMedia){toast('此瀏覽器不支援螢幕分享','error');return;}
+  if(_cameraStream&&_cameraStream._isScreen){
+    // Stop screen share, go back to camera
+    _cameraStream.getTracks().forEach(t=>t.stop());
+    _cameraStream=null;
+    await _requestCameraForLive();
+    if(btn)btn.textContent='🖥';
+    return;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
+    if(_cameraStream)_cameraStream.getTracks().forEach(t=>t.stop());
+    stream._isScreen=true;
+    _cameraStream=stream;
+    const vid=document.getElementById('live-camera-feed');
+    if(vid){vid.srcObject=stream;vid.classList.remove('hidden');vid.play().catch(()=>{});}
+    const bg=document.getElementById('live-video-bg');
+    if(bg)bg.classList.add('hidden');
+    if(btn)btn.textContent='📷';
+    toast('螢幕分享已開始','success');
+    stream.getVideoTracks()[0].addEventListener('ended',()=>{
+      _cameraStream=null;
+      if(vid){vid.srcObject=null;vid.classList.add('hidden');}
+      if(bg)bg.classList.remove('hidden');
+      if(btn)btn.textContent='🖥';
+    });
+  } catch(e){
+    if(e?.name!=='AbortError')toast('螢幕分享被取消','info');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// NOTIFICATION PERMISSION
+// ═══════════════════════════════════════════════════════════
+function requestNotifPermission(){
+  if(!('Notification' in window))return;
+  if(Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+}
+
+function sendNativeNotif(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{new Notification(title,{body,icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>'});}
+  catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════
+// POST REACTIONS (Facebook-style)
+// ═══════════════════════════════════════════════════════════
+const REACTION_TYPES=['❤️','😂','😮','😢','😡','👍'];
+
+function getPostReactions(postId){
+  if(!reactions[postId])reactions[postId]={};
+  return reactions[postId];
+}
+
+function myReactionEmoji(postId){
+  if(!session)return null;
+  return getPostReactions(postId)[session.userId]||null;
+}
+
+function buildReactSummaryHTML(postId){
+  const r=getPostReactions(postId);
+  const counts={};
+  Object.values(r).forEach(e=>{counts[e]=(counts[e]||0)+1;});
+  const total=Object.keys(r).length;
+  if(total===0)return '';
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([e])=>e).join('');
+  return `<span class="react-summary">${top} ${total}</span>`;
+}
+
+function setReaction(postId,emoji){
+  const r=getPostReactions(postId);
+  const uid=session.userId;
+  const prev=r[uid];
+  if(prev===emoji){delete r[uid];}
+  else{r[uid]=emoji;}
+  saveReactions();
+  // Sync with post likes for backward compat
+  const p=posts.find(x=>x.id===postId);
+  if(p){
+    if(!p.likes)p.likes=[];
+    const hasReaction=!!r[uid];
+    const inLikes=p.likes.includes(uid);
+    if(hasReaction&&!inLikes)p.likes.push(uid);
+    else if(!hasReaction&&inLikes)p.likes.splice(p.likes.indexOf(uid),1);
+    savePosts();
+    if(hasReaction&&p.userId!==uid)addNotificationForUser('like',uid,p.userId,postId,'');
+  }
+  // Re-render the post
+  const el=document.getElementById('post-'+postId);
+  if(el&&p){const tmp=document.createElement('div');tmp.innerHTML=renderPostHTML(p);el.replaceWith(tmp.firstChild);_applyIcons(document.getElementById('post-'+postId));}
+  hideReactionPicker();
+}
+
+function showReactionPicker(postId,btn){
+  // If already has a reaction, toggle it off on single click
+  const existing=myReactionEmoji(postId);
+  if(existing){setReaction(postId,existing);return;}
+  hideReactionPicker();
+  const picker=document.createElement('div');
+  picker.className='reaction-picker';
+  picker.id='rp-'+postId;
+  picker.innerHTML=REACTION_TYPES.map(e=>`<button class="reaction-option" onclick="setReaction('${postId}','${e}');event.stopPropagation()">${e}</button>`).join('');
+  const rect=btn.getBoundingClientRect();
+  const left=Math.min(rect.left,window.innerWidth-240);
+  const top=rect.top-58;
+  picker.style.cssText=`position:fixed;left:${left}px;top:${top}px`;
+  document.body.appendChild(picker);
+  setTimeout(()=>{
+    function h(e){if(!e.target.closest('.reaction-picker')&&!e.target.closest('.react-btn')){hideReactionPicker();document.removeEventListener('click',h);}}
+    document.addEventListener('click',h);
+  },10);
+}
+
+function hideReactionPicker(){
+  document.querySelectorAll('.reaction-picker').forEach(el=>el.remove());
+}
+
+// ═══════════════════════════════════════════════════════════
+// DIRECT MESSAGES (私訊)
+// ═══════════════════════════════════════════════════════════
+function getDMThread(userId){
+  const key=[session.userId,userId].sort().join(':');
+  if(!dms[key])dms[key]=[];
+  return dms[key];
+}
+
+function getDMBadgeCount(){
+  let count=0;
+  if(!session)return 0;
+  Object.keys(dms).forEach(key=>{
+    if(!key.includes(session.userId))return;
+    dms[key].forEach(m=>{if(m.to===session.userId&&!m.read)count++;});
+  });
+  return count;
+}
+
+function updateDMBadge(){
+  const badge=document.getElementById('dm-badge');
+  if(!badge)return;
+  const count=getDMBadgeCount();
+  badge.textContent=count>99?'99+':count;
+  badge.classList.toggle('hidden',count===0);
+}
+
+function renderDMs(){
+  const me=users.find(u=>u.id===session.userId);
+  const contacts=new Set();
+  if(me?.following)me.following.forEach(id=>contacts.add(id));
+  if(me?.followers)me.followers.forEach(id=>contacts.add(id));
+  Object.keys(dms).forEach(key=>{
+    if(!key.includes(session.userId))return;
+    key.split(':').forEach(id=>{if(id!==session.userId)contacts.add(id);});
+  });
+  const conversations=[];
+  contacts.forEach(uid=>{
+    const u=users.find(x=>x.id===uid);if(!u)return;
+    const thread=getDMThread(uid);
+    const lastMsg=thread[thread.length-1]||null;
+    const unread=thread.filter(m=>m.to===session.userId&&!m.read).length;
+    conversations.push({user:u,lastMsg,unread});
+  });
+  conversations.sort((a,b)=>(b.lastMsg?.time||0)-(a.lastMsg?.time||0));
+  if(conversations.length===0){
+    return `<div class="page-header"><h2>私訊</h2></div><div class="empty-state">💬<p>還沒有私訊</p><p style="font-size:12px;color:var(--text3)">追蹤其他用戶後即可傳送私訊</p></div>`;
+  }
+  return `<div class="page-header"><h2>私訊</h2></div>
+  <div class="dm-list">
+    ${conversations.map(({user:u,lastMsg,unread})=>`
+      <div class="dm-row" onclick="openDMThread('${u.id}')">
+        ${userAvatarHTML(u.id,'avatar-md')}
+        <div class="dm-row-info">
+          <div class="dm-row-name">${esc(u.displayName)} <span class="uhandle" style="font-size:11px">@${esc(u.username)}</span></div>
+          <div class="dm-row-preview">${lastMsg?esc(lastMsg.text.slice(0,50))+(lastMsg.text.length>50?'…':''):'開始對話 👋'}</div>
+        </div>
+        <div class="dm-row-right">
+          ${lastMsg?`<div class="dm-row-time">${reltime(lastMsg.time)}</div>`:''}
+          ${unread>0?`<div class="dm-unread-badge">${unread}</div>`:''}
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function openDMThread(userId){
+  const u=users.find(x=>x.id===userId);if(!u)return;
+  const thread=getDMThread(userId);
+  thread.forEach(m=>{if(m.to===session.userId)m.read=true;});
+  saveDMs();updateDMBadge();
+  const msgs=thread.map(m=>{
+    const isMe=m.from===session.userId;
+    return `<div class="dm-msg ${isMe?'dm-msg-me':'dm-msg-them'}">
+      <div class="dm-bubble">${esc(m.text)}</div>
+      <div class="dm-time">${reltime(m.time)}</div>
+    </div>`;
+  }).join('');
+  const html=`
+  <div class="page-header" style="position:sticky;top:0;background:var(--bg);z-index:10">
+    <button class="btn btn-ghost btn-sm" onclick="navigate('dms')">← 返回</button>
+    <div style="display:flex;align-items:center;gap:10px;flex:1;margin-left:8px">
+      ${userAvatarHTML(userId,'avatar-sm')}
+      <div><div style="font-weight:700">${esc(u.displayName)}</div><div class="uhandle" style="font-size:11px">@${esc(u.username)}</div></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="openUserProfile('${userId}')">查看主頁</button>
+  </div>
+  <div class="dm-thread" id="dm-thread">
+    ${thread.length===0?'<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px">開始你們的對話 👋</div>':''}
+    ${msgs}
+  </div>
+  <div class="dm-input-bar">
+    <input class="dm-input" id="dm-input-field" placeholder="傳送訊息..." onkeydown="if(event.key==='Enter')sendDM('${userId}')"/>
+    <button class="live-btn" style="flex-shrink:0" onclick="sendDM('${userId}')">➤</button>
+  </div>`;
+  currentPage='dm-thread';
+  const content=document.getElementById('content');
+  if(content){content.innerHTML=html;_applyIcons(content);}
+  const threadEl=document.getElementById('dm-thread');
+  if(threadEl)setTimeout(()=>threadEl.scrollTop=threadEl.scrollHeight,50);
+  document.getElementById('dm-input-field')?.focus();
+}
+
+function sendDM(toUserId){
+  const inp=document.getElementById('dm-input-field');
+  if(!inp)return;
+  const txt=inp.value.trim();if(!txt)return;
+  const thread=getDMThread(toUserId);
+  thread.push({from:session.userId,to:toUserId,text:txt,time:Date.now(),read:false});
+  saveDMs();
+  inp.value='';
+  openDMThread(toUserId);
+  const toUser=users.find(u=>u.id===toUserId);
+  if(toUser){
+    addNotificationForUser('dm',session.userId,toUserId,null,txt.slice(0,50));
+    sendNativeNotif(`${session.displayName} 傳訊息給你`,txt.slice(0,100));
+  }
+}
+
+function openDMWith(userId){
+  navigate('dms');
+  setTimeout(()=>openDMThread(userId),50);
+}
+
+// ═══════════════════════════════════════════════════════════
+// COIN TOP-UP
+// ═══════════════════════════════════════════════════════════
+const COIN_PACKAGES=[
+  {id:'s',coins:500,price:'NT$30',label:'小包 ⭐'},
+  {id:'m',coins:1500,price:'NT$80',label:'中包 💫'},
+  {id:'l',coins:3500,price:'NT$150',label:'大包 🌟'},
+  {id:'xl',coins:8000,price:'NT$300',label:'超值包 🚀'},
+];
+
+function openCoinTopup(){
+  const me=users.find(u=>u.id===session.userId)||{};
+  const coins=me.coins??1000;
+  const wrap=document.createElement('div');
+  wrap.id='coin-topup-overlay';
+  wrap.style.cssText='position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)';
+  wrap.innerHTML=`
+  <div class="coin-topup-sheet">
+    <div class="coin-topup-header">
+      <span>💰 我的金幣：${coins.toLocaleString()}</span>
+      <button onclick="closeCoinTopup()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div class="coin-packages">
+      ${COIN_PACKAGES.map(pkg=>`
+        <div class="coin-pkg" onclick="buyCoinPackage('${pkg.id}')">
+          <div class="coin-pkg-coins">🪙 ${pkg.coins.toLocaleString()}</div>
+          <div class="coin-pkg-label">${pkg.label}</div>
+          <div class="coin-pkg-price">${pkg.price}</div>
+        </div>`).join('')}
+    </div>
+    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px">🎁 演示模式：點選即可立即獲得金幣</p>
+  </div>`;
+  wrap.addEventListener('click',e=>{if(e.target===wrap)closeCoinTopup();});
+  document.body.appendChild(wrap);
+}
+
+function closeCoinTopup(){document.getElementById('coin-topup-overlay')?.remove();}
+
+function buyCoinPackage(id){
+  const pkg=COIN_PACKAGES.find(p=>p.id===id);if(!pkg)return;
+  const me=users.find(u=>u.id===session.userId);
+  if(me){me.coins=(me.coins||0)+pkg.coins;saveUsers();}
+  closeCoinTopup();
+  const coinEl=document.getElementById('my-coins');
+  if(coinEl)coinEl.textContent=(me?.coins||pkg.coins).toLocaleString();
+  toast(`🎉 獲得 🪙 ${pkg.coins.toLocaleString()} 金幣！`,'success');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2758,7 +3188,8 @@ const _ICONS={
   'ti-lock':'🔒','ti-bell':'🔔','ti-bell-off':'🔕','ti-edit':'✏️',
   'ti-search':'🔍','ti-quote':'❝','ti-repeat':'↺','ti-user-plus':'👤',
   'ti-user-off':'👤','ti-bookmark':'🔖','ti-bookmark-filled':'🔖',
-  'ti-bookmark-off':'🔖','ti-arrow-right':'→'
+  'ti-bookmark-off':'🔖','ti-arrow-right':'→',
+  'ti-message-2':'💌','ti-send':'➤','ti-video':'🎥','ti-camera':'📷'
 };
 function _applyIcons(root){
   (root||document).querySelectorAll('i.ti').forEach(el=>{
