@@ -372,6 +372,66 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
   #mobile-menu-btn{display:flex}
 }
 #mobile-menu-btn{display:none;position:fixed;bottom:20px;left:20px;z-index:200;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(124,58,237,.4)}
+
+/* ── Avatar with photo ── */
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.avatar-upload-wrap{position:relative;display:inline-block;cursor:pointer}
+.avatar-upload-wrap:hover .avatar-cam-overlay{opacity:1}
+.avatar-cam-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;font-size:20px;color:#fff}
+.avatar-cam-overlay.always{opacity:1;background:rgba(0,0,0,.4)}
+
+/* ── Live Stream ── */
+#live-overlay{position:fixed;inset:0;z-index:3000;background:#000;display:flex;flex-direction:column}
+#live-overlay.hidden{display:none!important}
+.live-video-area{flex:1;position:relative;overflow:hidden;background:#000}
+.live-video-bg{position:absolute;inset:0;animation:livePulse 5s ease-in-out infinite}
+@keyframes livePulse{0%,100%{filter:brightness(1) saturate(1)}50%{filter:brightness(1.12) saturate(1.15)}}
+.live-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;opacity:.4}
+.live-noise{position:absolute;inset:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.live-topbar{position:absolute;top:0;left:0;right:0;padding:14px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);z-index:10}
+.live-badge-red{background:#ef4444;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:5px;letter-spacing:.5px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.2s ease infinite}
+.live-viewers{background:rgba(0,0,0,.5);color:#fff;border-radius:99px;padding:4px 10px;font-size:12px;display:flex;align-items:center;gap:5px;backdrop-filter:blur(4px)}
+.live-host-info{position:absolute;top:70px;left:16px;display:flex;align-items:center;gap:10px;z-index:10}
+.live-host-name{color:#fff;font-size:13px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.live-host-sub{color:rgba(255,255,255,.7);font-size:11px}
+.live-close-btn{margin-left:auto;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer;border:none;backdrop-filter:blur(4px)}
+/* Floating chat overlay — bottom 25%, left 65% */
+.live-chat-overlay{position:absolute;bottom:90px;left:0;width:62%;padding:0 14px;pointer-events:none;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;max-height:28vh;mask-image:linear-gradient(to bottom,transparent,black 35%);-webkit-mask-image:linear-gradient(to bottom,transparent,black 35%)}
+.live-chat-msg{display:flex;align-items:flex-start;gap:7px;margin-bottom:8px;animation:chatIn .25s ease;pointer-events:auto}
+@keyframes chatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.live-chat-bubble{background:rgba(0,0,0,.52);backdrop-filter:blur(6px);border-radius:18px;padding:6px 12px;font-size:12.5px;color:#fff;line-height:1.4;word-break:break-word}
+.live-chat-name{font-weight:700;color:#c4b5fd;font-size:11px}
+.live-chat-gift{font-weight:700;color:#fcd34d}
+/* Live controls bar */
+.live-controls{position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(to top,rgba(0,0,0,.75),transparent);display:flex;align-items:center;gap:8px;z-index:10}
+.live-input{flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:9px 16px;color:#fff;font-size:13px;outline:none;backdrop-filter:blur(4px)}
+.live-input::placeholder{color:rgba(255,255,255,.5)}
+.live-btn{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(255,255,255,.15);border:none;cursor:pointer;color:#fff;transition:all .15s;backdrop-filter:blur(4px)}
+.live-btn:hover{background:rgba(255,255,255,.25);transform:scale(1.08)}
+.live-btn-heart{background:rgba(239,68,68,.4);border:1px solid rgba(239,68,68,.6)}
+.live-btn-gift{background:rgba(251,191,36,.3);border:1px solid rgba(251,191,36,.5)}
+/* Floating heart animation */
+.float-heart{position:absolute;bottom:90px;font-size:28px;animation:floatUp 2.2s ease-out forwards;pointer-events:none;z-index:20}
+@keyframes floatUp{0%{opacity:1;transform:translateX(0) translateY(0) scale(1)}30%{transform:translateX(var(--dx,15px)) translateY(-60px) scale(1.2)}100%{opacity:0;transform:translateX(var(--dx2,-10px)) translateY(-200px) scale(.6)}}
+/* Gift popup */
+.gift-popup{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;animation:giftPop 2.5s ease-out forwards;z-index:25;pointer-events:none}
+.gift-popup .gift-icon{font-size:80px;display:block;animation:giftSpin .5s ease-out}
+.gift-popup .gift-label{color:#fff;font-size:16px;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.8);margin-top:4px}
+@keyframes giftPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}30%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-80%) scale(.8)}}
+@keyframes giftSpin{0%{transform:rotate(-20deg) scale(.8)}100%{transform:rotate(0deg) scale(1)}}
+/* Gift selection sheet */
+.gift-sheet{position:absolute;bottom:0;left:0;right:0;background:rgba(15,15,20,.95);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.1);padding:20px;z-index:30;border-radius:20px 20px 0 0}
+.gift-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.gift-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:10px 4px;border-radius:12px;transition:all .2s;border:1px solid transparent}
+.gift-item:hover,.gift-item.selected{background:rgba(124,58,237,.2);border-color:var(--accent)}
+.gift-item .g-icon{font-size:34px}
+.gift-item .g-name{font-size:11px;color:var(--text2)}
+.gift-item .g-price{font-size:11px;color:var(--orange);font-weight:700;display:flex;align-items:center;gap:3px}
+.coin-display{display:flex;align-items:center;gap:6px;color:#fcd34d;font-size:13px;font-weight:700;margin-bottom:12px}
+/* Live on profile badge */
+.live-profile-badge{display:inline-flex;align-items:center;gap:5px;background:#ef4444;color:#fff;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:800;cursor:pointer;animation:liveBadgePulse 2s ease infinite}
+@keyframes liveBadgePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
 </style>
 </head>
 <body>
@@ -447,6 +507,50 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
 <div id="dialog-overlay" class="dialog-overlay hidden" onclick="closeDialog(event)">
   <div id="dialog-box" class="dialog" onclick="event.stopPropagation()"></div>
 </div>
+
+<!-- Live Stream Overlay -->
+<div id="live-overlay" class="hidden">
+  <div class="live-video-area" id="live-video-area">
+    <div class="live-video-bg" id="live-video-bg"></div>
+    <div class="live-scanlines"></div>
+    <!-- Top bar -->
+    <div class="live-topbar">
+      <div class="live-badge-red"><div class="live-dot"></div>LIVE</div>
+      <div class="live-viewers">👁 <span id="live-viewer-count">0</span></div>
+      <div style="flex:1"></div>
+      <div style="display:flex;gap:8px">
+        <button class="live-close-btn" onclick="closeLiveStream()" title="離開直播">✕</button>
+      </div>
+    </div>
+    <!-- Host info -->
+    <div class="live-host-info" id="live-host-info"></div>
+    <!-- Floating chat -->
+    <div class="live-chat-overlay" id="live-chat-overlay"></div>
+    <!-- Gift sheet (hidden by default) -->
+    <div class="gift-sheet hidden" id="gift-sheet">
+      <div class="coin-display">💰 <span id="my-coins">1000</span> 金幣</div>
+      <div class="gift-grid" id="gift-grid"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="closeGiftSheet()">取消</button>
+        <button class="btn btn-primary" style="flex:1" id="send-gift-btn" onclick="confirmSendGift()">送出禮物</button>
+      </div>
+    </div>
+    <!-- Controls -->
+    <div class="live-controls">
+      <input class="live-input" id="live-chat-input" placeholder="說點什麼..." onkeydown="if(event.key==='Enter')sendLiveMessage()"/>
+      <button class="live-btn" onclick="sendLiveMessage()" title="發送">➤</button>
+      <button class="live-btn live-btn-gift" onclick="openGiftSheet()" title="送禮物">🎁</button>
+      <button class="live-btn live-btn-heart" id="live-heart-btn" onclick="addLiveHeart()" title="愛心">❤️</button>
+    </div>
+    <!-- Heart count display -->
+    <div style="position:absolute;bottom:90px;right:16px;text-align:center;z-index:10">
+      <div style="font-size:13px;color:rgba(255,255,255,.8)">❤️ <span id="live-heart-count">0</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Avatar file input (hidden) -->
+<input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)"/>
 
 <input type="file" id="media-file-input" accept="image/*,video/*" multiple style="display:none" onchange="handleMediaFiles(this)"/>
 <input type="file" id="story-media-input" accept="image/*,video/*" style="display:none" onchange="handleStoryMedia(this)"/>
@@ -717,8 +821,16 @@ function toast(msg,type='info'){
   requestAnimationFrame(()=>{requestAnimationFrame(()=>t.classList.add('show'))});
   setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350)},3000);
 }
-function avatarHTML(displayName,color,cls='avatar-sm'){
+function avatarHTML(displayName,color,cls='avatar-sm',avatarUrl=null){
+  if(avatarUrl){
+    return `<div class="avatar ${cls}" style="background:${color}"><img src="${avatarUrl}" alt="${esc(displayName)}"/></div>`;
+  }
   return `<div class="avatar ${cls}" style="background:${color}">${(displayName||'?')[0].toUpperCase()}</div>`;
+}
+function userAvatarHTML(userId,cls='avatar-sm'){
+  const u=users.find(x=>x.id===userId)||{};
+  const url=u.avatarUrl||(userId===session?.userId?session.avatarUrl:null)||null;
+  return avatarHTML(u.displayName||'?',u.avatarColor||hashColor(userId),cls,url);
 }
 function openDialog(html){
   document.getElementById('dialog-box').innerHTML=html;
@@ -950,6 +1062,7 @@ function renderHome(){
       <button class="topbar-btn" onclick="navigate('notifications')" title="通知">
         🔔${unread>0?`<span class="topbar-badge"></span>`:''}
       </button>
+      <button class="topbar-btn" onclick="startOwnLiveStream()" title="開始直播" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:99px;width:auto;padding:0 10px;font-size:13px;font-weight:700;color:#f87171">🔴 直播</button>
       <button class="topbar-btn" onclick="navigate('settings')" title="設定">⚙️</button>
     </div>
   </div>
@@ -1729,14 +1842,25 @@ function renderUserProfileById(userId,isOwn){
   else if(tab==='likes'){tabContent=likedPosts.length?renderFeedHTML(likedPosts):'<div class="empty-state"><i class="ti ti-heart-off"></i><p>還沒有喜歡的貼文</p></div>';}
   else if(tab==='bookmarks'&&isOwn){tabContent=bookmarkedPosts.length?renderFeedHTML(bookmarkedPosts):'<div class="empty-state"><i class="ti ti-bookmark-off"></i><p>還沒有收藏的貼文</p></div>';}
   const backBtn=(!isOwn)?`<div class="back-btn" onclick="history.back?history.back():navigate('home')"><i class="ti ti-arrow-left"></i>返回</div>`:'';
+  const avatarUrl=u.avatarUrl||null;
+  const avatarXL=isOwn
+    ?`<div class="avatar-upload-wrap" onclick="document.getElementById('avatar-file-input').click()" title="更換頭像">
+        ${avatarHTML(u.displayName,u.avatarColor,'avatar-xl',avatarUrl)}
+        <div class="avatar-cam-overlay">📷</div>
+      </div>`
+    :avatarHTML(u.displayName,u.avatarColor,'avatar-xl',avatarUrl);
+  const liveBtn=isOwn
+    ?`<button class="live-profile-badge" onclick="startOwnLiveStream()" style="margin-top:8px;font-size:12px">🔴 開始直播</button>`
+    :`<button class="live-profile-badge" onclick="watchUserLive('${userId}')" style="margin-top:8px;font-size:12px">🔴 觀看直播</button>`;
   return `${backBtn}
   <div class="profile-header">
     <div class="profile-top">
-      ${avatarHTML(u.displayName,u.avatarColor,'avatar-xl')}
+      ${avatarXL}
       <div style="flex:1">
         <div style="font-size:22px;font-weight:800">${esc(u.displayName)}</div>
         <div style="color:var(--text3);font-size:15px">@${esc(u.username)}</div>
         ${u.bio?`<div class="profile-bio" style="margin-top:6px">${esc(u.bio)}</div>`:''}
+        ${liveBtn}
       </div>
       ${isOwn?`<button class="btn btn-ghost btn-sm" onclick="openEditProfile()"><i class="ti ti-edit"></i> 編輯</button>`:`<button class="${following?'btn-following':'btn-follow'}" data-follow="${userId}" onclick="toggleFollow('${userId}')">${following?'已追蹤':'追蹤'}</button>`}
     </div>
@@ -2365,6 +2489,256 @@ function deleteAccount(){
   posts=posts.filter(p=>p.userId!==session.userId);
   saveUsers();savePosts();closeDialog();doLogout();
   toast('帳號已刪除','info');
+}
+
+// ═══════════════════════════════════════════════════════════
+// AVATAR UPLOAD
+// ═══════════════════════════════════════════════════════════
+function handleAvatarUpload(input){
+  const file=input.files[0];if(!file)return;
+  if(!file.type.startsWith('image/')){toast('請選擇圖片檔案','error');return;}
+  if(file.size>5*1024*1024){toast('圖片過大（最大5MB）','error');return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const url=e.target.result;
+    const u=users.find(x=>x.id===session.userId);
+    if(u){u.avatarUrl=url;saveUsers();}
+    session.avatarUrl=url;saveSession();
+    renderSidebarUser();
+    renderPage(currentPage);
+    toast('頭像已更新！','success');
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+// ═══════════════════════════════════════════════════════════
+// LIVE STREAM
+// ═══════════════════════════════════════════════════════════
+const GIFTS={
+  rose:   {icon:'🌹',name:'玫瑰',coins:10,  msg:'送出了一束玫瑰 🌹'},
+  star:   {icon:'⭐',name:'閃星',coins:50,  msg:'送出了閃亮星星 ⭐'},
+  candy:  {icon:'🍭',name:'糖果',coins:80,  msg:'送出了甜蜜糖果 🍭'},
+  diamond:{icon:'💎',name:'鑽石',coins:200, msg:'送出了璀璨鑽石 💎'},
+  rocket: {icon:'🚀',name:'火箭',coins:500, msg:'送出了宇宙火箭 🚀'},
+  firework:{icon:'🎆',name:'煙火',coins:1000,msg:'送出了絢爛煙火 🎆！'},
+};
+const AUTO_MSGS=[
+  ['u2','哇！畫質超好！','❤️❤️❤️'],
+  ['u3','今天講的話題太有深度了','說得好！'],
+  ['u4','第一次看直播，感覺很棒 😊','哈哈哈哈'],
+  ['u5','剛剛在做什麼呢？','🔥🔥🔥'],
+  ['u6','按讚了！繼續加油！','真的超猛'],
+  ['u1','大家好！','666'],
+  ['u3','好想學這個！','這個教教我'],
+  ['u2','繼續直播！','不要走！'],
+];
+let liveState={active:false,isHost:false,hostUserId:null,viewerCount:0,heartCount:0,autoInterval:null,viewerInterval:null,selectedGift:null};
+
+function startOwnLiveStream(){
+  _openLiveStream(session.userId,true);
+}
+function watchUserLive(hostUserId){
+  _openLiveStream(hostUserId||'u2',false);
+}
+function _openLiveStream(hostUserId,isHost){
+  const host=users.find(u=>u.id===hostUserId)||{displayName:'Nova Chan',avatarColor:hashColor('nova_chan'),username:'nova_chan'};
+  liveState={active:true,isHost,hostUserId,viewerCount:Math.floor(Math.random()*800+200),heartCount:Math.floor(Math.random()*2000+500),autoInterval:null,viewerInterval:null,selectedGift:null};
+
+  // Set video background gradient from host color
+  const bg=document.getElementById('live-video-bg');
+  if(bg){
+    const c=host.avatarColor||'linear-gradient(135deg,#1e1b4b,#7c3aed)';
+    // Make a rich dark gradient for the "video feed"
+    bg.style.background=`radial-gradient(ellipse at 30% 40%,rgba(124,58,237,.35),transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(236,72,153,.25),transparent 55%),linear-gradient(160deg,#080810,#0f0820,#08101a)`;
+  }
+  // Host info bar
+  const hostEl=document.getElementById('live-host-info');
+  if(hostEl){
+    const avatarUrl=host.avatarUrl||null;
+    hostEl.innerHTML=`
+      ${avatarHTML(host.displayName,host.avatarColor,'avatar-sm',avatarUrl)}
+      <div>
+        <div class="live-host-name">${esc(host.displayName)}</div>
+        <div class="live-host-sub">${isHost?'你的直播':'直播中'}</div>
+      </div>
+      ${isHost?`<button class="btn btn-sm" style="margin-left:12px;background:rgba(239,68,68,.3);color:#fca5a5;border:1px solid rgba(239,68,68,.4);font-size:11px" onclick="closeLiveStream()">結束直播</button>`:''}`;
+  }
+  // Update viewer count display
+  document.getElementById('live-viewer-count').textContent=liveState.viewerCount.toLocaleString();
+  document.getElementById('live-heart-count').textContent=liveState.heartCount.toLocaleString();
+  // Init coins for current user
+  const me=users.find(u=>u.id===session.userId);
+  if(me&&me.coins==null){me.coins=1000;saveUsers();}
+  // Show overlay
+  document.getElementById('live-overlay').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  // Seed initial chat messages
+  _initLiveChat(host);
+  // Start auto messages
+  _startAutoMessages(host);
+  // Fluctuate viewer count
+  liveState.viewerInterval=setInterval(()=>{
+    liveState.viewerCount+=Math.floor(Math.random()*20-8);
+    if(liveState.viewerCount<50)liveState.viewerCount=50;
+    const el=document.getElementById('live-viewer-count');
+    if(el)el.textContent=liveState.viewerCount.toLocaleString();
+  },3000);
+  toast(isHost?'🔴 直播已開始！歡迎大家觀看':'已進入直播間','success');
+}
+function _initLiveChat(host){
+  const chatEl=document.getElementById('live-chat-overlay');
+  if(!chatEl)return;
+  chatEl.innerHTML='';
+  const initMsgs=[
+    {userId:'u4',text:'大家好！剛進來 👋'},
+    {userId:'u5',text:'等你很久了！'},
+    {userId:'u3',text:'終於開播了 🎉'},
+  ];
+  initMsgs.forEach(m=>{
+    const u=users.find(x=>x.id===m.userId)||{displayName:'訪客',avatarColor:'#7c3aed',avatarUrl:null};
+    _appendLiveChatMsg(u.displayName,u.avatarColor,u.avatarUrl||null,m.text,false);
+  });
+}
+function _startAutoMessages(host){
+  let idx=0;
+  liveState.autoInterval=setInterval(()=>{
+    if(!liveState.active)return;
+    const pair=AUTO_MSGS[idx%AUTO_MSGS.length];
+    idx++;
+    const u=users.find(x=>x.id===pair[0])||{displayName:'觀眾',avatarColor:hashColor('fan')};
+    const text=Math.random()>.5?pair[0+1]:pair[1+1]||pair[0];
+    _appendLiveChatMsg(u.displayName,u.avatarColor,u.avatarUrl||null,text,false);
+    // Sometimes send a gift automatically
+    if(Math.random()<0.12){
+      const gKeys=Object.keys(GIFTS);
+      const gKey=gKeys[Math.floor(Math.random()*3)];// bias toward cheaper gifts
+      const g=GIFTS[gKey];
+      setTimeout(()=>{
+        _appendLiveChatMsg(u.displayName,u.avatarColor,u.avatarUrl||null,`${g.msg}`,true);
+        _showGiftAnimation(g.icon,u.displayName,g.name);
+        liveState.heartCount+=Math.floor(g.coins/5);
+        const hc=document.getElementById('live-heart-count');
+        if(hc)hc.textContent=liveState.heartCount.toLocaleString();
+      },800);
+    }
+  },Math.floor(Math.random()*2000+2500));
+}
+function _appendLiveChatMsg(name,color,avatarUrl,text,isGift){
+  const chatEl=document.getElementById('live-chat-overlay');
+  if(!chatEl)return;
+  const div=document.createElement('div');
+  div.className='live-chat-msg';
+  div.innerHTML=`
+    ${avatarHTML(name,color,'avatar-sm',avatarUrl)}
+    <div class="live-chat-bubble">
+      <span class="${isGift?'live-chat-gift':'live-chat-name'}">${esc(name)}</span>
+      <span style="color:rgba(255,255,255,.9);margin-left:6px">${esc(text)}</span>
+    </div>`;
+  chatEl.appendChild(div);
+  // Keep only last 8 messages visible
+  while(chatEl.children.length>8)chatEl.removeChild(chatEl.firstChild);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+function sendLiveMessage(){
+  const inp=document.getElementById('live-chat-input');
+  if(!inp)return;
+  const txt=inp.value.trim();if(!txt)return;
+  _appendLiveChatMsg(session.displayName,session.avatarColor,session.avatarUrl||null,txt,false);
+  inp.value='';
+}
+function addLiveHeart(){
+  liveState.heartCount+=1;
+  const hc=document.getElementById('live-heart-count');
+  if(hc)hc.textContent=liveState.heartCount.toLocaleString();
+  // Spawn floating heart
+  const area=document.getElementById('live-video-area');
+  if(!area)return;
+  const hearts=['❤️','🧡','💜','💖','💗'];
+  for(let i=0;i<3;i++){
+    setTimeout(()=>{
+      const h=document.createElement('div');
+      h.className='float-heart';
+      h.textContent=hearts[Math.floor(Math.random()*hearts.length)];
+      const dx=(Math.random()-0.5)*60;
+      const dx2=(Math.random()-0.5)*80;
+      h.style.setProperty('--dx',dx+'px');
+      h.style.setProperty('--dx2',dx2+'px');
+      h.style.right=(50+Math.floor(Math.random()*30))+'px';
+      area.appendChild(h);
+      setTimeout(()=>h.remove(),2300);
+    },i*150);
+  }
+}
+function _showGiftAnimation(icon,fromName,giftName){
+  const area=document.getElementById('live-video-area');
+  if(!area)return;
+  const el=document.createElement('div');
+  el.className='gift-popup';
+  el.innerHTML=`<span class="gift-icon">${icon}</span><div class="gift-label">${esc(fromName)} 送出 ${esc(giftName)}！</div>`;
+  area.appendChild(el);
+  setTimeout(()=>el.remove(),2600);
+}
+// Gift sheet
+function openGiftSheet(){
+  const sheet=document.getElementById('gift-sheet');
+  if(!sheet)return;
+  const me=users.find(u=>u.id===session.userId)||{};
+  const coins=me.coins??1000;
+  const coinEl=document.getElementById('my-coins');
+  if(coinEl)coinEl.textContent=coins.toLocaleString();
+  const grid=document.getElementById('gift-grid');
+  if(grid){
+    grid.innerHTML=Object.entries(GIFTS).map(([k,g])=>`
+      <div class="gift-item ${liveState.selectedGift===k?'selected':''}" onclick="selectGift('${k}')">
+        <span class="g-icon">${g.icon}</span>
+        <span class="g-name">${g.name}</span>
+        <span class="g-price">🪙 ${g.coins}</span>
+      </div>`).join('');
+  }
+  sheet.classList.remove('hidden');
+}
+function selectGift(key){
+  liveState.selectedGift=key;
+  openGiftSheet();// re-render to show selection
+}
+function closeGiftSheet(){
+  const sheet=document.getElementById('gift-sheet');
+  if(sheet)sheet.classList.add('hidden');
+  liveState.selectedGift=null;
+}
+function confirmSendGift(){
+  const key=liveState.selectedGift;
+  if(!key){toast('請先選擇禮物','error');return;}
+  const g=GIFTS[key];
+  const me=users.find(u=>u.id===session.userId);
+  const coins=me?.coins??1000;
+  if(coins<g.coins){toast('金幣不足！','error');return;}
+  // Deduct coins
+  if(me){me.coins=coins-g.coins;saveUsers();}
+  closeGiftSheet();
+  // Show in chat + animation
+  _appendLiveChatMsg(session.displayName,session.avatarColor,session.avatarUrl||null,g.msg,true);
+  _showGiftAnimation(g.icon,session.displayName,g.name);
+  liveState.heartCount+=Math.floor(g.coins/5);
+  const hc=document.getElementById('live-heart-count');
+  if(hc)hc.textContent=liveState.heartCount.toLocaleString();
+  // Spawn lots of hearts for big gifts
+  const bursts=g.coins>=200?8:3;
+  for(let i=0;i<bursts;i++)setTimeout(()=>addLiveHeart(),i*120);
+  toast(`送出 ${g.icon} ${g.name}！還剩 ${(coins-g.coins).toLocaleString()} 金幣`,'success');
+}
+function closeLiveStream(){
+  liveState.active=false;
+  clearInterval(liveState.autoInterval);
+  clearInterval(liveState.viewerInterval);
+  document.getElementById('live-overlay').classList.add('hidden');
+  document.getElementById('live-chat-overlay').innerHTML='';
+  const sheet=document.getElementById('gift-sheet');
+  if(sheet)sheet.classList.add('hidden');
+  document.body.style.overflow='';
+  liveState.selectedGift=null;
+  toast('已離開直播間','info');
 }
 
 // ═══════════════════════════════════════════════════════════
