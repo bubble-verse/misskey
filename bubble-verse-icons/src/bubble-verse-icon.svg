@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+
+  <!-- Background gradient: deep space navy → rich purple -->
+  <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#0d0a1e"/>
+    <stop offset="45%" stop-color="#1e0a3c"/>
+    <stop offset="100%" stop-color="#0a1628"/>
+  </linearGradient>
+
+  <!-- Main bubble gradient: vibrant purple → pink -->
+  <linearGradient id="bubbleGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+    <stop offset="0%" stop-color="#9333ea"/>
+    <stop offset="55%" stop-color="#7c3aed"/>
+    <stop offset="100%" stop-color="#db2777"/>
+  </linearGradient>
+
+  <!-- Orbit ring gradient -->
+  <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.9"/>
+    <stop offset="50%" stop-color="#f9a8d4" stop-opacity="0.6"/>
+    <stop offset="100%" stop-color="#5eead4" stop-opacity="0.4"/>
+  </linearGradient>
+
+  <!-- Small bubble: teal → purple -->
+  <linearGradient id="tealBubble" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#14b8a6"/>
+    <stop offset="100%" stop-color="#7c3aed"/>
+  </linearGradient>
+
+  <!-- Small bubble: pink -->
+  <linearGradient id="pinkBubble" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#f472b6"/>
+    <stop offset="100%" stop-color="#db2777"/>
+  </linearGradient>
+
+  <!-- Ambient glow behind main bubble -->
+  <radialGradient id="glowBehind" cx="50%" cy="48%" r="42%">
+    <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.55"/>
+    <stop offset="60%" stop-color="#7c3aed" stop-opacity="0.15"/>
+    <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+  </radialGradient>
+
+  <!-- Inner highlight on main bubble -->
+  <radialGradient id="bubbleHighlight" cx="36%" cy="28%" r="50%">
+    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+
+  <!-- Clip path for rounded square (iOS style) -->
+  <clipPath id="iosClip">
+    <rect width="1024" height="1024" rx="224" ry="224"/>
+  </clipPath>
+
+  <!-- Shadow filter -->
+  <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="28" result="blur"/>
+    <feFlood flood-color="#7c3aed" flood-opacity="0.7" result="color"/>
+    <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+    <feMerge>
+      <feMergeNode in="shadow"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+
+  <!-- Subtle star glow -->
+  <filter id="starGlow" x="-100%" y="-100%" width="300%" height="300%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+    <feMerge>
+      <feMergeNode in="blur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+
+  <!-- Orbit ring dash pattern -->
+  <style>
+    .orbit { fill: none; stroke-linecap: round; }
+  </style>
+</defs>
+
+<!-- ── BACKGROUND ── -->
+<rect width="1024" height="1024" rx="224" fill="url(#bgGrad)"/>
+
+<!-- Background star field (tiny dots) -->
+<circle cx="140" cy="120" r="2.5" fill="#e0d7ff" opacity="0.5"/>
+<circle cx="280" cy="80"  r="1.5" fill="#c4b5fd" opacity="0.4"/>
+<circle cx="820" cy="100" r="2"   fill="#f9a8d4" opacity="0.5"/>
+<circle cx="900" cy="200" r="1.5" fill="#5eead4" opacity="0.4"/>
+<circle cx="920" cy="820" r="2.5" fill="#e0d7ff" opacity="0.45"/>
+<circle cx="100" cy="880" r="1.5" fill="#c4b5fd" opacity="0.35"/>
+<circle cx="200" cy="760" r="2"   fill="#f9a8d4" opacity="0.4"/>
+<circle cx="840" cy="930" r="2"   fill="#5eead4" opacity="0.35"/>
+<circle cx="460" cy="60"  r="1.8" fill="#e0d7ff" opacity="0.4"/>
+<circle cx="600" cy="940" r="1.8" fill="#c4b5fd" opacity="0.4"/>
+<circle cx="80"  cy="450" r="1.5" fill="#f9a8d4" opacity="0.3"/>
+<circle cx="950" cy="550" r="1.5" fill="#5eead4" opacity="0.3"/>
+
+<!-- ── AMBIENT GLOW ── -->
+<ellipse cx="512" cy="490" rx="340" ry="340" fill="url(#glowBehind)"/>
+
+<!-- ── OUTER ORBIT RING (tilted ellipse) ── -->
+<g transform="rotate(-22, 512, 512)">
+  <ellipse cx="512" cy="512" rx="390" ry="140"
+    class="orbit"
+    stroke="url(#orbitGrad)"
+    stroke-width="5"
+    stroke-dasharray="28 14"
+    opacity="0.5"/>
+</g>
+
+<!-- ── ORBIT RING PLANET DOT ── -->
+<circle cx="162" cy="445" r="14" fill="#5eead4" opacity="0.9" filter="url(#starGlow)"/>
+<circle cx="162" cy="445" r="7"  fill="#ffffff" opacity="0.8"/>
+
+<!-- ── INNER ORBIT RING ── -->
+<g transform="rotate(15, 512, 512)">
+  <ellipse cx="512" cy="512" rx="440" ry="80"
+    class="orbit"
+    stroke="rgba(196,181,253,0.25)"
+    stroke-width="2.5"
+    stroke-dasharray="18 22"
+    opacity="0.7"/>
+</g>
+
+<!-- ── SMALL FLOATING BUBBLES ── -->
+<!-- Top-left bubble (teal) -->
+<circle cx="238" cy="248" r="58" fill="url(#tealBubble)" opacity="0.88" filter="url(#softGlow)"/>
+<circle cx="222" cy="232" r="16" fill="#ffffff" opacity="0.18"/>
+
+<!-- Top-right bubble (pink) -->
+<circle cx="786" cy="268" r="38" fill="url(#pinkBubble)" opacity="0.82" filter="url(#softGlow)"/>
+<circle cx="774" cy="256" r="10" fill="#ffffff" opacity="0.2"/>
+
+<!-- Bottom-right bubble (teal small) -->
+<circle cx="808" cy="768" r="28" fill="url(#tealBubble)" opacity="0.72"/>
+<circle cx="800" cy="760" r="7"  fill="#ffffff" opacity="0.18"/>
+
+<!-- Bottom-left tiny bubble -->
+<circle cx="218" cy="796" r="18" fill="#9333ea" opacity="0.6"/>
+
+<!-- ── MAIN BUBBLE SHADOW ── -->
+<circle cx="518" cy="508" r="238" fill="#000000" opacity="0.35"/>
+
+<!-- ── MAIN CENTRAL BUBBLE ── -->
+<circle cx="512" cy="494" r="236" fill="url(#bubbleGrad)" filter="url(#softGlow)"/>
+
+<!-- Bubble highlight (glass effect) -->
+<circle cx="512" cy="494" r="236" fill="url(#bubbleHighlight)"/>
+
+<!-- Bubble tail (speech bubble shape) pointing bottom-right -->
+<path d="M 570 710 Q 640 740 700 790 Q 660 730 630 700 Z"
+  fill="url(#bubbleGrad)" opacity="0.9"/>
+
+<!-- ── LETTER B inside main bubble ── -->
+<!-- Stylized "B" — two stacked rounded rectangles with spine -->
+<g transform="translate(512, 494)">
+  <!-- Spine / vertical bar -->
+  <rect x="-58" y="-115" width="30" height="228" rx="15" fill="#ffffff" opacity="0.95"/>
+
+  <!-- Top bump of B -->
+  <path d="M -32,-115 Q 72,-115 80,-60 Q 88,-5 -32,8 Z"
+    fill="#ffffff" opacity="0.95"/>
+  <path d="M -32,-115 Q 72,-115 80,-60 Q 88,-5 -32,8 Z"
+    fill="url(#bubbleGrad)" opacity="0.4"/>
+  <circle cx="18" cy="-53" r="63" fill="none" stroke="#ffffff" stroke-width="30" stroke-dasharray="200 400"
+    stroke-dashoffset="-180" opacity="0.95"/>
+
+  <!-- Bottom bump of B (bigger) -->
+  <circle cx="22" cy="60" r="72" fill="none" stroke="#ffffff" stroke-width="30" stroke-dasharray="230 400"
+    stroke-dashoffset="-180" opacity="0.95"/>
+</g>
+
+<!-- ── SPARKLE STARS ── -->
+<!-- Large sparkle top-right -->
+<g transform="translate(730, 198)" filter="url(#starGlow)">
+  <path d="M0,-18 L4,-4 L18,0 L4,4 L0,18 L-4,4 L-18,0 L-4,-4 Z"
+    fill="#fcd34d" opacity="0.95"/>
+</g>
+
+<!-- Medium sparkle bottom-left area -->
+<g transform="translate(292, 778)" filter="url(#starGlow)">
+  <path d="M0,-12 L3,-3 L12,0 L3,3 L0,12 L-3,3 L-12,0 L-3,-3 Z"
+    fill="#c4b5fd" opacity="0.85"/>
+</g>
+
+<!-- Small sparkle near orbit planet -->
+<g transform="translate(130, 390)" filter="url(#starGlow)">
+  <path d="M0,-8 L2,-2 L8,0 L2,2 L0,8 L-2,2 L-8,0 L-2,-2 Z"
+    fill="#5eead4" opacity="0.8"/>
+</g>
+
+<!-- Tiny dot sparkles -->
+<circle cx="660" cy="148" r="4"  fill="#fcd34d" opacity="0.7" filter="url(#starGlow)"/>
+<circle cx="380" cy="830" r="3"  fill="#c4b5fd" opacity="0.6"/>
+<circle cx="842" cy="608" r="3.5" fill="#f9a8d4" opacity="0.65"/>
+<circle cx="174" cy="588" r="2.5" fill="#5eead4" opacity="0.5"/>
+
+<!-- ── WORDMARK "V" accent above bubble tail ── -->
+<!-- Small "V" chevron mark -->
+<g transform="translate(642, 682)">
+  <path d="M -14,-10 L 0,12 L 14,-10" fill="none" stroke="#f9a8d4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+</g>
+
+</svg>
