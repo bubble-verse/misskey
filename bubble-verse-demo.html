@@ -129,6 +129,10 @@ img{max-width:100%}
 .post-meta .handle:hover{color:var(--accent2)}
 .post-meta .time{font-size:12px;color:var(--text3);margin-left:8px}
 .post-content{font-size:15px;line-height:1.6;margin-bottom:12px}
+.hashtag{color:var(--accent2);cursor:pointer;font-weight:600}
+.hashtag:hover{text-decoration:underline}
+.mention{color:var(--teal);cursor:pointer;font-weight:600}
+.mention:hover{text-decoration:underline}
 .post-actions{display:flex;gap:4px;position:relative}
 .post-action{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:20px;font-size:13px;color:var(--text3);transition:all .15s}
 .post-action:hover{background:rgba(124,58,237,.1);color:var(--accent)}
@@ -651,7 +655,10 @@ let bookmarks=JSON.parse(localStorage.getItem('bv_bookmarks')||'{}');
 let analytics=JSON.parse(localStorage.getItem('bv_analytics')||'{}');
 let reactions=JSON.parse(localStorage.getItem('bv_reactions')||'{}');
 let dms=JSON.parse(localStorage.getItem('bv_dms')||'{}');
+let blockedUsers=JSON.parse(localStorage.getItem('bv_blocked')||'[]');
+let mutedUsers=JSON.parse(localStorage.getItem('bv_muted')||'[]');
 let _cameraStream=null;
+let _hashtagFilter=null;
 
 let currentPage='home';
 let storyIndex=0;
@@ -673,12 +680,32 @@ let storyMediaUrl=null;
 let storyMediaType=null;
 
 function saveUsers(){localStorage.setItem('bv_users',JSON.stringify(users))}
-function savePosts(){localStorage.setItem('bv_posts',JSON.stringify(posts))}
+function saveBlocked(){localStorage.setItem('bv_blocked',JSON.stringify(blockedUsers))}
+function saveMuted(){localStorage.setItem('bv_muted',JSON.stringify(mutedUsers))}
+function savePosts(){
+  // Cap at 600 posts to prevent localStorage overflow (AI posts indefinitely)
+  if(posts.length>600)posts.splice(600);
+  try{localStorage.setItem('bv_posts',JSON.stringify(posts));}
+  catch(e){
+    // Quota exceeded: drop oldest 100 posts and retry
+    posts.splice(posts.length-100,100);
+    try{localStorage.setItem('bv_posts',JSON.stringify(posts));}catch(e2){}
+  }
+}
 function saveStories(){localStorage.setItem('bv_stories',JSON.stringify(stories))}
 function saveGalaxies(){localStorage.setItem('bv_galaxies',JSON.stringify(galaxies))}
 function saveSpaces(){localStorage.setItem('bv_spaces',JSON.stringify(spaces))}
 function savePollVotes(){localStorage.setItem('bv_pollvotes',JSON.stringify(pollVotes))}
-function saveComments(){localStorage.setItem('bv_comments',JSON.stringify(comments))}
+function saveComments(){
+  // Prune: keep at most 100 comments per post
+  Object.keys(comments).forEach(k=>{if(comments[k].length>100)comments[k]=comments[k].slice(-100);});
+  try{localStorage.setItem('bv_comments',JSON.stringify(comments));}
+  catch(e){
+    // Emergency prune: keep only 20 per post
+    Object.keys(comments).forEach(k=>{comments[k]=comments[k].slice(-20);});
+    try{localStorage.setItem('bv_comments',JSON.stringify(comments));}catch(e2){}
+  }
+}
 function saveNotifications(){localStorage.setItem('bv_notifications',JSON.stringify(notifications))}
 function saveBookmarks(){localStorage.setItem('bv_bookmarks',JSON.stringify(bookmarks))}
 function saveAnalytics(){localStorage.setItem('bv_analytics',JSON.stringify(analytics))}
@@ -823,10 +850,11 @@ function seedAnalytics(){
   saveAnalytics();
 }
 
-// Track a post being viewed
+// Track a post being viewed (skip AI-generated posts to keep analytics meaningful)
 function trackPostView(postId,source='home'){
   if(!session)return;
   const uid=session.userId;
+  if(uid.startsWith('ai_'))return;
   if(!analytics[uid])seedAnalytics();
   const a=analytics[uid];
   // Update post views
@@ -886,6 +914,24 @@ function analyzeTopContent(userId){
 // UTILITIES
 // ═══════════════════════════════════════════════════════════
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function linkifyContent(text){
+  // Escape HTML first, then linkify hashtags and @mentions
+  const safe=esc(text||'');
+  return safe
+    .replace(/\n/g,'<br>')
+    .replace(/#([\w一-鿿]+)/g,'<span class="hashtag" onclick="filterByHashtag(\'$1\')">#$1</span>')
+    .replace(/@([\w]+)/g,'<span class="mention" onclick="openMentionProfile(\'$1\')">@$1</span>');
+}
+function filterByHashtag(tag){
+  _hashtagFilter=(_hashtagFilter===tag)?null:tag;
+  navigate('home');
+  if(_hashtagFilter)toast('#'+tag+' 篩選中 (再點一次取消)','info');
+}
+function openMentionProfile(username){
+  const u=users.find(x=>x.username===username);
+  if(u)openUserProfile(u.id);
+  else toast('@'+username+' 找不到此用戶','info');
+}
 function timeAgo(ts){
   const d=(Date.now()-ts)/1000;
   if(d<60)return '剛剛';if(d<3600)return Math.floor(d/60)+'分鐘前';
@@ -1028,6 +1074,8 @@ function navigate(page,uid2){
   currentPage=page;
   activeGalaxy=null;activeSpace=null;
   if(uid2!==undefined)viewingUserId=uid2;
+  // Clear hashtag filter when leaving home
+  if(page!=='home')_hashtagFilter=null;
   document.querySelectorAll('.nav-item[data-page]').forEach(el=>{
     el.classList.toggle('active',el.dataset.page===page);
   });
@@ -1081,6 +1129,56 @@ function toggleFollow(targetId){
     btn.textContent=following?'已追蹤':'追蹤';
   });
   updateNotifBadge();
+}
+
+function toggleMuteUser(userId){
+  if(!session||userId===session.userId)return;
+  const idx=mutedUsers.indexOf(userId);
+  if(idx>=0){
+    mutedUsers.splice(idx,1);
+    saveMuted();
+    toast('已取消靜音','info');
+  } else {
+    mutedUsers.push(userId);
+    saveMuted();
+    const u=users.find(x=>x.id===userId);
+    toast((u?.displayName||userId)+' 已靜音','success');
+  }
+  openUserProfile(userId);
+}
+function confirmBlockUser(userId){
+  if(!session||userId===session.userId)return;
+  const u=users.find(x=>x.id===userId);
+  const name=u?.displayName||userId;
+  if(blockedUsers.includes(userId)){
+    blockedUsers.splice(blockedUsers.indexOf(userId),1);
+    saveBlocked();
+    toast(name+' 已解除封鎖','info');
+    openUserProfile(userId);
+    return;
+  }
+  openDialog(`<h2>封鎖用戶</h2>
+    <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    <p style="margin:16px 0;color:var(--text2)">確定要封鎖 <b>${esc(name)}</b>？封鎖後對方將無法看到你的貼文，你也不會看到他的貼文。</p>
+    <div class="dialog-footer">
+      <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
+      <button class="btn btn-danger" onclick="blockUser('${userId}')">確認封鎖</button>
+    </div>`);
+}
+function blockUser(userId){
+  if(!session||userId===session.userId)return;
+  if(!blockedUsers.includes(userId))blockedUsers.push(userId);
+  saveBlocked();
+  // Also unfollow both ways silently
+  const me=users.find(u=>u.id===session.userId);
+  const target=users.find(u=>u.id===userId);
+  if(me&&me.following){const i=me.following.indexOf(userId);if(i>=0)me.following.splice(i,1);}
+  if(target&&target.followers){const i=target.followers.indexOf(session.userId);if(i>=0)target.followers.splice(i,1);}
+  saveUsers();
+  const name=target?.displayName||userId;
+  closeDialog();
+  toast(name+' 已封鎖','success');
+  navigate('home');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1161,6 +1259,7 @@ function renderHome(){
     <div class="feed-tab ${feedFilter==='all'?'active':''}" onclick="setFeedFilter('all')">全部</div>
     <div class="feed-tab ${feedFilter==='following'?'active':''}" onclick="setFeedFilter('following')">追蹤中</div>
   </div>
+  ${_hashtagFilter?`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;margin-bottom:4px"><span class="hashtag" style="font-size:15px">#${esc(_hashtagFilter)}</span><span style="color:var(--text3);font-size:13px">篩選中</span><button class="btn btn-ghost btn-sm" onclick="_hashtagFilter=null;navigate('home')" style="padding:2px 10px;font-size:12px">✕ 清除</button></div>`:''}
   <div id="feed">${renderFeedHTML(getFilteredPosts())}</div>`;
 }
 function setFeedFilter(f){
@@ -1221,7 +1320,14 @@ function renderComposerHTML(galaxyId){
   </div>`;
 }
 function renderFeedHTML(arr,source='home'){
-  const sorted=[...arr].sort((a,b)=>b.createdAt-a.createdAt);
+  let sorted=[...arr].sort((a,b)=>b.createdAt-a.createdAt);
+  // Filter blocked and muted users' posts
+  sorted=sorted.filter(p=>!blockedUsers.includes(p.userId)&&!mutedUsers.includes(p.userId));
+  // Filter by hashtag if active
+  if(_hashtagFilter){
+    const tag=_hashtagFilter.toLowerCase();
+    sorted=sorted.filter(p=>(p.content||'').toLowerCase().includes('#'+tag));
+  }
   if(!sorted.length)return '<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文，快去追蹤一些人吧！</p></div>';
   // Track views for each post's owner
   sorted.forEach(p=>{if(p.userId!==session?.userId)trackPostView(p.id,source);});
@@ -1253,17 +1359,18 @@ function renderPostHTML(p){
   }
   const commentCount=(comments[p.id]||[]).length||p.comments||0;
   const followBtn=(!isOwn)?`<button class="${following?'btn-following':'btn-follow'}" data-follow="${p.userId}" onclick="toggleFollow('${p.userId}')" style="margin-left:auto">${following?'已追蹤':'追蹤'}</button>`:'';
+  const editBtn=isOwn?`<button class="post-action" onclick="openEditPost('${p.id}')" title="編輯貼文" style="margin-left:auto"><i class="ti ti-edit"></i></button>`:'';
   return `<div class="post" id="post-${p.id}">
     <div class="post-header">
       <div style="cursor:pointer" onclick="openUserProfile('${p.userId}')">${avatarHTML(p.displayName,p.avatarColor,'avatar-sm')}</div>
       <div class="post-meta">
         <span class="dname" onclick="openUserProfile('${p.userId}')">${esc(p.displayName)}</span>
         <span class="handle" onclick="openUserProfile('${p.userId}')">@${esc(p.username)}</span>
-        <span class="time">${timeAgo(p.createdAt)}</span>
+        <span class="time">${timeAgo(p.createdAt)}${p.editedAt?` <span style="color:var(--text3);font-size:11px">(已編輯)</span>`:''}</span>
       </div>
-      ${followBtn}
+      ${followBtn}${editBtn}
     </div>
-    <div class="post-content">${esc(p.content).replace(/\n/g,'<br>')}</div>
+    <div class="post-content">${linkifyContent(p.content)}</div>
     ${mediaHTML}${quoteHTML}${pollHTML}
     <div class="post-actions">
       <button class="post-action react-btn ${liked?'liked':''}" onclick="showReactionPicker('${p.id}',this)" title="按讚或選擇反應">
@@ -1363,7 +1470,41 @@ function toggleBookmark(id){
   const p=posts.find(x=>x.id===id);
   if(el&&p){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);el.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+id));}
 }
-function copyPostLink(id){toast('已複製貼文連結','success')}
+function copyPostLink(id){
+  const url=window.location.href.split('?')[0]+'?post='+id;
+  navigator.clipboard?.writeText(url).then(()=>toast('貼文連結已複製 🔗','success')).catch(()=>toast('複製失敗，請手動複製','error'));
+}
+function openEditPost(id){
+  const p=posts.find(x=>x.id===id);
+  if(!p||p.userId!==session.userId)return;
+  openDialog(`<h2>編輯貼文</h2>
+    <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    <div class="form-group">
+      <textarea id="edit-post-text" rows="4" style="width:100%">${esc(p.content)}</textarea>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
+      <button class="btn btn-primary" onclick="submitEditPost('${id}')">儲存</button>
+    </div>`);
+  setTimeout(()=>{
+    const ta=document.getElementById('edit-post-text');
+    if(ta){ta.value=p.content;ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);}
+  },50);
+}
+function submitEditPost(id){
+  const p=posts.find(x=>x.id===id);
+  if(!p||p.userId!==session.userId)return;
+  const ta=document.getElementById('edit-post-text');
+  const newText=(ta?.value||'').trim();
+  if(!newText){toast('貼文內容不可為空','error');return;}
+  p.content=newText;
+  p.editedAt=Date.now();
+  savePosts();
+  closeDialog();
+  const el=document.getElementById('post-'+id);
+  if(el){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);el.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+id));}
+  toast('貼文已更新','success');
+}
 
 // ═══════════════════════════════════════════════════════════
 // COMMENTS
@@ -1401,7 +1542,10 @@ function submitComment(postId){
   if(!txt){toast('請輸入留言內容','error');return}
   if(!comments[postId])comments[postId]=[];
   const c={id:uid(),userId:session.userId,username:session.username,displayName:session.displayName,avatarColor:session.avatarColor,text:txt,createdAt:Date.now()};
-  comments[postId].push(c);saveComments();
+  comments[postId].push(c);
+  // Cap at 200 comments per post to prevent localStorage overflow
+  if(comments[postId].length>200)comments[postId]=comments[postId].slice(-200);
+  saveComments();
   const p=posts.find(x=>x.id===postId);
   if(p){p.comments=(comments[postId]||[]).length;savePosts();}
   if(p&&p.userId!==session.userId)addNotificationForUser('comment',session.userId,p.userId,postId,txt);
@@ -1951,11 +2095,13 @@ function renderUserProfileById(userId,isOwn){
         ${u.bio?`<div class="profile-bio" style="margin-top:6px">${esc(u.bio)}</div>`:''}
         ${liveBtn}
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         ${isOwn
           ?`<button class="btn btn-ghost btn-sm" onclick="openEditProfile()"><i class="ti ti-edit"></i> 編輯</button>`
           :`<button class="${following?'btn-following':'btn-follow'}" data-follow="${userId}" onclick="toggleFollow('${userId}')">${following?'已追蹤':'追蹤'}</button>
-            <button class="btn btn-ghost btn-sm" onclick="openDMWith('${userId}')" title="傳送私訊">💌 私訊</button>`}
+            <button class="btn btn-ghost btn-sm" onclick="openDMWith('${userId}')" title="傳送私訊">💌 私訊</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleMuteUser('${userId}')" title="${mutedUsers.includes(userId)?'取消靜音':'靜音此用戶'}">${mutedUsers.includes(userId)?'🔇 已靜音':'🔔 靜音'}</button>
+            <button class="btn btn-ghost btn-sm" style="color:#ef4444;border-color:#ef4444" onclick="confirmBlockUser('${userId}')" title="${blockedUsers.includes(userId)?'解除封鎖':'封鎖此用戶'}">${blockedUsers.includes(userId)?'🔓 解除封鎖':'🚫 封鎖'}</button>`}
       </div>
     </div>
     <div class="profile-stats">
@@ -2860,9 +3006,9 @@ function closeLiveStream(){
   liveState.active=false;
   clearInterval(liveState.autoInterval);
   clearInterval(liveState.viewerInterval);
-  // Stop camera/mic tracks
+  // Stop camera/mic tracks — disable before stop to avoid brief audio blip
   if(_cameraStream){
-    _cameraStream.getTracks().forEach(t=>t.stop());
+    _cameraStream.getTracks().forEach(t=>{t.enabled=false;t.stop();});
     _cameraStream=null;
   }
   const camVid=document.getElementById('live-camera-feed');
@@ -2955,12 +3101,17 @@ async function _toggleScreenShare(){
     if(bg)bg.classList.add('hidden');
     if(btn)btn.textContent='📷';
     toast('螢幕分享已開始','success');
-    stream.getVideoTracks()[0].addEventListener('ended',()=>{
-      _cameraStream=null;
-      if(vid){vid.srcObject=null;vid.classList.add('hidden');}
-      if(bg)bg.classList.remove('hidden');
-      if(btn)btn.textContent='🖥';
-    });
+    // Guard: only register the 'ended' listener once per stream object
+    const vtrack=stream.getVideoTracks()[0];
+    if(vtrack&&!vtrack._bvListened){
+      vtrack._bvListened=true;
+      vtrack.addEventListener('ended',()=>{
+        _cameraStream=null;
+        if(vid){vid.srcObject=null;vid.classList.add('hidden');}
+        if(bg)bg.classList.remove('hidden');
+        if(btn)btn.textContent='🖥';
+      });
+    }
   } catch(e){
     if(e?.name!=='AbortError')toast('螢幕分享被取消','info');
   }
@@ -3041,8 +3192,13 @@ function showReactionPicker(postId,btn){
   picker.id='rp-'+postId;
   picker.innerHTML=REACTION_TYPES.map(e=>`<button class="reaction-option" onclick="setReaction('${postId}','${e}');event.stopPropagation()">${e}</button>`).join('');
   const rect=btn.getBoundingClientRect();
-  const left=Math.min(rect.left,window.innerWidth-240);
-  const top=rect.top-58;
+  // Viewport-aware positioning (works on mobile + desktop)
+  const pickerW=260,pickerH=56;
+  let left=rect.left+rect.width/2-pickerW/2;
+  let top=rect.top-pickerH-8;
+  if(top<8) top=rect.bottom+8;          // flip below if too high
+  if(left+pickerW>window.innerWidth-8) left=window.innerWidth-pickerW-8;
+  if(left<8) left=8;
   picker.style.cssText=`position:fixed;left:${left}px;top:${top}px`;
   document.body.appendChild(picker);
   setTimeout(()=>{
@@ -3872,30 +4028,34 @@ function _aiTick(){
 // ── Start engine ──
 function startAIEngine(){
   if(aiEngine.running)return;
+  // Guard against rapid double-start
+  stopAIEngine();
   aiEngine.running=true;
   initAIUsers();
-  // Initial burst: each AI posts once immediately
+  const engineId=++aiEngine.engineId; // version stamp to kill stale timers
+  // Initial burst
   AI_PROFILES.forEach((p,i)=>{
-    setTimeout(()=>_aiMakePost(p.id), 600+i*900);
-  });
-  // Regular tick every 15-30 seconds (fast for demo)
-  const tick=()=>{
-    if(!aiEngine.running)return;
-    _aiTick();
-    aiEngine.timers.push(setTimeout(tick, 15000+Math.random()*15000));
-  };
-  AI_PROFILES.forEach((_,i)=>{
-    const t=setTimeout(()=>{if(aiEngine.running)tick();}, 5000+i*3500);
+    const t=setTimeout(()=>{if(aiEngine.running&&aiEngine.engineId===engineId)_aiMakePost(p.id);},600+i*900);
     aiEngine.timers.push(t);
   });
-  // Dialogue thread every 40-80s
+  // Recursive tick — checks engineId to prevent stale callbacks
+  const tick=()=>{
+    if(!aiEngine.running||aiEngine.engineId!==engineId)return;
+    _aiTick();
+    const id=setTimeout(tick,15000+Math.random()*15000);
+    aiEngine.timers.push(id);
+  };
+  AI_PROFILES.forEach((_,i)=>{
+    const t=setTimeout(()=>{if(aiEngine.running&&aiEngine.engineId===engineId)tick();},5000+i*3500);
+    aiEngine.timers.push(t);
+  });
   const dialogueTick=()=>{
-    if(!aiEngine.running)return;
+    if(!aiEngine.running||aiEngine.engineId!==engineId)return;
     _aiRunDialogue();
-    aiEngine.timers.push(setTimeout(dialogueTick,40000+Math.random()*40000));
+    const id=setTimeout(dialogueTick,40000+Math.random()*40000);
+    aiEngine.timers.push(id);
   };
   aiEngine.timers.push(setTimeout(dialogueTick,18000));
-
   toast('🤖 AI 模式已啟動 — 完全本地運行，零 Token 消耗','success');
   _updateAIBtn();
   const s=JSON.parse(localStorage.getItem('bv_settings')||'{}');
@@ -3906,7 +4066,8 @@ function startAIEngine(){
 function stopAIEngine(){
   aiEngine.running=false;
   aiEngine.timers.forEach(t=>clearTimeout(t));
-  aiEngine.timers=[];
+  aiEngine.timers.length=0;
+  if(aiEngine.engineId===undefined)aiEngine.engineId=0;
   toast('AI 模式已停止','info');
   _updateAIBtn();
   const s=JSON.parse(localStorage.getItem('bv_settings')||'{}');
@@ -3964,9 +4125,13 @@ function _applyIcons(root){
     }
   });
 }
-const _obs=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{
-  if(n.nodeType===1){_applyIcons(n);}
-})));
+let _obsTimer=null;
+const _obs=new MutationObserver(ms=>{
+  clearTimeout(_obsTimer);
+  _obsTimer=setTimeout(()=>{
+    ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)_applyIcons(n);}));
+  },16);
+});
 _obs.observe(document.documentElement,{childList:true,subtree:true});
 
 // ═══════════════════════════════════════════════════════════
