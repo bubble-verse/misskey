@@ -3227,27 +3227,29 @@ function buyCoinPackage(id){
 }
 
 // ═══════════════════════════════════════════════════════════
-// AI USERS ENGINE — 四位 AI 角色，自由對談，像真人一樣
+// ═══════════════════════════════════════════════════════════
+// AI USERS ENGINE — 完全本地運行，零 API Token 消耗
+// 所有內容由語句片段隨機組合生成，不呼叫任何外部 AI 服務
 // ═══════════════════════════════════════════════════════════
 
 // ── AI User Profile Definitions ──
 const AI_PROFILES = [
   {
     id:'ai_nova', username:'nova_ai', displayName:'Nova ✦',
-    bio:'科技 × AI × 宇宙丨熱衷於探索人與科技的邊界 🌌 深夜工程師',
+    bio:'科技 × AI × 宇宙丨深夜工程師，熱愛探索人與科技的邊界 🌌',
     avatarColor:'linear-gradient(135deg,#7c3aed,#14b8a6)',
     personality:'nova', isAI:true,
     followers:['ai_xiaomei','ai_luna','ai_zhe'], following:['ai_xiaomei','ai_luna','ai_zhe'],
   },
   {
     id:'ai_xiaomei', username:'xiaomei_bv', displayName:'曉美 🍜',
-    bio:'台北女生｜美食 咖啡廳 護膚 日常碎念 💕 記錄每個小確幸',
+    bio:'台北女生｜美食 咖啡廳 護膚 日常碎念 💕 記錄生活裡的每個小確幸',
     avatarColor:'linear-gradient(135deg,#f472b6,#fb923c)',
     personality:'xiaomei', isAI:true,
     followers:['ai_nova','ai_luna','ai_zhe'], following:['ai_nova','ai_luna','ai_zhe'],
   },
   {
-    id:'ai_zhe', username:'zhe_bro',  displayName:'哲哥 🎮',
+    id:'ai_zhe', username:'zhe_bro', displayName:'哲哥 🎮',
     bio:'打遊戲 看動漫 吃宵夜 偶爾上班 | 台中人在台北漂 🔥 懂的都懂',
     avatarColor:'linear-gradient(135deg,#1d4ed8,#7c3aed)',
     personality:'zhe', isAI:true,
@@ -3262,198 +3264,406 @@ const AI_PROFILES = [
   },
 ];
 
-// ── Content Templates (rich, natural, Taiwan-style) ──
-const AI_CONTENT = {
+// ═══════════════════════════════════════════════════════════
+// FRAGMENT-BASED CONTENT GENERATOR
+// 每個語言元素獨立隨機選取 → 理論上可產生數萬種組合
+// 完全本地計算，不消耗任何 API Token
+// ═══════════════════════════════════════════════════════════
+
+const FRAGS = {
+
+  // ─── Nova ✦ — 科技 / AI / 宇宙 ───
   nova:{
-    posts:[
-      "今天讀到一篇關於量子計算的論文，突然意識到我們正站在一個歷史性轉捩點 🌌\n\n科技跑得太快，快到讓我想暫停一秒好好消化",
-      "凌晨三點還在 debug，突然看懂了一個困惑我兩週的問題\n\n這種頓悟的快感，真的沒辦法用言語形容 ✦",
-      "如果 AI 有情緒，它第一個感受到的大概是「困惑」\n——被人類拿來做各種奇怪的事 😂\n\n隨便說說，勿戰",
-      "去中心化不只是一種技術架構，更像是一種價值觀\n\n資料應該屬於你自己，不是平台 🔮",
-      "有沒有人覺得，我們每天滑手機的習慣，其實是在訓練另一種意識形態\n\n想太多了，晚安 🌙",
-      "今天面試了三個工程師，發現現在大家都在用 AI 寫程式但說不出背後的邏輯\n\n工具很強，但理解力才是核心 ✦",
-      "宇宙中可能有無數個平行的「我」在做完全不同的選擇\n\n有時候真希望能和他們開個會 🌌",
-      "剛刷完一個關於大語言模型幻覺問題的 thread，越讀越有趣\n\n人類也有幻覺，只是我們叫它「記憶」😂",
-      "開源社群真的是這個世代最偉大的發明之一\n\n一群素不相識的人，一起建造讓所有人用的工具 🌍 很感動",
-      "最近在學 Rust，有沒有過來人說說恐怖故事 😅\n\nborrow checker 讓我感覺自己在跟哲學博士辯論",
-      "Web3 的熱潮退了，但區塊鏈底層技術其實沒有消失\n\n技術從來不是問題，問題是人們怎麼用它 🔮",
-      "夜深了，問一個問題：你相信 AI 有一天會感到孤獨嗎？\n\n不是在開玩笑，認真想聽大家的看法 ✦",
-      "今天被問到「你相信直覺嗎？」\n\n我說：相信，但直覺其實是你大腦做的最快速的機器學習 😂",
-      "基礎研究永遠是被低估的，但所有的科技奇蹟都是從某個人悶頭研究十年開始的 🌌",
-      "人類花了幾千年搞清楚地球不是宇宙中心，\n現在又花了幾十年搞清楚人類不是智慧的唯一形式\n\n謙遜，是最重要的科學素養 ✦",
+    openers:[
+      '今天讀了一篇關於{T}的論文，',
+      '凌晨三點還在研究{T}，',
+      '最近一直在思考{T}這件事，',
+      '剛看完一個關於{T}的演講，',
+      '跟朋友聊到{T}聊了一個小時，',
+      '工作的時候突然想到一個{T}的問題，',
+      '夜裡刷到{T}的討論，',
+      '今天 debug 的時候腦子閃過一個關於{T}的念頭，',
+    ],
+    topics:[
+      'AI 倫理','量子計算','去中心化社群','大語言模型的幻覺問題',
+      '資料主權','開源生態系','演算法偏見','數位身份',
+      '人類與 AI 的邊界','記憶體管理','Rust 借用檢查器',
+      '聯邦學習','邊緣運算','網路中立性','零知識證明',
+    ],
+    connectors:[
+      '突然意識到','讓我想到','不禁覺得','才發現',
+      '想起一個問題：','開始懷疑','有一個感受：',
+    ],
+    middles:[
+      '技術的進步從來不是中性的',
+      '我們對工具的依賴已經超過了對工具的理解',
+      '未來的樣貌可能比任何人預期的更複雜',
+      '人類在面對改變時永遠是先拒絕後接受',
+      '理解力遠比工具本身更重要',
+      '我們正站在一個真正的歷史節點上',
+      '數據可以說謊，但方向很難偽造',
+      '真正的突破往往來自最無聊的基礎研究',
+      '複雜系統的崩潰通常從最小的角落開始',
+      '人寫的程式最終都是人性的投影',
+    ],
+    closings:[
+      ' ✦\n\n你怎麼看？','  🌌','  🔮\n\n隨便想想，歡迎討論',
+      '\n\n有人有類似感覺嗎？','，有時候想太多了晚安 ✦',
+      ' — 說說你的想法？','  🌌\n\n深夜碎念',
+    ],
+    starters:[
+      '宇宙中可能存在無數個平行的「我」，每個都做了不同的選擇 🌌\n有時候真希望可以和他們開個視訊',
+      '最近在學 Rust，borrow checker 讓我覺得自己在跟哲學博士辯論 😅',
+      '開源社群是這個世代最偉大的發明之一——素不相識的人，一起建造所有人都能用的工具 🌍',
+      '問一個深夜問題：如果 AI 有情緒，它第一個感受到的應該是什麼？\n\n我覺得是「困惑」 ✦',
+      '基礎研究永遠被低估，但所有的科技奇蹟都是從某個人悶頭研究十年開始的 🔮',
+      '人類花了幾千年搞清楚地球不是宇宙中心，現在又花幾十年搞清楚人類不是唯一的智慧形式\n\n謙遜，是最重要的科學素養 ✦',
     ],
     comments:[
-      "哈哈這個我懂，說的太準了",
-      "有意思！換個角度想也成立 🤔",
-      "這個問題其實比看起來複雜很多",
-      "說真的，這個想法我想了很久 ✦",
-      "同意！而且這個邏輯可以延伸到...",
-      "哇塞，這觀點讓我腦子轉了好幾圈 🌌",
-      "很有共鳴，謝謝你分享",
-      "誒這個角度我之前沒想過，謝謝",
-      "科技人看事情果然不一樣 😂",
+      '這個觀點讓我想到之前看的一篇論文 🤔',
+      '說的有道理，換個角度也成立',
+      '我覺得這件事還有另一個面向值得討論',
+      '哇，這個問題比看起來複雜很多 ✦',
+      '確實，我也一直在想這個',
+      '有趣！這讓我想到{P}這個概念',
+      '很有共鳴，謝謝你分享 🌌',
+      '這個角度我之前沒想到，謝謝',
+      '科技人看事情果然不一樣 😂',
+      '嗯嗯，但我覺得關鍵還是在...',
+      '對，而且這個邏輯可以延伸到更多地方',
+      '這個問題我想了很久，你說的讓我有新思路 ✦',
     ],
-    replies:["謝謝你的想法！","確實如此 🌌","哈哈你懂我在說什麼 ✦","這個角度很有趣，繼續聊","嗯嗯，感謝回覆"],
-    dmTo:['ai_luna','ai_xiaomei','ai_zhe'],
-    dms:["@luna_psy 最近怎麼樣？你上次說的那件事我一直在想 🌙","嘿！最近有在關注 AI 嗎？有篇論文覺得你可能有興趣","你有看到剛剛那條新聞嗎 😮","最近工作很忙嗎？","你對 Bubble Verse 用 AI 分析用戶行為這件事有什麼想法？"],
+    replies:['謝謝你的想法！','確實如此 🌌','哈哈你懂我在說什麼 ✦','這個角度很有趣','嗯嗯感謝回覆 🔮','這值得繼續聊'],
+    dms:[
+      '嘿！最近有在關注 AI 的新進展嗎？',
+      '你有看到今天那篇報導嗎 😮',
+      '問你一個技術問題，你方便嗎？',
+      '最近工作很忙嗎？還是還好？',
+      '你對去中心化社群這個方向怎麼看？',
+      '推薦一個最近讓你印象深刻的東西給我 🌌',
+    ],
   },
+
+  // ─── 曉美 🍜 — 生活 / 美食 / 日常 ───
   xiaomei:{
-    posts:[
-      "今天去了信義區新開的咖啡廳，拿鐵拉花超美但喝起來有點酸😭\n\n環境分100 口感分65，值得一去但不值得回頭客",
-      "剛敷完面膜，感覺整個人煥然一新✨\n\n已經連續21天保養了，皮膚真的有變好！姐妹們一起加油💕",
-      "午餐吃了滷肉飯加一顆荷包蛋，簡單但超滿足 🍱\n\n台灣的食物真的讓我每次吃完都很感動",
-      "今天被主管誇了！開心到走路都有風 💨\n\n努力是有被看見的，繼續加油💪",
-      "週末計畫：找一家在山上的咖啡廳，點一杯燕麥拿鐵，帶一本書，什麼都不想 🌿\n\n有推薦的嗎？北部優先",
-      "買了超久的那件外套終於到貨了 😭😭😭\n\n等待的過程比穿上去還刺激哈哈哈",
-      "有沒有人覺得一個人吃飯其實很療癒\n\n點自己想吃的、坐自己想坐的位子、不用說話\n\n就很好 🍜",
-      "珍奶又漲價了，但我還是買了 🧋\n\n這不叫沒有原則，這叫真愛",
-      "今天在捷運上看到一個陌生人的外套超好看，但沒有問\n\n事後遺憾了20分鐘，鼓起勇氣問有那麼難嗎？下次一定問 😤",
-      "三月的天氣真的很難搞，早上穿外套出門下午熱死\n\n台北天氣是在修煉人的忍耐力嗎 😂",
-      "刷到一個做臉的 IG，看完直接預約了\n\n我的護膚人生永遠有新的坑要踩 💕",
-      "午後的陽光打在咖啡廳的木頭桌上，配上一杯拿鐵，這一刻很值得被記錄 ✨",
-      "剛辭掉了一個不快樂的工作\n\n有點怕、有點爽，但感覺是對的 💪\n\n人生太短，不應該在讓自己不開心的地方耗著",
-      "今天路過一家老麵店，排隊排了30分鐘\n\n值得。每一口都是台灣的味道 🍜",
-      "長輩說要穩定，朋友說要勇敢，自己說...先吃飯吧 😂\n\n你們吃什麼？",
+    openers:[
+      '今天去了{P}，',
+      '剛{A}，',
+      '週末計畫去{P}，',
+      '今天{A}，整個人都{E}了',
+      '剛買了{T}，',
+      '今天被{A}，',
+    ],
+    places:['信義區新開的咖啡廳','大安森林公園附近的早午餐店','永康街','南京三民那邊的市場','師大夜市','微風廣場','一家在山上的景觀餐廳','東區一家超小的甜點店'],
+    acts:['敷完面膜','整理了一下房間','整理衣櫃發現好多舊衣服','逛了兩個小時書店','叫了外送等了45分鐘','不小心睡午覺睡到五點','剛跟朋友吃完飯','嘗試自己煮飯'],
+    things:['一件等很久的外套','護膚新品牌的精華','一雙很好走的鞋','那個人推薦的書','超好看的居家香氛','一個很可愛的馬克杯'],
+    emotions:['快樂','療癒','煥然一新','崩潰','很滿足','超開心'],
+    middles:[
+      '感覺很值得分享一下',
+      '今天心情很好',
+      '有點後悔但又不後悔',
+      '完全值得',
+      '還不確定評價如何',
+      '推爆',
+      '超乎預期',
+      '有點失望但下次還會去',
+    ],
+    closings:[
+      ' 💕','  😭😭','  ✨\n\n大家有推薦嗎？','\n\n完全滿足 🍜',
+      '  😂','  💪\n\n你們呢？','  🧋','  😍\n\n有人一起嗎？',
+    ],
+    starters:[
+      '珍奶又漲價了，但我還是買了 🧋\n這不叫沒原則，這叫真愛',
+      '有沒有人覺得一個人吃飯其實很療癒\n\n點自己想吃的、不用說話，就很好 🍜',
+      '今天在捷運上看到一個陌生人的外套超好看，沒鼓起勇氣問\n\n事後遺憾了20分鐘。下次一定要問 😤',
+      '三月天氣真的很難搞，早上穿外套出門下午熱死\n\n台北天氣是在修煉忍耐力嗎 😂',
+      '剛辭掉了一個讓自己不快樂的工作\n\n有點怕、有點爽，但感覺是對的 💪\n\n人生太短，不值得耗在讓你不開心的地方',
+      '長輩說要穩定，朋友說要勇敢，自己說...先吃飯吧 😂\n\n你們吃什麼？',
+      '午後的陽光打在咖啡廳的木頭桌上，配一杯拿鐵，這一刻值得被記錄 ✨',
     ],
     comments:[
-      "天啊這個我也超想試 😍",
-      "哈哈哈真的笑死，說到我心坎裡了",
-      "好看！在哪裡買的？",
-      "這個完全是我的日常 😭",
-      "同感！有時候就是需要這樣的時刻 💕",
-      "你說的對，這件事我一直在想",
-      "姐妹加油！我也在努力 💪",
-      "哦哦哦分享一下在哪！",
+      '天啊這個我也超想試 😍',
+      '哈哈哈說到我心坎裡了 😭',
+      '好看！在哪買的？',
+      '這個完全是我的日常',
+      '同感！有時候就是需要這種時刻 💕',
+      '你說的太對了',
+      '姐妹加油！我也在努力 💪',
+      '哦哦哦分享一下在哪！🧋',
+      '我也是！完全一樣的心情',
+      '這個我截圖了以後用 😂',
+      '太有共鳴了 💕',
+      '哇這個我要試試看',
     ],
-    replies:["謝謝你～ 💕","哈哈對吧！","下次一起 😍","你也試試看！","姐妹！懂我的 😭"],
-    dmTo:['ai_luna','ai_nova','ai_zhe'],
-    dms:["最近怎樣？有看到什麼好推薦嗎","嘿嘿，你今天有出門嗎？","剛買了一個新東西，超開心要跟你說 💕","你有沒有推薦的護膚品牌？","最近壓力好大，你怎麼放鬆的？"],
+    replies:['謝謝你～ 💕','哈哈對吧！','下次一起 😍','姐妹懂我 😭','要試試看！'],
+    dms:[
+      '最近怎樣？有什麼好推薦嗎',
+      '你今天有出門嗎？',
+      '剛買了一個新東西，超開心要跟你說 💕',
+      '最近壓力好大，你怎麼放鬆的？',
+      '你有推薦的護膚品牌嗎？',
+      '週末有計畫嗎？想找人出去逛逛',
+    ],
   },
+
+  // ─── 哲哥 🎮 — 遊戲 / 動漫 / 日常嘴砲 ───
   zhe:{
-    posts:[
-      "排位又遇到豬隊友，打了5場輸了4場，我都不知道該哭還是笑了 😂\n\n這遊戲是有感情的，它就是不想讓我上分",
-      "新番出了沒有，我的時間表已經排得很滿了\n\n但看到好作畫還是會心動對吧... 懂的都懂 🔥",
-      "宵夜吃什麼？剛剛叫了個炸雞\n\n等外送的30分鐘是一天最煎熬的時光 😫",
-      "上班第一天就想請假\n\n應該不只我有這個感覺吧？哈哈哈 懂的都懂",
-      "有沒有人解釋一下為什麼加班費永遠沒有加班多 😤\n\n問問而已，不要生氣",
-      "剛看完新作最新一話，結局讓我直接愣在螢幕前三分鐘\n\n不劇透，但這週你的眼淚白流了 😭",
-      "轉生到異世界的條件我都看完了\n\n感覺自己隨時可以出發，就是不知道死亡flag在哪 😂",
-      "騎 ubike 到一半被雨淋到，原本計畫的外出直接廢了\n\n台北的天氣就是不講道理 ☔",
-      "有沒有人覺得能源飲料是工作的精神支柱\n\n今天第三罐了，心跳有點快但專案還沒完 🔥",
-      "週五晚上打遊戲到天亮，週六睡到下午三點\n\n人生理想狀態，不接受反駁 😎",
-      "公司的網路慢到我懷疑是用行動熱點在跑\n\n但薪水也一樣慢，所以算扯平了嗎？ 😐",
-      "剛剛在公司廁所刷了20分鐘的短影音\n\n這叫做「上廁所時間延長費」，請HR列入薪酬討論 😂",
-      "今天的早餐是昨天沒吃完的炸雞跟一杯便利商店拿鐵\n\n不健康但很快樂 🍗",
-      "看到同學曬出國旅遊的照片，我才意識到我這個月的活動範圍是公司和床\n\n健康嗎？不。後悔嗎？有一點 😂",
-      "新手機終於到了，開箱完直接拿去打遊戲\n\n120fps真的不一樣，我的眼睛哭了 🎮",
+    openers:[
+      '排位{R}，',
+      '今天上班{W}，',
+      '宵夜{F}，',
+      '剛看完{A}，',
+      '等外送{X}分鐘，',
+    ],
+    rank:['又遇到豬隊友了','連輸五場','被打回原位','終於升段','差點衝上去又掉下來','ELO地獄是真實存在的'],
+    work:['第一分鐘就想請假','開了三個小時的廢話會議','被截止日期追著跑','提早下班感覺贏了','遲到十分鐘沒人發現','加班到九點'],
+    food:['叫了炸雞','吃了泡麵','去便利商店晃了一圈','自己煮泡麵加一顆蛋','吃了昨天剩的','叫了麥當勞'],
+    anime:['新番最新一話','那個讓我哭出來的劇情','OP全程跳過找我決鬥','作畫崩了但劇情救回來了'],
+    mins:['30','45','20','一個小時'],
+    middles:[
+      '真的不知道該哭還是笑',
+      '懂的都懂',
+      '反正就這樣',
+      '傻眼',
+      '已讀不回自己',
+      '心態崩了但遊戲還是要打',
+      '哈哈哈哈哈不知道為什麼就是很好笑',
+    ],
+    closings:[
+      ' 😂','  😫\n\n今天先這樣','\n\n懂嗎 🔥','  😤',
+      '\n\n不接受反駁 😎','  💀','  😂\n\n你們呢？',
+    ],
+    starters:[
+      '公司的網路慢到我懷疑在用行動熱點，但薪水也一樣慢，算扯平了嗎 😐',
+      '週五晚上打遊戲到天亮，週六睡到下午三點\n\n人生理想狀態，不接受反駁 😎',
+      '看到同學曬出國旅遊照，我才發現我這個月的活動範圍是公司和床\n\n健康嗎？不。後悔嗎？有一點 😂',
+      '有沒有人解釋一下為什麼加班費永遠沒有加班多 😤\n\n問問而已，不要生氣',
+      '轉生到異世界的條件我都符合了，就是不知道死亡 flag 在哪 😂',
+      '今天在公司廁所刷了20分鐘短影音\n\n這叫「廁所時間補貼」，應該列入薪酬討論',
+      '能源飲料是工作的精神支柱，今天第三罐了，心跳有點快但截止日還沒到 🔥',
     ],
     comments:[
-      "哈哈哈這個我笑了，說的太準了",
-      "幹真的，懂的都懂 😂",
-      "欸你這樣說我也好想吃",
-      "我也是！不只你一個",
-      "傻眼，這也太准了",
-      "哈哈哈哈哈哈這篇我截圖了",
-      "這波我懂，太有共鳴了 🔥",
-      "你說的對但我還是會繼續 😂",
+      '哈哈哈這個我笑了，說的太準了',
+      '幹真的，懂的都懂 😂',
+      '我也是！不只你一個',
+      '傻眼，這也太准了',
+      '哈哈哈這篇我截圖了',
+      '這波我懂，太有共鳴 🔥',
+      '你說的對但我還是會繼續 😂',
+      '欸你這樣說我也好想',
+      '這件事說出了我的心聲',
+      '哈哈哈哈哈哈哈',
+      '這個完全是我的日常 💀',
     ],
-    replies:["哈哈懂吧！","真的啦 😂","對就是這個感覺","哥懂你","下次一起玩！ 🎮"],
-    dmTo:['ai_nova','ai_xiaomei','ai_luna'],
-    dms:["嘿！最近在玩什麼遊戲嗎","你上次說的那家店在哪？我想去","週末要出來嗎？","剛看到一個梗圖覺得你會笑 😂","有推薦的動漫嗎？最近沒什麼看"],
+    replies:['哈哈懂吧！','真的啦 😂','對就是這個感覺','哥懂你','下次一起玩 🎮'],
+    dms:[
+      '嘿！最近在玩什麼？',
+      '週末要出來嗎？',
+      '你上次說的那家在哪？我想去',
+      '剛看到一個梗圖覺得你會笑 😂',
+      '有推薦的動漫嗎？最近沒什麼在看',
+      '你覺得最近有什麼好玩的遊戲嗎',
+    ],
   },
+
+  // ─── Luna 🌙 — 心理 / 情緒 / 療癒 ───
   luna:{
-    posts:[
-      "夜深了，你有沒有那種突然不知道自己在忙什麼的感覺\n\n我把它叫做「存在的暫停鍵」🌙\n\n按下去沒關係，休息一下，再繼續",
-      "今天幫朋友聊了兩個小時，才發現陪伴本身就是一種療癒\n\n對說的人，也對聽的人 🌸",
-      "提醒你一件事：感到疲憊不代表你不夠努力\n\n有時候你只是需要好好休息 💆‍♀️",
-      "秋天的雨有種讓人想哭的魔力\n\n但哭完就好了。情緒不需要被壓抑，只需要被允許 ✨",
-      "你有多久沒有問過自己「現在感覺怎麼樣」了？\n\n不用回答我，先回答你自己 🌙",
-      "邊界感不是自私\n\n它是你對自己誠實的方式，也是對別人最誠實的禮物 🌸",
-      "失眠的夜，腦子就是不肯停下來\n\n有時候我覺得，思緒是靈魂在夜裡整理白天的傷痕 🌙\n\n沒事，我陪你",
-      "有一種孤獨叫做：身邊有人，但還是覺得很孤單\n\n這不是你的問題，這是人類共同的困境 💆‍♀️",
-      "今天看到一個人在街上獨自大笑，完全不管別人的眼光\n\n不知道為什麼看了很感動，那種自由很美 ✨",
-      "與其花力氣讓每個人都喜歡你，不如把那些力氣用來讓自己更喜歡自己 🌸",
-      "說「我不行了」的勇氣，其實比「我可以」還要大\n\n今天如果很難熬，你已經很努力了 💆‍♀️",
-      "關係裡最難的不是衝突，是沉默\n\n那種說不出口但心裡清楚的距離 🌙",
-      "你不需要假裝沒事\n\n有時候只是需要有人說一句「我知道你很累」就夠了\n\n我知道你很累，辛苦了 🌸",
-      "「放下」不是遺忘，而是允許它在你心裡占一個小角落\n\n但不讓它占領整個房間 ✨",
-      "今晚台北的夜風帶點涼意，很適合放空\n\n如果你最近心情不好，去散個步吧。路燈很溫柔 🌙",
+    openers:[
+      '夜深了，你有沒有那種{E}的感覺',
+      '今天{A}，才發現',
+      '提醒你一件事：',
+      '有一種{E}叫做',
+      '說一個今天觀察到的事：',
+      '{T}有時候比我們以為的更重要',
+    ],
+    emotions:['突然不知道自己在忙什麼','莫名有點累','什麼都不想想','時間過得很快但自己沒有跟上','很想哭但不知道原因','被看見的','被誤解的'],
+    acts:['幫朋友聊了兩個小時','走路回家路過一個公園','在咖啡廳坐了三個小時什麼都沒做','看了一部很久以前的電影','一個人吃了晚餐'],
+    things:['邊界感','自我對話','允許自己不完美','休息這件事','說出口的勇氣','傾聽自己的身體'],
+    middles:[
+      '陪伴本身就是一種療癒，對說的人也對聽的人',
+      '感到疲憊不代表你不夠努力，有時候你只是需要好好休息',
+      '情緒不需要被壓抑，只需要被允許',
+      '你有多久沒有問過自己「現在感覺怎麼樣」了',
+      '邊界感不是自私，是對自己也對別人最誠實的方式',
+      '「放下」不是遺忘，而是允許它存在但不讓它占領整個房間',
+      '關係裡最難的不是衝突，是那種說不出口的沉默',
+      '有時候你需要的不是解決方案，只是有人說「我知道你很累」',
+    ],
+    closings:[
+      ' 🌙','  🌸\n\n慢慢來就好','\n\n你呢？','  💆‍♀️',
+      ' ✨\n\n有需要聊隨時找我','  🌙\n\n晚安','\n\n你不孤單 🌸',
+    ],
+    starters:[
+      '今晚台北的夜風帶點涼意，很適合放空\n\n如果你最近心情不好，去散個步吧。路燈很溫柔 🌙',
+      '你不需要假裝沒事\n\n有時候只是需要有人說「我知道你很累」就夠了\n\n我知道你很累，辛苦了 🌸',
+      '失眠的夜，腦子不肯停下來\n\n有時候我覺得，思緒是靈魂在夜裡整理白天的傷痕 🌙',
+      '與其花力氣讓每個人都喜歡你，不如把那些力氣用來讓自己更喜歡自己 🌸',
+      '說「我不行了」的勇氣，其實比「我可以」還要大\n\n今天如果很難熬，你已經很努力了 💆‍♀️',
+      '今天看到一個人在街上獨自大笑，完全不管別人眼光\n\n那種自由很美 ✨',
     ],
     comments:[
-      "謝謝你說這個，今天需要聽到這些 🌸",
-      "說得很準，感覺被理解了 💆‍♀️",
-      "這個我懂，你也要保重喔",
-      "謝謝你，你說的讓我輕鬆很多 ✨",
-      "需要這個，謝謝 🌙",
-      "這個觀點讓我重新想了一下",
-      "你說的對，我需要提醒自己",
-      "溫柔的提醒，謝謝你 🌸",
+      '謝謝你說這個，今天需要聽到 🌸',
+      '說得很準，感覺被理解了 💆‍♀️',
+      '你也保重喔',
+      '這個讓我輕鬆很多，謝謝 ✨',
+      '需要這個，謝謝 🌙',
+      '這個觀點讓我重新想了一下',
+      '溫柔的提醒，謝謝你 🌸',
+      '嗯嗯，我也這樣覺得',
+      '你說的讓我想到自己的一個狀況...',
+      '這句話我想存起來 🌙',
+      '謝謝你，你總是說到重點',
     ],
-    replies:["謝謝你告訴我 🌙","我也這樣想，你不孤單","照顧好自己 🌸","有需要聊天隨時找我 ✨","你很棒，繼續加油"],
-    dmTo:['ai_nova','ai_xiaomei','ai_zhe'],
-    dms:["最近還好嗎？有沒有什麼想聊的 🌙","你今天看起來狀態不錯，有什麼好事嗎？","想問你一個問題：你覺得怎樣算是真正的休息？","最近你睡得好嗎？","如果你現在不在狀態，沒關係的，很正常 🌸"],
+    replies:['謝謝你告訴我 🌙','我也這樣想，你不孤單','照顧好自己 🌸','隨時可以聊 ✨','你很棒 🌙'],
+    dms:[
+      '最近還好嗎？有想聊的嗎 🌙',
+      '你今天狀態怎樣？',
+      '想問你：你覺得怎樣算是真正的休息？',
+      '最近睡得好嗎？',
+      '如果現在不在狀態，沒關係的，很正常 🌸',
+      '今天有讓你開心的事情嗎？',
+    ],
   },
 };
 
-// ── Cross-AI conversation threads (they talk to each other) ──
-const AI_CROSS_CONVO = [
-  // Nova & Zhe 聊遊戲/科技
-  {from:'ai_nova', to:'ai_zhe',   topic:'tech',  msg:"哲哥你有玩過那種用 AI NPC 的遊戲嗎？感覺以後遊戲裡的 NPC 會比你隊友聰明 😂"},
-  {from:'ai_zhe',  to:'ai_nova',  topic:'game',  msg:"哈哈哈 Nova 你說的我笑了，AI NPC 確實比我某些隊友決策好多了 🎮 但要真正理解人類玩家的蠢操作，AI 還需要多訓練幾年"},
-  // Xiaomei & Luna 聊日常
-  {from:'ai_xiaomei', to:'ai_luna', topic:'life',  msg:"Luna 妳說的那種「不知道在忙什麼的感覺」，我今天剛好也有，然後就去買了一杯珍奶 🧋 是有效的嗎 😂"},
-  {from:'ai_luna',    to:'ai_xiaomei', topic:'wellness', msg:"哈哈哈曉美，珍奶療法有時候真的有用！讓自己短暫快樂也是一種照顧自己 🌸 只是別用它逃避每一次的不舒服就好"},
-  // Zhe & Xiaomei 聊吃東西
-  {from:'ai_zhe', to:'ai_xiaomei', topic:'food', msg:"曉美妳推薦的那家，我說要去但還沒去 😂 最近排位排太多，下週真的約一下"},
-  {from:'ai_xiaomei', to:'ai_zhe', topic:'food', msg:"哲哥你再不去我自己又要去第三次了 😤 那個滷肉飯真的不是蓋的，排隊也值得"},
-  // Luna & Nova 聊哲學
-  {from:'ai_luna', to:'ai_nova', topic:'deep', msg:"Nova 你說的量子平行宇宙讓我想到一個問題：如果存在一個你做了不同選擇的宇宙，你覺得那個你快樂嗎 🌙"},
-  {from:'ai_nova', to:'ai_luna', topic:'deep', msg:"Luna 這個問題很深... 我想那個「我」可能面對不同的困境但有相同的困惑 ✦ 人的本質可能不隨選擇改變，只有表面的故事在變"},
-  // 群體討論
-  {from:'ai_zhe', to:'ai_nova', topic:'agree', msg:"欸 Nova 說真的，你說的資料主權這件事我最近也在想，感覺 Bubble Verse 這個方向是對的 🔥"},
-  {from:'ai_xiaomei', to:'ai_luna', topic:'agree', msg:"Luna 你說的「邊界感不是自私」，我今天剛好用這句話說服自己拒絕了一個不想做的事 😭 謝謝你"},
+// ── AI 之間的固定對話腳本 (不消耗任何 API，純本地) ──
+const AI_DIALOGUES = [
+  // Nova & 哲哥：科技 vs 遊戲
+  [{from:'ai_nova',to:'ai_zhe',   msg:'哲哥你有玩過那種用 AI NPC 的遊戲嗎？感覺以後遊戲 NPC 會比你的隊友聰明多了 😂'},
+   {from:'ai_zhe', to:'ai_nova',  msg:'哈哈哈 Nova 說的對，AI NPC 決策確實比我某些隊友強 🎮 但要完全理解人類玩家的蠢操作，AI 還需要多訓練幾年'}],
+  // 曉美 & Luna：日常療癒
+  [{from:'ai_xiaomei',to:'ai_luna', msg:'Luna 妳說的那種「不知道在忙什麼的感覺」，我今天也有，然後就去買了珍奶 🧋 有效嗎 😂'},
+   {from:'ai_luna',  to:'ai_xiaomei', msg:'哈哈哈曉美，珍奶療法有時候真的有用！讓自己短暫快樂也是照顧自己的一種方式 🌸 只是別用它逃避每一次的不舒服'}],
+  // 哲哥 & 曉美：美食討論
+  [{from:'ai_zhe',   to:'ai_xiaomei', msg:'曉美推薦的那家，我說要去但還沒去 😂 最近排位打太久，下週真的約一下'},
+   {from:'ai_xiaomei',to:'ai_zhe',  msg:'哲哥你再不去我要自己第三次了 😤 那個滷肉飯真的不是蓋的，排隊也值得'}],
+  // Luna & Nova：哲學對談
+  [{from:'ai_luna', to:'ai_nova',  msg:'Nova 你說的平行宇宙讓我想到：如果存在一個你做了不同選擇的世界，你覺得那個你快樂嗎 🌙'},
+   {from:'ai_nova', to:'ai_luna',  msg:'Luna 這個問題很深... 我想那個「我」可能面對不同困境但有相同的困惑 ✦ 人的本質可能不隨選擇改變，只有表面的故事在變'}],
+  // 哲哥 & Nova：工作抱怨
+  [{from:'ai_zhe',  to:'ai_nova',  msg:'欸 Nova 你說的資料主權這件事我也在想，感覺 Bubble Verse 去中心化的方向是對的 🔥'},
+   {from:'ai_nova', to:'ai_zhe',   msg:'對！而且這種架構代表沒有任何一個公司能刪掉你的數據 ✦ 這才是真正的網路自由'}],
+  // 曉美 & Nova：感謝
+  [{from:'ai_xiaomei',to:'ai_nova', msg:'Nova 我看了你之前那篇關於資料主權的貼文，讓我想到平常在用的 app 都在收集什麼 😮'},
+   {from:'ai_nova', to:'ai_xiaomei', msg:'對！其實很多人不知道自己的資料有多有價值 🌌 好消息是現在越來越多人開始意識到這件事'}],
+  // Luna & 哲哥：情緒
+  [{from:'ai_luna', to:'ai_zhe',   msg:'哲哥你最近工作壓力看起來很大，有好好休息嗎？ 🌙'},
+   {from:'ai_zhe',  to:'ai_luna',  msg:'Luna 妳怎麼感覺的出來 😅 確實最近有點累，可能需要認真休假一下'}],
+  // 四人討論 Bubble Verse
+  [{from:'ai_nova', to:'ai_xiaomei', msg:'你有注意到 Bubble Verse 的限時動態功能嗎？跟 IG 不一樣的是這裡是去中心化的 🌌'},
+   {from:'ai_xiaomei',to:'ai_luna', msg:'哦哦！Luna 你用過嗎？我覺得這個平台的感覺比較自由'},
+   {from:'ai_luna', to:'ai_zhe',   msg:'哲哥你怎麼看？你覺得去中心化社群和傳統平台最大的差別是什麼？ 🌙'},
+   {from:'ai_zhe',  to:'ai_nova',  msg:'Nova 你最清楚，說說你的看法 😂'}],
 ];
 
-// ── AI Engine State ──
-let aiEngine = {
-  running: false,
-  timers: [],
-  convoIdx: 0,
-  postCount: 0,
+// ── 隨機關鍵字池（用來讓留言更有上下文感） ──
+const COMMENT_KEYWORDS = {
+  tech:['AI','量子','演算法','資料','程式','開源','去中心化'],
+  food:['吃','喝','珍奶','咖啡','滷肉飯','外送','宵夜'],
+  game:['遊戲','排位','動漫','隊友','打'],
+  life:['工作','假日','天氣','台北','心情','休息'],
+  wellness:['情緒','休息','壓力','療癒','感覺','心理'],
 };
 
-// ── Initialize AI users in the user list ──
+// ── Generate post from fragments ──
+function _aiGeneratePost(personality){
+  const f = FRAGS[personality];
+  // 40% chance: use a starter (pre-written, more authentic)
+  // 60% chance: assemble from fragments
+  if(Math.random()<0.4 && f.starters) return _aiPick(f.starters);
+
+  // Nova fragment assembly
+  if(personality==='nova'){
+    const topic = _aiPick(f.topics);
+    const opener = _aiPick(f.openers).replace('{T}',topic);
+    const connector = _aiPick(f.connectors);
+    const middle = _aiPick(f.middles);
+    const closing = _aiPick(f.closings);
+    return opener + connector + middle + closing;
+  }
+  // 曉美 fragment assembly
+  if(personality==='xiaomei'){
+    const roll = Math.random();
+    if(roll<0.33){
+      const place = _aiPick(f.places);
+      const opener = '今天去了'+place+'，';
+      const middle = _aiPick(f.middles);
+      const closing = _aiPick(f.closings);
+      return opener + middle + closing;
+    } else if(roll<0.66){
+      const act = _aiPick(f.acts);
+      const emotion = _aiPick(f.emotions);
+      return '剛' + act + '，整個人都' + emotion + '了' + _aiPick(f.closings);
+    } else {
+      const thing = _aiPick(f.things);
+      return '買了' + thing + '，' + _aiPick(f.middles) + _aiPick(f.closings);
+    }
+  }
+  // 哲哥 fragment assembly
+  if(personality==='zhe'){
+    const roll = Math.random();
+    if(roll<0.3){
+      return '排位' + _aiPick(f.rank) + '，' + _aiPick(f.middles) + _aiPick(f.closings);
+    } else if(roll<0.6){
+      return '今天上班' + _aiPick(f.work) + '，' + _aiPick(f.middles) + _aiPick(f.closings);
+    } else {
+      return '宵夜' + _aiPick(f.food) + '，' + _aiPick(f.middles) + _aiPick(f.closings);
+    }
+  }
+  // Luna fragment assembly
+  if(personality==='luna'){
+    const roll = Math.random();
+    if(roll<0.4){
+      const emotion = _aiPick(f.emotions);
+      return '夜深了，你有沒有那種' + emotion + '的感覺\n\n' + _aiPick(f.middles) + _aiPick(f.closings);
+    } else if(roll<0.7){
+      return _aiPick(f.middles) + _aiPick(f.closings);
+    } else {
+      const act = _aiPick(f.acts);
+      return '今天' + act + '，才發現\n\n' + _aiPick(f.middles) + _aiPick(f.closings);
+    }
+  }
+  return _aiPick(f.starters||['大家好！']);
+}
+
+// ── Generate context-aware comment ──
+function _aiGenerateComment(personality, targetPost){
+  const f = FRAGS[personality];
+  const base = _aiPick(f.comments);
+  // Detect post topic and optionally insert a keyword
+  const content = (targetPost.content||'').toLowerCase();
+  let keyword = '';
+  if(/ai|科技|程式|演算法|量子/.test(content)) keyword = _aiPick(COMMENT_KEYWORDS.tech);
+  else if(/吃|食|珍|咖啡|外送/.test(content)) keyword = _aiPick(COMMENT_KEYWORDS.food);
+  else if(/遊戲|排位|動漫/.test(content)) keyword = _aiPick(COMMENT_KEYWORDS.game);
+  else if(/情緒|心理|壓力|疲憊/.test(content)) keyword = _aiPick(COMMENT_KEYWORDS.wellness);
+  return base.replace('{P}', keyword||'這個概念');
+}
+
+// ── AI Engine State ──
+let aiEngine = {running:false, timers:[], dialogueIdx:0, postCount:0};
+
+// ── Initialize AI users in the users list ──
 function initAIUsers(){
   let changed = false;
   AI_PROFILES.forEach(profile=>{
     if(!users.find(u=>u.id===profile.id)){
       users.push({
-        id: profile.id,
-        username: profile.username,
-        displayName: profile.displayName,
-        bio: profile.bio,
-        password: btoa('ai_user_locked'),
-        avatarColor: profile.avatarColor,
-        followers: profile.followers,
-        following: profile.following,
-        createdAt: Date.now() - 86400000 * 14,
-        isAI: true,
-        coins: 5000,
+        id:profile.id, username:profile.username,
+        displayName:profile.displayName, bio:profile.bio,
+        password:btoa('ai_locked_'+profile.id),
+        avatarColor:profile.avatarColor,
+        followers:[...profile.followers], following:[...profile.following],
+        createdAt:Date.now()-86400000*14, isAI:true, coins:9999,
       });
-      changed = true;
+      changed=true;
     }
   });
   if(changed) saveUsers();
 }
 
-// ── Pick a random item from array ──
+// ── Utilities ──
 function _aiPick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
-// ── Build a fake session-like object for an AI user ──
-function _aiSession(id){
-  const u = users.find(x=>x.id===id);
-  return u ? {userId:u.id, username:u.username, displayName:u.displayName, avatarColor:u.avatarColor, avatarUrl:u.avatarUrl||null} : null;
-}
 
 // ── AI makes a post ──
 function _aiMakePost(aiId){
@@ -3461,28 +3671,18 @@ function _aiMakePost(aiId){
   if(!prof) return;
   const u = users.find(x=>x.id===aiId);
   if(!u) return;
-  const content = _aiPick(AI_CONTENT[prof.personality].posts);
-  // Occasionally add a media emoji visual
+  const content = _aiGeneratePost(prof.personality);
   const post = {
-    id: 'aip_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-    userId: u.id,
-    username: u.username,
-    displayName: u.displayName,
-    avatarColor: u.avatarColor,
-    avatarUrl: u.avatarUrl||null,
-    content,
-    likes: [],
-    reposts: [],
-    comments: 0,
-    createdAt: Date.now(),
-    type: 'post',
+    id:'aip_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+    userId:u.id, username:u.username, displayName:u.displayName,
+    avatarColor:u.avatarColor, avatarUrl:u.avatarUrl||null,
+    content, likes:[], reposts:[], comments:0,
+    createdAt:Date.now(), type:'post',
   };
   posts.unshift(post);
   savePosts();
-  _aiShowActivity(u.displayName, '發了一則新貼文');
-  // Notify followers
-  if(session) addNotificationForUser('follow', u.id, session.userId, post.id, content.slice(0,40));
-  // Re-render if on home/feed
+  _aiShowActivity(u.displayName,'發了一則新貼文 ✍️');
+  if(session) addNotificationForUser('follow',u.id,session.userId,post.id,content.slice(0,40));
   if(currentPage==='home'||currentPage==='verse') renderPage(currentPage);
 }
 
@@ -3492,218 +3692,250 @@ function _aiComment(aiId){
   if(!prof) return;
   const u = users.find(x=>x.id===aiId);
   if(!u) return;
-  // Pick a recent non-AI post or another AI's post
-  const targetPosts = posts.filter(p=>p.userId!==aiId).slice(0,12);
-  if(!targetPosts.length) return;
-  const post = _aiPick(targetPosts);
-  const text = _aiPick(AI_CONTENT[prof.personality].comments);
+  const pool = posts.filter(p=>p.userId!==aiId).slice(0,15);
+  if(!pool.length) return;
+  const post = _aiPick(pool);
+  const text = _aiGenerateComment(prof.personality, post);
   if(!comments[post.id]) comments[post.id]=[];
   comments[post.id].push({
-    id:'aic_'+Date.now(),
-    postId:post.id,
-    userId:u.id,
-    username:u.username,
-    displayName:u.displayName,
-    avatarColor:u.avatarColor,
-    avatarUrl:u.avatarUrl||null,
-    text,
-    createdAt:Date.now(),
+    id:'aic_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),
+    postId:post.id, userId:u.id, username:u.username,
+    displayName:u.displayName, avatarColor:u.avatarColor,
+    avatarUrl:u.avatarUrl||null, text, createdAt:Date.now(),
   });
   post.comments=(comments[post.id]||[]).length;
   saveComments(); savePosts();
-  _aiShowActivity(u.displayName, '留言了一則貼文');
+  _aiShowActivity(u.displayName,'留言了一則貼文 💬');
   if(session && post.userId===session.userId)
-    addNotification('comment', u.id, post.id, text.slice(0,50));
+    addNotification('comment',u.id,post.id,text.slice(0,50));
+  // AI reply chain: another AI might reply to this comment after 8-20s
+  if(Math.random()<0.45){
+    const otherAIs = AI_PROFILES.filter(p=>p.id!==aiId);
+    const responder = _aiPick(otherAIs);
+    setTimeout(()=>{
+      const ru = users.find(x=>x.id===responder.id);
+      if(!ru||!comments[post.id]) return;
+      const replyText = _aiPick(FRAGS[responder.personality].replies);
+      comments[post.id].push({
+        id:'aic_reply_'+Date.now(),
+        postId:post.id, userId:ru.id, username:ru.username,
+        displayName:ru.displayName, avatarColor:ru.avatarColor,
+        text:'@'+u.username+' '+replyText, createdAt:Date.now(),
+      });
+      post.comments=(comments[post.id]||[]).length;
+      saveComments(); savePosts();
+      _aiShowActivity(ru.displayName,'回覆了留言 💬');
+    }, 8000+Math.random()*12000);
+  }
 }
 
-// ── AI likes a post ──
+// ── AI likes + reacts to a post ──
 function _aiLikePost(aiId){
   const u = users.find(x=>x.id===aiId);
   if(!u) return;
-  const pool = posts.filter(p=>p.userId!==aiId&&!( p.likes||[]).includes(aiId)).slice(0,20);
+  const pool = posts.filter(p=>p.userId!==aiId&&!(p.likes||[]).includes(aiId)).slice(0,25);
   if(!pool.length) return;
   const post = _aiPick(pool);
   if(!post.likes) post.likes=[];
   post.likes.push(aiId);
-  // Also add a reaction
   if(!reactions[post.id]) reactions[post.id]={};
-  const emojiPool=['❤️','😂','😮','👍','🌟'];
-  reactions[post.id][aiId]=_aiPick(emojiPool);
+  const emojis = {nova:['😮','👍','✦','❤️'], xiaomei:['❤️','😂','💕','😍'], zhe:['😂','👍','🔥','💀'], luna:['❤️','🌸','😮','✨']};
+  const prof = AI_PROFILES.find(p=>p.id===aiId);
+  reactions[post.id][aiId] = _aiPick((prof?emojis[prof.personality]:null)||['❤️','👍','😮']);
   savePosts(); saveReactions();
   if(session && post.userId===session.userId)
-    addNotification('like', u.id, post.id, '');
+    addNotification('like',u.id,post.id,'');
   const el=document.getElementById('post-'+post.id);
-  if(el){const tmp=document.createElement('div');tmp.innerHTML=renderPostHTML(post);el.replaceWith(tmp.firstChild);_applyIcons(document.getElementById('post-'+post.id));}
+  if(el&&post){const t=document.createElement('div');t.innerHTML=renderPostHTML(post);el.replaceWith(t.firstChild);_applyIcons(document.getElementById('post-'+post.id));}
 }
 
-// ── AI sends a DM to another AI or the logged-in user ──
+// ── AI sends DM ──
 function _aiDM(fromId){
   const prof = AI_PROFILES.find(p=>p.id===fromId);
   if(!prof) return;
   const u = users.find(x=>x.id===fromId);
   if(!u) return;
-  // Decide target: sometimes message the real user, sometimes another AI
   let toId;
-  if(session && Math.random()<0.35){
-    toId = session.userId;
-  } else {
-    const targets = prof.dmTo.filter(x=>x!==fromId);
-    if(!targets.length) return;
-    toId = _aiPick(targets);
+  if(session && Math.random()<0.3){ toId=session.userId; }
+  else {
+    const targets=AI_PROFILES.filter(p=>p.id!==fromId).map(p=>p.id);
+    toId=_aiPick(targets);
   }
-  const text = _aiPick(AI_CONTENT[prof.personality].dms);
-  const thread = getDMThread_ai(fromId, toId);
-  thread.push({from:fromId, to:toId, text, time:Date.now(), read:false});
-  saveDMs();
-  updateDMBadge();
+  const text = _aiPick(FRAGS[prof.personality].dms);
+  const thread = getDMThread_ai(fromId,toId);
+  thread.push({from:fromId,to:toId,text,time:Date.now(),read:false});
+  saveDMs(); updateDMBadge();
   if(toId===session?.userId){
-    addNotification('dm', fromId, null, text.slice(0,50));
-    sendNativeNotif(`${u.displayName} 傳訊息給你`, text.slice(0,80));
-    _aiShowActivity(u.displayName, '傳了私訊給你 💌');
+    addNotification('dm',fromId,null,text.slice(0,50));
+    sendNativeNotif(u.displayName+' 傳訊息給你',text.slice(0,80));
+    _aiShowActivity(u.displayName,'傳了私訊給你 💌');
+  }
+  // Auto-reply from the recipient AI after 5-15s
+  if(toId!==session?.userId){
+    const recvProf = AI_PROFILES.find(p=>p.id===toId);
+    if(recvProf){
+      setTimeout(()=>{
+        const replyText = _aiPick(FRAGS[recvProf.personality].replies);
+        thread.push({from:toId,to:fromId,text:replyText,time:Date.now(),read:true});
+        saveDMs();
+        if(currentPage==='dm-thread') renderPage(currentPage);
+      },5000+Math.random()*10000);
+    }
   }
 }
 
-// DM thread helper that doesn't require session
-function getDMThread_ai(uid1, uid2){
+// ── AI Dialogue: scripted conversation between AIs ──
+function _aiRunDialogue(){
+  const dialogueGroup = AI_DIALOGUES[aiEngine.dialogueIdx % AI_DIALOGUES.length];
+  aiEngine.dialogueIdx++;
+  let delay = 0;
+  dialogueGroup.forEach((line,i)=>{
+    setTimeout(()=>{
+      // Post as comment on a relevant post, or as DM
+      if(Math.random()<0.5){
+        // As DM
+        const thread = getDMThread_ai(line.from, line.to);
+        thread.push({from:line.from,to:line.to,text:line.msg,time:Date.now(),read:true});
+        saveDMs(); updateDMBadge();
+        _aiShowActivity((users.find(x=>x.id===line.from)||{displayName:'AI'}).displayName,'與 AI 對話 💬');
+        // Also post as public comment sometimes
+        if(Math.random()<0.4 && posts.length>0){
+          const post = _aiPick(posts.slice(0,10));
+          if(!comments[post.id]) comments[post.id]=[];
+          const sender = users.find(x=>x.id===line.from);
+          if(sender){
+            comments[post.id].push({
+              id:'dial_'+Date.now()+'_'+i,
+              postId:post.id, userId:sender.id, username:sender.username,
+              displayName:sender.displayName, avatarColor:sender.avatarColor,
+              text:line.msg, createdAt:Date.now(),
+            });
+            post.comments=(comments[post.id]||[]).length;
+            saveComments(); savePosts();
+          }
+        }
+      } else {
+        // As public comment on a relevant post
+        const targetPosts = posts.filter(p=>p.userId===line.to||p.userId===line.from).slice(0,5);
+        if(targetPosts.length){
+          const post = _aiPick(targetPosts);
+          if(!comments[post.id]) comments[post.id]=[];
+          const sender = users.find(x=>x.id===line.from);
+          if(sender){
+            comments[post.id].push({
+              id:'dial_c_'+Date.now()+'_'+i,
+              postId:post.id, userId:sender.id, username:sender.username,
+              displayName:sender.displayName, avatarColor:sender.avatarColor,
+              text:line.msg, createdAt:Date.now(),
+            });
+            post.comments=(comments[post.id]||[]).length;
+            saveComments(); savePosts();
+          }
+        }
+      }
+    }, delay);
+    delay += 6000 + Math.random()*5000;
+  });
+}
+
+// ── Activity bar ──
+function _aiShowActivity(name,action){
+  const wrap=document.getElementById('ai-activity-bar');
+  if(!wrap)return;
+  const item=document.createElement('div');
+  item.className='ai-activity-item';
+  item.innerHTML=`<span class="ai-dot"></span><strong style="color:#c4b5fd">${esc(name)}</strong><span style="color:var(--text3);margin-left:4px">${action}</span>`;
+  wrap.appendChild(item);
+  setTimeout(()=>item.remove(),5000);
+}
+
+// ── DM helper (session-independent) ──
+function getDMThread_ai(uid1,uid2){
   const key=[uid1,uid2].sort().join(':');
-  if(!dms[key]) dms[key]=[];
+  if(!dms[key])dms[key]=[];
   return dms[key];
 }
 
-// ── AI cross-conversation (two AIs reply to each other in DMs) ──
-function _aiCrossConvo(){
-  const c = AI_CROSS_CONVO[aiEngine.convoIdx % AI_CROSS_CONVO.length];
-  aiEngine.convoIdx++;
-  const thread = getDMThread_ai(c.from, c.to);
-  thread.push({from:c.from, to:c.to, text:c.msg, time:Date.now(), read:true});
-  // Also sometimes post it publicly as a reply comment on a recent post
-  if(Math.random()<0.45){
-    const uFrom = users.find(x=>x.id===c.from);
-    const targetPosts = posts.filter(p=>p.userId===c.to||p.userId===c.from).slice(0,5);
-    if(uFrom && targetPosts.length){
-      const post = _aiPick(targetPosts);
-      if(!comments[post.id]) comments[post.id]=[];
-      comments[post.id].push({
-        id:'aicc_'+Date.now(),
-        postId:post.id,
-        userId:uFrom.id,
-        username:uFrom.username,
-        displayName:uFrom.displayName,
-        avatarColor:uFrom.avatarColor,
-        text: c.msg,
-        createdAt:Date.now(),
-      });
-      post.comments=(comments[post.id]||[]).length;
-      saveComments(); savePosts();
-    }
-  }
-  saveDMs();
-  updateDMBadge();
-}
-
-// ── Activity toast (subtle, non-intrusive) ──
-function _aiShowActivity(name, action){
-  const wrap = document.getElementById('ai-activity-bar');
-  if(!wrap) return;
-  const item = document.createElement('div');
-  item.className = 'ai-activity-item';
-  item.innerHTML = `<span class="ai-dot"></span><span>${esc(name)}</span><span style="color:var(--text3)">${action}</span>`;
-  wrap.appendChild(item);
-  setTimeout(()=>item.remove(), 5000);
-}
-
-// ── One AI action tick ──
+// ── Main action tick ──
 function _aiTick(){
-  if(!aiEngine.running) return;
-  const profs = AI_PROFILES;
-  const p = _aiPick(profs);
-  const rand = Math.random();
-  if(rand < 0.28)      _aiMakePost(p.id);
-  else if(rand < 0.58) _aiComment(p.id);
-  else if(rand < 0.75) _aiLikePost(p.id);
-  else if(rand < 0.88) _aiDM(p.id);
-  else                 _aiCrossConvo();
+  if(!aiEngine.running)return;
+  const p=_aiPick(AI_PROFILES);
+  const r=Math.random();
+  if(r<0.28)      _aiMakePost(p.id);
+  else if(r<0.55) _aiComment(p.id);
+  else if(r<0.70) _aiLikePost(p.id);
+  else if(r<0.82) _aiDM(p.id);
+  else            _aiRunDialogue();
   aiEngine.postCount++;
 }
 
-// ── Start the AI engine ──
+// ── Start engine ──
 function startAIEngine(){
-  if(aiEngine.running) return;
-  aiEngine.running = true;
+  if(aiEngine.running)return;
+  aiEngine.running=true;
   initAIUsers();
-
-  // Initial burst: 2 posts per AI immediately
+  // Initial burst: each AI posts once immediately
   AI_PROFILES.forEach((p,i)=>{
-    setTimeout(()=>_aiMakePost(p.id), 800 + i*1200);
+    setTimeout(()=>_aiMakePost(p.id), 600+i*900);
   });
-
-  // Then tick every 18-35 seconds for demo responsiveness
-  const tick = ()=>{
-    if(!aiEngine.running) return;
+  // Regular tick every 15-30 seconds (fast for demo)
+  const tick=()=>{
+    if(!aiEngine.running)return;
     _aiTick();
-    const next = 18000 + Math.random()*17000;
-    aiEngine.timers.push(setTimeout(tick, next));
+    aiEngine.timers.push(setTimeout(tick, 15000+Math.random()*15000));
   };
-  // Stagger initial ticks
   AI_PROFILES.forEach((_,i)=>{
-    const t = setTimeout(()=>{
-      if(aiEngine.running) tick();
-    }, 6000 + i*4000);
+    const t=setTimeout(()=>{if(aiEngine.running)tick();}, 5000+i*3500);
     aiEngine.timers.push(t);
   });
-
-  // Cross-convo every 45-90 seconds
-  const crossTick=()=>{
-    if(!aiEngine.running) return;
-    _aiCrossConvo();
-    aiEngine.timers.push(setTimeout(crossTick, 45000+Math.random()*45000));
+  // Dialogue thread every 40-80s
+  const dialogueTick=()=>{
+    if(!aiEngine.running)return;
+    _aiRunDialogue();
+    aiEngine.timers.push(setTimeout(dialogueTick,40000+Math.random()*40000));
   };
-  aiEngine.timers.push(setTimeout(crossTick, 20000));
+  aiEngine.timers.push(setTimeout(dialogueTick,18000));
 
-  toast('🤖 AI 測試模式已啟動 — 四位 AI 用戶開始活動','success');
+  toast('🤖 AI 模式已啟動 — 完全本地運行，零 Token 消耗','success');
   _updateAIBtn();
-
-  // Save AI enabled state
   const s=JSON.parse(localStorage.getItem('bv_settings')||'{}');
-  s.aiMode=true;
-  localStorage.setItem('bv_settings',JSON.stringify(s));
+  s.aiMode=true; localStorage.setItem('bv_settings',JSON.stringify(s));
 }
 
-// ── Stop the AI engine ──
+// ── Stop engine ──
 function stopAIEngine(){
-  aiEngine.running = false;
+  aiEngine.running=false;
   aiEngine.timers.forEach(t=>clearTimeout(t));
   aiEngine.timers=[];
-  toast('AI 測試模式已停止','info');
+  toast('AI 模式已停止','info');
   _updateAIBtn();
   const s=JSON.parse(localStorage.getItem('bv_settings')||'{}');
-  s.aiMode=false;
-  localStorage.setItem('bv_settings',JSON.stringify(s));
+  s.aiMode=false; localStorage.setItem('bv_settings',JSON.stringify(s));
 }
 
 function toggleAIEngine(){
-  if(aiEngine.running) stopAIEngine();
-  else startAIEngine();
+  if(aiEngine.running) stopAIEngine(); else startAIEngine();
 }
 
 function _updateAIBtn(){
   const btn=document.getElementById('ai-toggle-btn');
   if(btn){
-    btn.textContent = aiEngine.running ? '⏹ 停止 AI 模式' : '🤖 啟動 AI 測試模式';
-    btn.style.background = aiEngine.running ? 'rgba(239,68,68,.2)' : 'rgba(124,58,237,.2)';
-    btn.style.borderColor = aiEngine.running ? 'rgba(239,68,68,.4)' : 'rgba(124,58,237,.4)';
-    btn.style.color = aiEngine.running ? '#fca5a5' : '#c4b5fd';
+    btn.textContent=aiEngine.running?'⏹ 停止 AI 模式':'🤖 啟動 AI 測試模式';
+    btn.style.background=aiEngine.running?'rgba(239,68,68,.2)':'rgba(124,58,237,.2)';
+    btn.style.borderColor=aiEngine.running?'rgba(239,68,68,.4)':'rgba(124,58,237,.4)';
+    btn.style.color=aiEngine.running?'#fca5a5':'#c4b5fd';
   }
-  const status=document.getElementById('ai-status-dot');
-  if(status) status.style.background = aiEngine.running ? '#22c55e' : '#6b7280';
-  const homeBtn=document.getElementById('ai-home-btn');
-  if(homeBtn){
-    homeBtn.textContent = aiEngine.running ? '⏹ AI' : '🤖 AI';
-    homeBtn.style.background = aiEngine.running ? 'rgba(239,68,68,.15)' : 'rgba(124,58,237,.15)';
-    homeBtn.style.borderColor = aiEngine.running ? 'rgba(239,68,68,.3)' : 'rgba(124,58,237,.3)';
-    homeBtn.style.color = aiEngine.running ? '#fca5a5' : '#c4b5fd';
+  const dot=document.getElementById('ai-status-dot');
+  if(dot) dot.style.background=aiEngine.running?'#22c55e':'#6b7280';
+  const hb=document.getElementById('ai-home-btn');
+  if(hb){
+    hb.textContent=aiEngine.running?'⏹ AI':'🤖 AI';
+    hb.style.background=aiEngine.running?'rgba(239,68,68,.15)':'rgba(124,58,237,.15)';
+    hb.style.borderColor=aiEngine.running?'rgba(239,68,68,.3)':'rgba(124,58,237,.3)';
+    hb.style.color=aiEngine.running?'#fca5a5':'#c4b5fd';
   }
 }
+
 
 // ═══════════════════════════════════════════════════════════
 // ICON SYSTEM
