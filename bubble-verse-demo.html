@@ -25,6 +25,13 @@
   --border:#2d2d3d;--radius:12px;--radius-sm:8px;
   --sidebar:240px;
 }
+:root.light{
+  --bg:#f0f2f8;--panel:#ffffff;--panel2:#e8eaf2;
+  --accent:#7c3aed;--accent2:#a855f7;
+  --pink:#ec4899;--teal:#0d9488;--orange:#ea580c;--purple:#7c3aed;
+  --text:#1e1b3a;--text2:#4c4a6e;--text3:#9896b8;
+  --border:#d4d6e8;
+}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:15px;line-height:1.5;min-height:100vh}
 a{color:inherit;text-decoration:none}
 button{cursor:pointer;border:none;background:none;color:inherit;font:inherit}
@@ -560,6 +567,7 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
     <div class="nav-divider"></div>
     <div class="nav-item" onclick="doLogout()" style="color:#ef4444"><i class="ti ti-logout"></i><span>登出</span></div>
     <div style="flex:1"></div>
+    <div id="sidebar-suggestions" style="padding:0 4px;margin-bottom:8px"></div>
     <div class="sidebar-user" id="sidebar-user"></div>
   </nav>
   <main id="main">
@@ -945,7 +953,51 @@ function timeAgo(ts){
   if(d<60)return '剛剛';if(d<3600)return Math.floor(d/60)+'分鐘前';
   if(d<86400)return Math.floor(d/3600)+'小時前';return Math.floor(d/86400)+'天前';
 }
-function uid(){return 'id'+Date.now()+Math.random().toString(36).slice(2)}
+function uid(){
+  try{return crypto.randomUUID();}
+  catch{return 'bv_'+Date.now()+'_'+Math.random().toString(36).slice(2,10);}
+}
+
+// ═══════════════════════════════════════════════════════════
+// BACKEND PREP — Data API abstraction layer
+// ─────────────────────────────────────────────────────────
+// All data mutations go through BV_API methods.
+// When backend is ready: replace each method body with a fetch() call.
+// _syncLog() records every write so we can replay against the real DB.
+// ═══════════════════════════════════════════════════════════
+const BV_SYNC_QUEUE_KEY='bv_sync_queue';
+function _syncLog(op,entity,payload){
+  try{
+    const q=JSON.parse(localStorage.getItem(BV_SYNC_QUEUE_KEY)||'[]');
+    q.push({op,entity,payload,ts:Date.now(),synced:false,client:session?.userId||'anon'});
+    if(q.length>500)q.splice(0,q.length-500);
+    localStorage.setItem(BV_SYNC_QUEUE_KEY,JSON.stringify(q));
+  }catch{}
+}
+// BV_API — replace method bodies with fetch('/api/...') when backend is live
+const BV_API={
+  // ── Posts ──────────────────────────────────────────────
+  createPost(p){posts.unshift(p);savePosts();_syncLog('create','post',{id:p.id,userId:p.userId,type:p.type,createdAt:p.createdAt});},
+  updatePost(id,patch){const p=posts.find(x=>x.id===id);if(p){Object.assign(p,patch);savePosts();_syncLog('update','post',{id,...patch});}},
+  deletePost(id){const i=posts.findIndex(x=>x.id===id);if(i>=0){posts.splice(i,1);savePosts();_syncLog('delete','post',{id});}},
+  likePost(postId,userId,action){const p=posts.find(x=>x.id===postId);if(!p)return;if(!p.likes)p.likes=[];const i=p.likes.indexOf(userId);if(action==='add'&&i<0)p.likes.push(userId);else if(action==='remove'&&i>=0)p.likes.splice(i,1);savePosts();_syncLog('like',action,{postId,userId});},
+  // ── Comments ───────────────────────────────────────────
+  createComment(postId,c){if(!comments[postId])comments[postId]=[];comments[postId].push(c);saveComments();_syncLog('create','comment',{id:c.id,postId,userId:c.userId});},
+  deleteComment(postId,id){if(!comments[postId])return;const i=comments[postId].findIndex(x=>x.id===id);if(i>=0){comments[postId].splice(i,1);saveComments();_syncLog('delete','comment',{id,postId});}},
+  // ── Users ──────────────────────────────────────────────
+  updateUser(id,patch){const u=users.find(x=>x.id===id);if(u){Object.assign(u,patch);saveUsers();_syncLog('update','user',{id,...patch});}},
+  follow(followerId,followeeId){const me=users.find(x=>x.id===followerId),them=users.find(x=>x.id===followeeId);if(!me||!them)return;if(!me.following)me.following=[];if(!them.followers)them.followers=[];if(!me.following.includes(followeeId)){me.following.push(followeeId);them.followers.push(followerId);saveUsers();_syncLog('create','follow',{followerId,followeeId});}},
+  unfollow(followerId,followeeId){const me=users.find(x=>x.id===followerId),them=users.find(x=>x.id===followeeId);if(!me||!them)return;me.following=me.following?.filter(x=>x!==followeeId)||[];them.followers=them.followers?.filter(x=>x!==followerId)||[];saveUsers();_syncLog('delete','follow',{followerId,followeeId});},
+  // ── Reactions ──────────────────────────────────────────
+  setReaction(postId,userId,emoji){if(!reactions[postId])reactions[postId]={};reactions[postId][userId]=emoji;saveReactions();_syncLog('upsert','reaction',{postId,userId,emoji});},
+  removeReaction(postId,userId){if(reactions[postId]){delete reactions[postId][userId];saveReactions();_syncLog('delete','reaction',{postId,userId});}},
+  // ── DMs ────────────────────────────────────────────────
+  sendDM(fromId,toId,text){const key=[fromId,toId].sort().join('_');if(!dms[key])dms[key]=[];const msg={id:uid(),from:fromId,to:toId,text,time:Date.now(),read:false};dms[key].push(msg);saveDMs();_syncLog('create','dm',{id:msg.id,fromId,toId,ts:msg.time});return msg;},
+  // ── Sync status ────────────────────────────────────────
+  getSyncQueue(){return JSON.parse(localStorage.getItem(BV_SYNC_QUEUE_KEY)||'[]');},
+  clearSyncQueue(){localStorage.removeItem(BV_SYNC_QUEUE_KEY);},
+  getPendingCount(){return this.getSyncQueue().filter(x=>!x.synced).length;},
+};
 function toast(msg,type='info'){
   const c=document.getElementById('toast-container');
   const t=document.createElement('div');
@@ -1016,6 +1068,31 @@ function updateNotifBadge(){
     badge.textContent=unread>99?'99+':unread;
     badge.classList.toggle('hidden',unread===0);
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════
+function applyTheme(){
+  const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
+  const isLight=sets.theme==='light';
+  document.documentElement.classList.toggle('light',isLight);
+  const btn=document.getElementById('theme-btn');
+  if(btn)btn.textContent=isLight?'🌙':'☀️';
+}
+function toggleTheme(){
+  const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
+  const nowLight=!document.documentElement.classList.contains('light');
+  sets.theme=nowLight?'light':'dark';
+  localStorage.setItem('bv_settings',JSON.stringify(sets));
+  document.documentElement.classList.toggle('light',nowLight);
+  const btn=document.getElementById('theme-btn');
+  if(btn)btn.textContent=nowLight?'🌙':'☀️';
+  const lbl=document.getElementById('theme-mode-lbl');
+  if(lbl)lbl.textContent=nowLight?'目前：淺色模式':'目前：深色模式';
+  const ico=document.getElementById('theme-toggle-icon');
+  if(ico)ico.textContent=nowLight?'☀️':'🌙';
+  toast(nowLight?'☀️ 淺色模式':'🌙 深色模式','info');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1215,9 +1292,10 @@ function showApp(){
     Object.assign(global,perUser);
     localStorage.setItem('bv_settings',JSON.stringify(global));
   }
+  applyTheme();
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  renderSidebarUser();updateNotifBadge();updateDMBadge();
+  renderSidebarUser();updateNotifBadge();updateDMBadge();refreshSidebarSuggestions();
   if(!analytics[session.userId])seedAnalytics();
   setTimeout(requestNotifPermission,1500);
   initAIUsers();
@@ -1232,6 +1310,25 @@ function renderSidebarUser(){
   const u=users.find(x=>x.id===session?.userId);
   const url=u?.avatarUrl||session?.avatarUrl||null;
   el.innerHTML=`${avatarHTML(session.displayName,session.avatarColor,'avatar-sm',url)}<div><div class="uname">${esc(session.displayName)}</div><div class="uhandle">@${esc(session.username)}</div></div>`;
+}
+function refreshSidebarSuggestions(){
+  const el=document.getElementById('sidebar-suggestions');
+  if(!el||!session)return;
+  const me=users.find(u=>u.id===session.userId);
+  const myFollowing=me?.following||[];
+  const suggestions=users
+    .filter(u=>u.id!==session.userId&&!myFollowing.includes(u.id)&&!u.id.startsWith('ai_')&&!blockedUsers.includes(u.id))
+    .sort((a,b)=>(b.followers||[]).length-(a.followers||[]).length)
+    .slice(0,3);
+  if(!suggestions.length){el.innerHTML='';return;}
+  el.innerHTML=`<div style="font-size:11px;color:var(--text3);font-weight:600;padding:6px 12px;text-transform:uppercase;letter-spacing:.05em">推薦追蹤</div>
+    ${suggestions.map(u=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer" onmouseenter="this.style.background='var(--panel2)'" onmouseleave="this.style.background=''">
+      <div onclick="openUserProfile('${u.id}')" style="flex:1;display:flex;align-items:center;gap:8px;min-width:0">
+        ${avatarHTML(u.displayName,u.avatarColor,'avatar-sm')}
+        <div style="min-width:0"><div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u.displayName)}</div><div style="font-size:11px;color:var(--text3)">@${esc(u.username)}</div></div>
+      </div>
+      <button class="${isFollowing(u.id)?'btn-following':'btn-follow'}" style="padding:3px 10px;font-size:12px" data-follow="${u.id}" onclick="toggleFollow('${u.id}');refreshSidebarSuggestions()">${isFollowing(u.id)?'已追蹤':'追蹤'}</button>
+    </div>`).join('')}`;
 }
 function navigate(page,uid2){
   currentPage=page;
@@ -1250,9 +1347,60 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 // ═══════════════════════════════════════════════════════════
 // RENDER PAGE ROUTER
 // ═══════════════════════════════════════════════════════════
+function renderPostDetail(){
+  const p=posts.find(x=>x.id===_detailPostId);
+  if(!p)return '<div class="empty-state"><i class="ti ti-file-off"></i><p>找不到此貼文</p></div>';
+  const clist=comments[p.id]||[];
+  const cHTML=clist.map(c=>`<div class="comment-item">
+    <div style="cursor:pointer" onclick="openUserProfile('${c.userId}')">${avatarHTML(c.displayName,c.avatarColor,'avatar-sm')}</div>
+    <div class="comment-body">
+      <div class="comment-author" style="cursor:pointer" onclick="openUserProfile('${c.userId}')">${esc(c.displayName)} <span style="color:var(--text3)">@${esc(c.username)}</span></div>
+      <div class="comment-text">${linkifyContent(c.text)}</div>
+      <div style="display:flex;align-items:center;gap:8px"><div class="comment-time">${timeAgo(c.createdAt)}</div>${c.userId===session.userId?`<button style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;padding:0" onclick="deleteComment('${p.id}','${c.id}')">刪除</button>`:''}</div>
+    </div>
+  </div>`).join('');
+  return `<div class="back-btn" onclick="history.back?navigate('home'):navigate('home')"><i class="ti ti-arrow-left"></i>返回</div>
+  <div style="max-width:600px;margin:0 auto">
+    ${renderPostHTML(p)}
+    <div style="padding:16px 0 8px;font-weight:700;font-size:15px;border-top:1px solid var(--border);margin-top:4px">留言 (${clist.length})</div>
+    <div id="comment-list-detail">${cHTML||'<div class="empty-state" style="padding:20px"><i class="ti ti-message-off"></i><p>還沒有留言</p></div>'}</div>
+    <div class="comment-input-wrap" style="margin-top:16px">
+      ${avatarHTML(session.displayName,session.avatarColor,'avatar-sm')}
+      <input type="text" id="comment-input-detail" placeholder="寫下留言..." onkeydown="if(event.key==='Enter')submitCommentDetail('${p.id}')"/>
+      <button class="btn btn-primary btn-sm" onclick="submitCommentDetail('${p.id}')">送出</button>
+    </div>
+  </div>`;
+}
+function submitCommentDetail(postId){
+  const inp=document.getElementById('comment-input-detail');
+  if(!inp||!inp.value.trim())return;
+  // Reuse submitComment logic by temporarily creating a #comment-input
+  const tmp=document.createElement('input');tmp.id='comment-input';tmp.value=inp.value;
+  document.body.appendChild(tmp);submitComment(postId);tmp.remove();
+  inp.value='';
+  // Re-render comments in detail page
+  const clist=comments[postId]||[];
+  const el=document.getElementById('comment-list-detail');
+  if(el){el.innerHTML=clist.map(c=>`<div class="comment-item">
+    <div>${avatarHTML(c.displayName,c.avatarColor,'avatar-sm')}</div>
+    <div class="comment-body">
+      <div class="comment-author">${esc(c.displayName)} <span style="color:var(--text3)">@${esc(c.username)}</span></div>
+      <div class="comment-text">${linkifyContent(c.text)}</div>
+      <div class="comment-time">${timeAgo(c.createdAt)}</div>
+    </div>
+  </div>`).join('');_applyIcons(el);}
+}
+let _detailPostId=null;
+function openPostDetail(postId){
+  _detailPostId=postId;
+  navigate('postdetail');
+  // Update URL without reload
+  const url=window.location.pathname+'?post='+postId;
+  window.history.pushState({postId},'',url);
+}
 function renderPage(page){
   const el=document.getElementById('content');
-  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings,search:renderSearch,notifications:renderNotifications,userprofile:renderUserProfile,analytics:renderAnalytics,dms:renderDMs};
+  const pages={home:renderHome,bubbles:renderBubbles,verse:renderVerse,galaxies:renderGalaxies,spaces:renderSpaces,profile:renderProfile,settings:renderSettings,search:renderSearch,notifications:renderNotifications,userprofile:renderUserProfile,analytics:renderAnalytics,dms:renderDMs,postdetail:renderPostDetail};
   if(pages[page]){el.innerHTML=pages[page]();_applyIcons(el);}
   else el.innerHTML='<div class="empty-state"><i class="ti ti-compass"></i><p>頁面不存在</p></div>';
 }
@@ -1413,6 +1561,7 @@ function renderHome(){
       </button>
       <button class="topbar-btn" onclick="startOwnLiveStream()" title="開始直播" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:99px;width:auto;padding:0 10px;font-size:13px;font-weight:700;color:#f87171">🔴 直播</button>
       <button class="topbar-btn" onclick="toggleAIEngine()" title="AI 測試模式" id="ai-home-btn" style="border-radius:99px;width:auto;padding:0 9px;font-size:12px;font-weight:700;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:#c4b5fd">${aiEngine.running?'⏹ AI':'🤖 AI'}</button>
+      <button class="topbar-btn" onclick="toggleTheme()" title="切換主題" id="theme-btn"></button>
       <button class="topbar-btn" onclick="navigate('settings')" title="設定">⚙️</button>
     </div>
   </div>
@@ -2544,15 +2693,40 @@ function renderSearchResults(q){
 // ═══════════════════════════════════════════════════════════
 // NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════
+function groupNotifications(arr){
+  const grouped=[];
+  const map={};
+  // Group likes and reposts by postId; everything else stays separate
+  arr.forEach(n=>{
+    const canGroup=(n.type==='like'||n.type==='repost')&&n.postId;
+    const key=canGroup?`${n.type}_${n.postId}`:n.id;
+    if(canGroup&&map[key]){
+      const g=map[key];
+      if(!g.actors.includes(n.fromDisplayName))g.actors.push(n.fromDisplayName);
+      if(!n.read)g.read=false;
+      if(n.createdAt>g.createdAt)g.createdAt=n.createdAt;
+    } else {
+      const entry={...n,actors:[n.fromDisplayName]};
+      grouped.push(entry);
+      if(canGroup)map[key]=entry;
+    }
+  });
+  return grouped;
+}
+function actorLabel(actors){
+  if(actors.length===1)return esc(actors[0]);
+  if(actors.length===2)return `${esc(actors[0])} 和 ${esc(actors[1])}`;
+  return `${esc(actors[0])}、${esc(actors[1])} 和其他 ${actors.length-2} 人`;
+}
 function renderNotifications(){
-  const notifHTML=notifications.length?notifications.map(n=>{
+  const notifHTML=groupNotifications(notifications).length?groupNotifications(notifications).map(n=>{
     const icons={like:'ti-heart-filled',comment:'ti-message-circle',follow:'ti-user-plus',repost:'ti-repeat',quote:'ti-quote',dm:'ti-message-2',mention:'ti-at'};
     const labels={like:'喜歡了你的貼文',comment:'留言了你的貼文',follow:'開始追蹤你',repost:'轉發了你的貼文',quote:'引用了你的貼文',dm:'傳訊息給你',mention:'提及了你'};
     const p=n.postId?posts.find(x=>x.id===n.postId):null;
     return `<div class="notif-item ${n.read?'':'unread'}">
       <div class="avatar avatar-sm" style="background:${n.fromAvatarColor||hashColor(n.fromDisplayName||'')};flex-shrink:0">${(n.fromDisplayName||'?')[0]}</div>
       <div style="flex:1">
-        <div style="font-size:14px"><span style="font-weight:600;cursor:pointer" onclick="openUserProfile('${n.fromUserId}')">${esc(n.fromDisplayName)}</span> ${labels[n.type]||n.text}</div>
+        <div style="font-size:14px"><span style="font-weight:600;cursor:pointer" onclick="openUserProfile('${n.fromUserId}')">${actorLabel(n.actors||[n.fromDisplayName])}</span> ${labels[n.type]||n.text}</div>
         ${p?`<div style="font-size:12px;color:var(--text2);margin-top:4px;cursor:pointer" onclick="openComments('${p.id}')">${esc(p.content).slice(0,60)}${p.content.length>60?'...':''}</div>`:''}
         ${n.type==='comment'&&n.text?`<div style="font-size:12px;background:var(--panel2);padding:6px 10px;border-radius:8px;margin-top:6px;color:var(--text2)">${esc(n.text)}</div>`:''}
         ${n.type==='dm'&&n.text?`<div style="font-size:12px;background:var(--panel2);padding:6px 10px;border-radius:8px;margin-top:6px;color:var(--text2);cursor:pointer" onclick="openDMWith('${n.fromUserId}')">${esc(n.text)}</div>`:''}
@@ -2865,6 +3039,11 @@ function renderSettings(){
   <!-- 外觀 -->
   <div class="settings-group">
     <div class="settings-group-title">外觀與語言</div>
+    <div class="settings-row-ig" onclick="toggleTheme()">
+      <div class="row-icon" style="background:rgba(124,58,237,.15)">🌓</div>
+      <div class="row-label"><strong>深色 / 淺色模式</strong><span id="theme-mode-lbl">${(JSON.parse(localStorage.getItem('bv_settings')||'{}').theme||'dark')==='light'?'目前：淺色模式':'目前：深色模式'}</span></div>
+      <div id="theme-toggle-icon" style="font-size:18px">${(JSON.parse(localStorage.getItem('bv_settings')||'{}').theme||'dark')==='light'?'☀️':'🌙'}</div>
+    </div>
     <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-theme')">
       <div class="row-icon" style="background:rgba(124,58,237,.15)">🎨</div>
       <div class="row-label"><strong>主題色彩</strong><span>自訂 Bubble Verse 主題色</span></div>
@@ -2997,7 +3176,8 @@ function renderSettings(){
       <div style="text-align:center;padding:16px 0">
         <div style="font-size:36px;margin-bottom:8px">🫧</div>
         <div style="font-size:18px;font-weight:800;background:linear-gradient(135deg,#f09433,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Bubble Verse</div>
-        <div style="font-size:13px;color:var(--text3);margin-top:4px">版本 1.0.0 · 基於 Misskey / ActivityPub</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:4px">版本 1.5.0 · 基於 Misskey / ActivityPub</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">後端就緒度：🟡 SyncQueue 準備中 · ${BV_API.getPendingCount()} 筆待同步</div>
         <div style="font-size:12px;color:var(--text3);margin-top:8px;line-height:1.7">去中心化 · 聯邦宇宙 · 開源免費<br/>AGPL-3.0 License</div>
       </div>
     </div>
@@ -4521,8 +4701,21 @@ _obs.observe(document.documentElement,{childList:true,subtree:true});
 // INIT
 // ═══════════════════════════════════════════════════════════
 seedData();
-if(session){showApp();}
+applyTheme();
+if(session){
+  showApp();
+  // Check if URL has ?post= deep link
+  const _urlParams=new URLSearchParams(window.location.search);
+  const _deepPostId=_urlParams.get('post');
+  if(_deepPostId&&posts.find(x=>x.id===_deepPostId)){
+    setTimeout(()=>openPostDetail(_deepPostId),100);
+  }
+}
 else{document.getElementById('auth-screen').classList.remove('hidden');}
+window.addEventListener('popstate',e=>{
+  if(e.state?.postId){_detailPostId=e.state.postId;renderPage('postdetail');}
+  else if(currentPage==='postdetail'){navigate('home');}
+});
 _applyIcons(document);
 </script>
 </body>
