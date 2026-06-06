@@ -521,15 +521,20 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
       <button class="tab-btn" onclick="switchAuthTab('register')">註冊</button>
     </div>
     <div id="login-form">
-      <div class="form-group"><label>帳號</label><input id="li-user" type="text" placeholder="your_handle"/></div>
-      <div class="form-group"><label>密碼</label><input id="li-pass" type="password" placeholder="••••••"/></div>
-      <button class="btn btn-primary btn-full mt-8" onclick="doLogin()">登入</button>
+      <div class="form-group"><label>帳號</label><input id="li-user" type="text" placeholder="your_handle" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="form-group"><label>密碼</label><input id="li-pass" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div id="login-lock-msg" style="display:none;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:8px 12px;font-size:13px;color:#f87171;margin-bottom:10px"></div>
+      <button id="login-btn" class="btn btn-primary btn-full mt-8" onclick="doLogin()">登入</button>
     </div>
     <div id="register-form" class="hidden">
       <div class="form-group"><label>顯示名稱</label><input id="reg-name" type="text" placeholder="星際旅人"/></div>
       <div class="form-group"><label>帳號 (@handle)</label><input id="reg-user" type="text" placeholder="starlord"/></div>
-      <div class="form-group"><label>密碼</label><input id="reg-pass" type="password" placeholder="••••••"/></div>
-      <div class="form-group"><label>確認密碼</label><input id="reg-pass2" type="password" placeholder="••••••"/></div>
+      <div class="form-group"><label>密碼 <span style="color:var(--text3);font-weight:400;font-size:11px">（至少8位，含字母和數字）</span></label>
+        <input id="reg-pass" type="password" placeholder="至少8位" oninput="updateStrengthMeter(this.value)" onkeydown="if(event.key==='Enter')doRegister()"/>
+        <div style="height:4px;border-radius:2px;margin-top:6px;background:var(--panel2);overflow:hidden"><div id="strength-fill" style="height:100%;width:0%;transition:width .3s,background .3s"></div></div>
+        <div id="strength-label" style="font-size:11px;margin-top:3px;color:var(--text3)"></div>
+      </div>
+      <div class="form-group"><label>確認密碼</label><input id="reg-pass2" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')doRegister()"/></div>
       <button class="btn btn-primary btn-full mt-8" onclick="doRegister()">建立帳號</button>
     </div>
   </div>
@@ -659,6 +664,9 @@ let blockedUsers=JSON.parse(localStorage.getItem('bv_blocked')||'[]');
 let mutedUsers=JSON.parse(localStorage.getItem('bv_muted')||'[]');
 let _cameraStream=null;
 let _hashtagFilter=null;
+let loginAttempts=JSON.parse(localStorage.getItem('bv_login_attempts')||'{}');
+const _postTimestamps=[];
+const _commentTimestamps=[];
 
 let currentPage='home';
 let storyIndex=0;
@@ -1011,6 +1019,114 @@ function updateNotifBadge(){
 }
 
 // ═══════════════════════════════════════════════════════════
+// SECURITY HELPERS
+// ═══════════════════════════════════════════════════════════
+async function hashPassword(pwd,salt){
+  const enc=new TextEncoder();
+  const buf=await crypto.subtle.digest('SHA-256',enc.encode(salt+'::'+pwd+'::bv2025'));
+  return 'sha256:'+Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function verifyPassword(pwd,storedHash,salt){
+  if(!storedHash)return false;
+  if(storedHash.startsWith('sha256:')){
+    const h=await hashPassword(pwd,salt);
+    return h===storedHash;
+  }
+  // Legacy btoa — accepted then auto-upgraded on next saveUsers()
+  return btoa(pwd)===storedHash;
+}
+function generateToken(){
+  const arr=new Uint8Array(24);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function getLockStatus(username){
+  const a=loginAttempts[username];
+  if(!a)return null;
+  if(a.lockUntil&&Date.now()<a.lockUntil)return Math.ceil((a.lockUntil-Date.now())/1000);
+  if(a.lockUntil&&Date.now()>=a.lockUntil){delete loginAttempts[username];localStorage.setItem('bv_login_attempts',JSON.stringify(loginAttempts));}
+  return null;
+}
+function recordFailedAttempt(username){
+  if(!loginAttempts[username])loginAttempts[username]={count:0,lockUntil:0};
+  loginAttempts[username].count++;
+  if(loginAttempts[username].count>=5)loginAttempts[username].lockUntil=Date.now()+15*60*1000;
+  localStorage.setItem('bv_login_attempts',JSON.stringify(loginAttempts));
+}
+function clearAttempts(username){
+  delete loginAttempts[username];
+  localStorage.setItem('bv_login_attempts',JSON.stringify(loginAttempts));
+}
+function checkRateLimit(bucket,maxCount,windowMs){
+  const now=Date.now();
+  while(bucket.length&&now-bucket[0]>windowMs)bucket.shift();
+  if(bucket.length>=maxCount)return false;
+  bucket.push(now);return true;
+}
+function validateSession(){
+  if(!session)return false;
+  const THIRTY_DAYS=30*86400000;
+  if(session.lastActiveAt&&Date.now()-session.lastActiveAt>THIRTY_DAYS){
+    doLogout();toast('登入已逾期，請重新登入','info');return false;
+  }
+  session.lastActiveAt=Date.now();
+  saveSession();
+  return true;
+}
+function passwordStrength(p){
+  let s=0;
+  if(p.length>=8)s++;
+  if(p.length>=12)s++;
+  if(/[A-Za-z]/.test(p)&&/[0-9]/.test(p))s++;
+  if(/[^A-Za-z0-9]/.test(p))s++;
+  return s; // 0-4
+}
+function updateStrengthMeter(val){
+  const s=passwordStrength(val);
+  const fill=document.getElementById('strength-fill');
+  const lbl=document.getElementById('strength-label');
+  if(!fill||!lbl)return;
+  const pct=[0,25,50,75,100][s];
+  const colors=['#6b7280','#ef4444','#f97316','#eab308','#22c55e'][s];
+  const labels=['','太弱','尚可','良好 👍','非常強 🔒'][s];
+  fill.style.width=pct+'%';fill.style.background=colors;
+  lbl.textContent=val?labels:'';
+  lbl.style.color=colors;
+}
+function isPrivateAccount(userId){
+  const u=users.find(x=>x.id===userId);
+  if(!u)return false;
+  const sets=JSON.parse(localStorage.getItem('bv_settings_'+userId)||'{}');
+  return sets.privateAccount===true;
+}
+function canViewContent(targetUserId){
+  if(!session)return false;
+  if(targetUserId===session.userId)return true;
+  if(!isPrivateAccount(targetUserId))return true;
+  const me=users.find(x=>x.id===session.userId);
+  return me&&me.following&&me.following.includes(targetUserId);
+}
+function exportUserData(){
+  if(!session)return;
+  const me=users.find(x=>x.id===session.userId)||{};
+  const myPosts=posts.filter(p=>p.userId===session.userId);
+  const myComments=Object.entries(comments).flatMap(([pid,cs])=>cs.filter(c=>c.userId===session.userId).map(c=>({...c,postId:pid})));
+  const data={
+    exportedAt:new Date().toISOString(),
+    profile:{username:me.username,displayName:me.displayName,bio:me.bio,createdAt:me.createdAt},
+    posts:myPosts.map(p=>({id:p.id,content:p.content,createdAt:p.createdAt,type:p.type})),
+    comments:myComments,
+    following:me.following||[],
+    followers:me.followers||[],
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='bubble-verse-data-'+session.username+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+  toast('資料已匯出 📦','success');
+}
+
+// ═══════════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════════
 function switchAuthTab(tab){
@@ -1018,31 +1134,71 @@ function switchAuthTab(tab){
   document.getElementById('login-form').classList.toggle('hidden',tab!=='login');
   document.getElementById('register-form').classList.toggle('hidden',tab!=='register');
 }
-function doLogin(){
+async function doLogin(){
   const u=document.getElementById('li-user').value.trim();
   const p=document.getElementById('li-pass').value;
-  if(!u||!p){toast('請填寫所有欄位','error');return}
+  const lockMsg=document.getElementById('login-lock-msg');
+  const btn=document.getElementById('login-btn');
+  if(!u||!p){toast('請填寫所有欄位','error');return;}
+  // Check lockout
+  const remaining=getLockStatus(u);
+  if(remaining){
+    if(lockMsg){lockMsg.style.display='block';lockMsg.textContent=`帳號暫時鎖定，請 ${remaining} 秒後再試`;}
+    return;
+  }
   const user=users.find(x=>x.username===u);
-  if(!user||user.password!==btoa(p)){toast('帳號或密碼錯誤','error');return}
-  session={userId:user.id,username:user.username,displayName:user.displayName,avatarColor:user.avatarColor};
-  saveSession();showApp();toast('歡迎回來，'+user.displayName+'！','success');
+  if(!user){recordFailedAttempt(u);toast('帳號或密碼錯誤','error');return;}
+  if(btn)btn.disabled=true;
+  const ok=await verifyPassword(p,user.password,u);
+  if(btn)btn.disabled=false;
+  if(!ok){
+    recordFailedAttempt(u);
+    const rem2=getLockStatus(u);
+    if(rem2){
+      if(lockMsg){lockMsg.style.display='block';lockMsg.textContent='連續錯誤5次，帳號已鎖定15分鐘';}
+      toast('帳號已鎖定15分鐘','error');
+    } else {
+      const a=loginAttempts[u];const left=5-(a?a.count:0);
+      toast(`帳號或密碼錯誤（還有 ${left} 次機會）`,'error');
+    }
+    return;
+  }
+  // Upgrade legacy btoa hash to sha256 silently
+  if(user.password&&!user.password.startsWith('sha256:')){
+    user.password=await hashPassword(p,u);
+    saveUsers();
+  }
+  clearAttempts(u);
+  const token=generateToken();
+  const now=Date.now();
+  session={userId:user.id,username:user.username,displayName:user.displayName,avatarColor:user.avatarColor,avatarUrl:user.avatarUrl||null,token,createdAt:now,lastActiveAt:now,loginAt:now};
+  saveSession();
+  if(lockMsg)lockMsg.style.display='none';
+  showApp();toast('歡迎回來，'+user.displayName+'！','success');
 }
-function doRegister(){
+async function doRegister(){
   const name=document.getElementById('reg-name').value.trim();
   const u=document.getElementById('reg-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
   const p=document.getElementById('reg-pass').value;
   const p2=document.getElementById('reg-pass2').value;
-  if(!name||!u||!p||!p2){toast('請填寫所有欄位','error');return}
-  if(p!==p2){toast('密碼不一致','error');return}
-  if(p.length<6){toast('密碼至少6位','error');return}
-  if(users.find(x=>x.username===u)){toast('帳號已被使用','error');return}
-  const user={id:'u'+Date.now(),username:u,displayName:name,password:btoa(p),bio:'',createdAt:Date.now(),avatarColor:hashColor(u),followers:[],following:[]};
+  if(!name||!u||!p||!p2){toast('請填寫所有欄位','error');return;}
+  if(p!==p2){toast('密碼不一致','error');return;}
+  if(p.length<8){toast('密碼至少需要8位','error');return;}
+  if(!/[A-Za-z]/.test(p)||!/[0-9]/.test(p)){toast('密碼需包含字母和數字','error');return;}
+  if(u.length<3){toast('帳號至少3個字元','error');return;}
+  if(users.find(x=>x.username===u)){toast('帳號已被使用','error');return;}
+  const hashedPwd=await hashPassword(p,u);
+  const token=generateToken();
+  const now=Date.now();
+  const user={id:'u'+now,username:u,displayName:name,password:hashedPwd,bio:'',createdAt:now,avatarColor:hashColor(u),followers:[],following:[]};
   users.push(user);saveUsers();
-  session={userId:user.id,username:user.username,displayName:user.displayName,avatarColor:user.avatarColor};
+  session={userId:user.id,username:user.username,displayName:user.displayName,avatarColor:user.avatarColor,avatarUrl:null,token,createdAt:now,lastActiveAt:now,loginAt:now};
   saveSession();showApp();toast('帳號建立成功！歡迎，'+name+'！','success');
 }
 function doLogout(){
-  session=null;localStorage.removeItem('bv_session');
+  stopAIEngine();
+  session=null;
+  localStorage.removeItem('bv_session');
   document.getElementById('app').classList.add('hidden');
   document.getElementById('auth-screen').classList.remove('hidden');
   toast('已登出','info');
@@ -1052,6 +1208,13 @@ function doLogout(){
 // APP INIT
 // ═══════════════════════════════════════════════════════════
 function showApp(){
+  // Sync per-user privacy settings into global settings store
+  if(session){
+    const perUser=JSON.parse(localStorage.getItem('bv_settings_'+session.userId)||'{}');
+    const global=JSON.parse(localStorage.getItem('bv_settings')||'{}');
+    Object.assign(global,perUser);
+    localStorage.setItem('bv_settings',JSON.stringify(global));
+  }
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   renderSidebarUser();updateNotifBadge();updateDMBadge();
@@ -1321,8 +1484,8 @@ function renderComposerHTML(galaxyId){
 }
 function renderFeedHTML(arr,source='home'){
   let sorted=[...arr].sort((a,b)=>b.createdAt-a.createdAt);
-  // Filter blocked and muted users' posts
-  sorted=sorted.filter(p=>!blockedUsers.includes(p.userId)&&!mutedUsers.includes(p.userId));
+  // Filter blocked, muted, and private account posts
+  sorted=sorted.filter(p=>!blockedUsers.includes(p.userId)&&!mutedUsers.includes(p.userId)&&canViewContent(p.userId));
   // Filter by hashtag if active
   if(_hashtagFilter){
     const tag=_hashtagFilter.toLowerCase();
@@ -1536,6 +1699,8 @@ function openComments(postId){
     </div>`);
 }
 function submitComment(postId){
+  if(!validateSession())return;
+  if(!checkRateLimit(_commentTimestamps,20,60000)){toast('留言太頻繁，請稍等一下','error');return;}
   const input=document.getElementById('comment-input');
   if(!input)return;
   const txt=input.value.trim();
@@ -1641,6 +1806,8 @@ function removePollOption(i){if(pollComposerData){pollComposerData.options.splic
 // SUBMIT POST
 // ═══════════════════════════════════════════════════════════
 function submitPost(galaxyId){
+  if(!validateSession())return;
+  if(!checkRateLimit(_postTimestamps,10,60000)){toast('發文太頻繁，請稍等一下','error');return;}
   const txt=document.getElementById('compose-text').value.trim();
   if(!txt&&!pollComposerData&&!composerMediaUrl){toast('請輸入內容或選擇媒體','error');return}
   const p={
@@ -2064,15 +2231,17 @@ function renderUserProfileById(userId,isOwn){
   const likedPosts=posts.filter(p=>p.likes&&p.likes.includes(userId));
   const tab=isOwn?profileTab:(profileTab==='bookmarks'?'posts':profileTab);
   const following=!isOwn&&isFollowing(userId);
+  const canView=isOwn||canViewContent(userId);
   let tabContent='';
-  if(tab==='posts'){tabContent=myPosts.length?renderFeedHTML(myPosts):'<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文</p></div>';}
-  else if(tab==='media'){
+  if(!canView){tabContent=`<div class="empty-state" style="padding:40px 0"><i class="ti ti-lock" style="font-size:36px;color:var(--text3)"></i><p style="margin-top:10px;font-weight:600">私人帳號</p><p style="font-size:13px;color:var(--text3)">追蹤此用戶後即可查看貼文</p></div>`;}
+  else if(tab==='posts'){tabContent=myPosts.length?renderFeedHTML(myPosts):'<div class="empty-state"><i class="ti ti-notes-off"></i><p>還沒有貼文</p></div>';}
+  else if(tab==='media'&&canView){
     tabContent=mediaPosts.length?`<div class="media-grid">${mediaPosts.map(p=>{
       if(p.mediaType==='video')return `<div class="media-grid-item" onclick="openComments('${p.id}')"><video src="${p.mediaUrl}" muted style="width:100%;height:100%;object-fit:cover"></video><div class="video-play-overlay">▶</div></div>`;
       return `<div class="media-grid-item" onclick="openComments('${p.id}')"><img src="${p.mediaUrl}" loading="lazy"/></div>`;
     }).join('')}</div>`:'<div class="empty-state"><i class="ti ti-photo-off"></i><p>還沒有媒體</p></div>';
   }
-  else if(tab==='likes'){tabContent=likedPosts.length?renderFeedHTML(likedPosts):'<div class="empty-state"><i class="ti ti-heart-off"></i><p>還沒有喜歡的貼文</p></div>';}
+  else if(tab==='likes'&&canView){tabContent=likedPosts.length?renderFeedHTML(likedPosts):'<div class="empty-state"><i class="ti ti-heart-off"></i><p>還沒有喜歡的貼文</p></div>';}
   else if(tab==='bookmarks'&&isOwn){tabContent=bookmarkedPosts.length?renderFeedHTML(bookmarkedPosts):'<div class="empty-state"><i class="ti ti-bookmark-off"></i><p>還沒有收藏的貼文</p></div>';}
   const backBtn=(!isOwn)?`<div class="back-btn" onclick="history.back?history.back():navigate('home')"><i class="ti ti-arrow-left"></i>返回</div>`:'';
   const avatarUrl=u.avatarUrl||null;
@@ -2498,6 +2667,17 @@ function renderSettings(){
         <input type="radio" name="story-vis" ${(sets.storyVisibility||0)===i?'checked':''} onchange="saveSetting('storyVisibility',${i})"/> ${opt}
       </label>`).join('')}
     </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-dm-priv')">
+      <div class="row-icon" style="background:rgba(124,58,237,.12)">💌</div>
+      <div class="row-label"><strong>誰可以傳私訊給我</strong><span>${tog('dmPrivacy')===1?'僅追蹤者':'所有人'}</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-dm-priv">
+      ${[['所有人',0],['僅追蹤者',1]].map(([label,val])=>`
+      <label class="checkbox-label" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <input type="radio" name="dm-priv" ${(tog('dmPrivacy')||0)===val?'checked':''} onchange="saveSetting('dmPrivacy',${val})"/> ${label}
+      </label>`).join('')}
+    </div>
     <div class="settings-row-ig">
       <div class="row-icon" style="background:rgba(139,92,246,.12)">💬</div>
       <div class="row-label"><strong>誰可以留言</strong><span>控制留言權限</span></div>
@@ -2577,6 +2757,29 @@ function renderSettings(){
     <div class="settings-panel" id="panel-2fa">
       <p style="font-size:13px;color:var(--text2);margin-bottom:12px">雙重驗證為 Bubble Verse 去中心化節點功能，將在正式版啟用。</p>
       <div class="toggle" id="set-2fa" onclick="toast('雙重驗證將在正式版推出','info')"></div>
+    </div>
+    <div class="settings-row-ig" onclick="exportUserData()">
+      <div class="row-icon" style="background:rgba(20,184,166,.15)">📦</div>
+      <div class="row-label"><strong>匯出我的資料</strong><span>下載帳號資料 JSON 備份</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-blocklist')">
+      <div class="row-icon" style="background:rgba(239,68,68,.15)">🚫</div>
+      <div class="row-label"><strong>封鎖名單</strong><span>${blockedUsers.length} 位封鎖用戶</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-blocklist">
+      ${blockedUsers.length===0?'<p style="font-size:13px;color:var(--text3)">沒有封鎖任何人</p>':
+        blockedUsers.map(uid=>{const u2=users.find(x=>x.id===uid);return u2?`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">${avatarHTML(u2.displayName,u2.avatarColor,'avatar-sm')}<div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(u2.displayName)}</div><div style="font-size:11px;color:var(--text3)">@${esc(u2.username)}</div></div><button class="btn btn-ghost btn-sm" onclick="confirmBlockUser('${uid}')">解除</button></div>`:''}).join('')}
+    </div>
+    <div class="settings-row-ig" onclick="toggleSettingsPanel('panel-mutelist')">
+      <div class="row-icon" style="background:rgba(100,116,139,.15)">🔇</div>
+      <div class="row-label"><strong>靜音名單</strong><span>${mutedUsers.length} 位靜音用戶</span></div>
+      <span class="row-right">›</span>
+    </div>
+    <div class="settings-panel" id="panel-mutelist">
+      ${mutedUsers.length===0?'<p style="font-size:13px;color:var(--text3)">沒有靜音任何人</p>':
+        mutedUsers.map(uid=>{const u2=users.find(x=>x.id===uid);return u2?`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">${avatarHTML(u2.displayName,u2.avatarColor,'avatar-sm')}<div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(u2.displayName)}</div><div style="font-size:11px;color:var(--text3)">@${esc(u2.username)}</div></div><button class="btn btn-ghost btn-sm" onclick="toggleMuteUser('${uid}')">取消靜音</button></div>`:''}).join('')}
     </div>
   </div>
 
@@ -2683,6 +2886,11 @@ function toggleBoolSetting(key,toggleId){
   const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
   sets[key]=!sets[key];
   localStorage.setItem('bv_settings',JSON.stringify(sets));
+  const privKeys=['privateAccount','dmPrivacy','storyVisibility','allowRepost','commentsAll'];
+  if(privKeys.includes(key)&&session){
+    const us=JSON.parse(localStorage.getItem('bv_settings_'+session.userId)||'{}');
+    us[key]=sets[key];localStorage.setItem('bv_settings_'+session.userId,JSON.stringify(us));
+  }
   const el=document.getElementById(toggleId);
   if(el)el.classList.toggle('on',sets[key]);
   toast('設定已更新','success');
@@ -2690,6 +2898,12 @@ function toggleBoolSetting(key,toggleId){
 function saveSetting(key,val){
   const sets=JSON.parse(localStorage.getItem('bv_settings')||'{}');
   sets[key]=val;localStorage.setItem('bv_settings',JSON.stringify(sets));
+  // Also save privacy settings per-user so other clients can read them
+  const privKeys=['privateAccount','dmPrivacy','storyVisibility','allowRepost','commentsAll'];
+  if(privKeys.includes(key)&&session){
+    const us=JSON.parse(localStorage.getItem('bv_settings_'+session.userId)||'{}');
+    us[key]=val;localStorage.setItem('bv_settings_'+session.userId,JSON.stringify(us));
+  }
   toast('設定已更新','success');
 }
 function setAccentColor(color){
@@ -2725,20 +2939,24 @@ function changeUsername(){
   session.username=newu;saveSession();renderSidebarUser();
   toast('帳號名稱已更新','success');renderPage('settings');
 }
-function changePassword(){
+async function changePassword(){
   const oldp=document.getElementById('set-oldpass').value;
   const newp=document.getElementById('set-newpass').value;
   const newp2=document.getElementById('set-newpass2').value;
   const u=users.find(x=>x.id===session.userId);
-  if(!u){toast('找不到用戶','error');return}
-  if(u.password!==btoa(oldp)){toast('目前密碼不正確','error');return}
-  if(newp!==newp2){toast('新密碼不一致','error');return}
-  if(newp.length<6){toast('密碼至少6位','error');return}
-  u.password=btoa(newp);saveUsers();
+  if(!u){toast('找不到用戶','error');return;}
+  if(newp!==newp2){toast('新密碼不一致','error');return;}
+  if(newp.length<8){toast('新密碼至少需要8位','error');return;}
+  if(!/[A-Za-z]/.test(newp)||!/[0-9]/.test(newp)){toast('新密碼需包含字母和數字','error');return;}
+  const ok=await verifyPassword(oldp,u.password,u.username);
+  if(!ok){toast('目前密碼不正確','error');return;}
+  u.password=await hashPassword(newp,u.username);
+  saveUsers();
   document.getElementById('set-oldpass').value='';
   document.getElementById('set-newpass').value='';
   document.getElementById('set-newpass2').value='';
-  toast('密碼已更新','success');
+  toast('密碼已更新，請重新登入','success');
+  setTimeout(doLogout,1800);
 }
 function confirmDeleteAccount(){
   openDialog(`<h2 style="color:#ef4444">⚠️ 確認刪除帳號</h2>
@@ -3330,6 +3548,16 @@ function sendDM(toUserId){
 }
 
 function openDMWith(userId){
+  if(!session||userId===session.userId)return;
+  // Respect target user's DM privacy setting
+  const sets=JSON.parse(localStorage.getItem('bv_settings_'+userId)||'{}');
+  if(sets.dmPrivacy===1){
+    const them=users.find(x=>x.id===userId);
+    if(them&&them.following&&!them.following.includes(session.userId)){
+      toast('此用戶只接受追蹤者的私訊','info');return;
+    }
+  }
+  if(blockedUsers.includes(userId)){toast('你已封鎖此用戶','info');return;}
   navigate('dms');
   setTimeout(()=>openDMThread(userId),50);
 }
