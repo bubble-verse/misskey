@@ -1457,19 +1457,25 @@ function renderStoryBarHTML(){
   return html+'</div>';
 }
 function groupStories(){
+  const now=Date.now();
+  const live=stories.filter(s=>!s.createdAt||(now-s.createdAt<86400000));
+  // Prune expired stories from state
+  if(live.length!==stories.length){stories=live;saveStories();}
   const map={};
-  for(const s of stories){
+  for(const s of live){
     if(!map[s.userId])map[s.userId]={userId:s.userId,username:s.username,displayName:s.displayName,avatarColor:s.avatarColor,stories:[]};
     map[s.userId].stories.push(s);
   }
   return Object.values(map);
 }
+const POST_MAX_CHARS=500;
 function renderComposerHTML(galaxyId){
+  const draft=localStorage.getItem('bv_draft_'+session.userId)||'';
   return `<div class="composer">
     <div class="composer-top">
       ${avatarHTML(session.displayName,session.avatarColor,'avatar-sm')}
       <div class="composer-input">
-        <textarea id="compose-text" placeholder="在想什麼？" rows="2"></textarea>
+        <textarea id="compose-text" placeholder="在想什麼？" rows="2" maxlength="${POST_MAX_CHARS}" oninput="onComposeInput(this)">${esc(draft)}</textarea>
         <div id="composer-media-area"></div>
         <div id="poll-area"></div>
       </div>
@@ -1478,9 +1484,22 @@ function renderComposerHTML(galaxyId){
       <button onclick="attachFile()"><i class="ti ti-photo"></i>媒體</button>
       <button id="poll-btn" onclick="togglePollComposer()"><i class="ti ti-chart-bar"></i>投票</button>
       <button onclick="openCreateSpaceDialog()"><i class="ti ti-broadcast"></i>語音</button>
+      <div style="flex:1"></div>
+      <span id="compose-counter" style="font-size:12px;color:var(--text3);align-self:center">${draft.length>0?draft.length+'/'+POST_MAX_CHARS:''}</span>
       <button class="post-btn" onclick="submitPost(${galaxyId?`'${galaxyId}'`:'null'})">發布</button>
     </div>
   </div>`;
+}
+function onComposeInput(el){
+  const len=el.value.length;
+  const counter=document.getElementById('compose-counter');
+  if(counter){
+    counter.textContent=len>0?len+'/'+POST_MAX_CHARS:'';
+    counter.style.color=len>POST_MAX_CHARS*0.9?'#ef4444':len>POST_MAX_CHARS*0.75?'#f97316':'var(--text3)';
+  }
+  // Auto-save draft
+  if(len>0)localStorage.setItem('bv_draft_'+session.userId,el.value);
+  else localStorage.removeItem('bv_draft_'+session.userId);
 }
 function renderFeedHTML(arr,source='home'){
   let sorted=[...arr].sort((a,b)=>b.createdAt-a.createdAt);
@@ -1522,7 +1541,8 @@ function renderPostHTML(p){
   }
   const commentCount=(comments[p.id]||[]).length||p.comments||0;
   const followBtn=(!isOwn)?`<button class="${following?'btn-following':'btn-follow'}" data-follow="${p.userId}" onclick="toggleFollow('${p.userId}')" style="margin-left:auto">${following?'已追蹤':'追蹤'}</button>`:'';
-  const editBtn=isOwn?`<button class="post-action" onclick="openEditPost('${p.id}')" title="編輯貼文" style="margin-left:auto"><i class="ti ti-edit"></i></button>`:'';
+  const editBtn=isOwn?`<button class="post-action" onclick="openEditPost('${p.id}')" title="編輯貼文" style="margin-left:auto"><i class="ti ti-edit"></i></button>
+      <button class="post-action" onclick="confirmDeletePost('${p.id}')" title="刪除貼文" style="color:#ef4444"><i class="ti ti-trash"></i></button>`:'';
   return `<div class="post" id="post-${p.id}">
     <div class="post-header">
       <div style="cursor:pointer" onclick="openUserProfile('${p.userId}')">${avatarHTML(p.displayName,p.avatarColor,'avatar-sm')}</div>
@@ -1551,6 +1571,7 @@ function renderPostHTML(p){
       <button class="post-action" onclick="copyPostLink('${p.id}')">
         <i class="ti ti-share"></i>
       </button>
+      ${!isOwn?`<button class="post-action" onclick="reportPost('${p.id}')" title="檢舉此貼文" style="color:var(--text3)"><i class="ti ti-flag"></i></button>`:''}
     </div>
   </div>`;
 }
@@ -1637,6 +1658,29 @@ function copyPostLink(id){
   const url=window.location.href.split('?')[0]+'?post='+id;
   navigator.clipboard?.writeText(url).then(()=>toast('貼文連結已複製 🔗','success')).catch(()=>toast('複製失敗，請手動複製','error'));
 }
+function reportPost(id){
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  openDialog(`<h2>檢舉貼文</h2>
+    <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    <p style="margin-bottom:14px;color:var(--text2);font-size:13px">請選擇檢舉原因：</p>
+    ${['垃圾訊息或廣告','仇恨言論','騷擾或霸凌','色情或不當內容','假訊息'].map(r=>`
+    <label class="checkbox-label" style="padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer">
+      <input type="radio" name="report-reason" value="${r}"/> ${r}
+    </label>`).join('')}
+    <div class="dialog-footer" style="margin-top:14px">
+      <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
+      <button class="btn btn-danger" onclick="submitReport('${id}')">送出檢舉</button>
+    </div>`);
+}
+function submitReport(id){
+  const reason=document.querySelector('input[name="report-reason"]:checked')?.value;
+  if(!reason){toast('請選擇檢舉原因','error');return;}
+  const reports=JSON.parse(localStorage.getItem('bv_reports')||'[]');
+  reports.push({postId:id,reporterId:session.userId,reason,createdAt:Date.now()});
+  localStorage.setItem('bv_reports',JSON.stringify(reports));
+  closeDialog();
+  toast('已送出檢舉，感謝你的回報','success');
+}
 function openEditPost(id){
   const p=posts.find(x=>x.id===id);
   if(!p||p.userId!==session.userId)return;
@@ -1668,6 +1712,29 @@ function submitEditPost(id){
   if(el){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);el.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+id));}
   toast('貼文已更新','success');
 }
+function confirmDeletePost(id){
+  const p=posts.find(x=>x.id===id);
+  if(!p||p.userId!==session.userId)return;
+  openDialog(`<h2 style="color:#ef4444">刪除貼文</h2>
+    <button class="dialog-close" onclick="closeDialog()"><i class="ti ti-x"></i></button>
+    <p style="margin:16px 0;color:var(--text2)">確定要刪除這篇貼文？此操作無法復原。</p>
+    <div class="dialog-footer">
+      <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
+      <button class="btn btn-danger" onclick="deletePost('${id}')"><i class="ti ti-trash"></i> 確認刪除</button>
+    </div>`);
+}
+function deletePost(id){
+  const idx=posts.findIndex(x=>x.id===id);
+  if(idx<0)return;
+  if(posts[idx].userId!==session.userId)return;
+  posts.splice(idx,1);
+  delete comments[id];
+  savePosts();saveComments();
+  closeDialog();
+  const el=document.getElementById('post-'+id);
+  if(el)el.remove();
+  toast('貼文已刪除','info');
+}
 
 // ═══════════════════════════════════════════════════════════
 // COMMENTS
@@ -1681,7 +1748,10 @@ function openComments(postId){
       <div class="comment-body">
         <div class="comment-author" style="cursor:pointer" onclick="closeDialog();openUserProfile('${c.userId}')">${esc(c.displayName)} <span style="color:var(--text3);font-weight:400">@${esc(c.username)}</span></div>
         <div class="comment-text">${esc(c.text)}</div>
-        <div class="comment-time">${timeAgo(c.createdAt)}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="comment-time">${timeAgo(c.createdAt)}</div>
+          ${c.userId===session.userId?`<button style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;padding:0" onclick="deleteComment('${postId}','${c.id}')">刪除</button>`:''}
+        </div>
       </div>
     </div>`).join('');
   openDialog(`<h2><i class="ti ti-message-circle"></i> 留言 (${clist.length})</h2>
@@ -1714,6 +1784,14 @@ function submitComment(postId){
   const p=posts.find(x=>x.id===postId);
   if(p){p.comments=(comments[postId]||[]).length;savePosts();}
   if(p&&p.userId!==session.userId)addNotificationForUser('comment',session.userId,p.userId,postId,txt);
+  // Fire @mention notifications from comment text
+  const cMentions=txt.match(/@([\w]+)/g)||[];
+  cMentions.forEach(m=>{
+    const uname=m.slice(1);
+    const target=users.find(x=>x.username===uname);
+    if(target&&target.id!==session.userId&&target.id!==p?.userId)
+      addNotificationForUser('mention',session.userId,target.id,postId,'在留言中提及了你');
+  });
   input.value='';
   const list=document.getElementById('comment-list');
   if(list){
@@ -1735,6 +1813,22 @@ function submitComment(postId){
   // Update comment count in feed
   const postEl=document.getElementById('post-'+postId);
   if(postEl&&p){const newEl=document.createElement('div');newEl.innerHTML=renderPostHTML(p);postEl.replaceWith(newEl.firstChild);_applyIcons(document.getElementById('post-'+postId));}
+}
+
+function deleteComment(postId,commentId){
+  if(!comments[postId])return;
+  const idx=comments[postId].findIndex(c=>c.id===commentId);
+  if(idx<0)return;
+  if(comments[postId][idx].userId!==session.userId)return;
+  comments[postId].splice(idx,1);
+  saveComments();
+  const p=posts.find(x=>x.id===postId);
+  if(p){p.comments=comments[postId].length;savePosts();}
+  // Remove from DOM
+  const el=document.querySelector(`[data-comment-id="${commentId}"]`);
+  if(el)el.remove();
+  else openComments(postId); // re-render dialog
+  toast('留言已刪除','info');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1825,7 +1919,15 @@ function submitPost(galaxyId){
     p.poll={question:pollComposerData.question||txt,options:opts.map(t=>({text:t,votes:0})),totalVotes:0,expiresAt:Date.now()+86400000};
   }
   posts.unshift(p);savePosts();
+  // Fire @mention notifications
+  const mentionMatches=txt.match(/@([\w]+)/g)||[];
+  mentionMatches.forEach(m=>{
+    const uname=m.slice(1);
+    const target=users.find(x=>x.username===uname);
+    if(target&&target.id!==session.userId)addNotificationForUser('mention',session.userId,target.id,p.id,'在貼文中提及了你');
+  });
   document.getElementById('compose-text').value='';
+  localStorage.removeItem('bv_draft_'+session.userId);
   pollComposerData=null;composerMediaUrl=null;composerMediaType=null;
   const feed=document.getElementById('feed');
   if(feed){const div=document.createElement('div');div.innerHTML=renderPostHTML(p);feed.insertBefore(div.firstChild,feed.firstChild);_applyIcons(feed);}
@@ -1974,24 +2076,69 @@ function submitStory(){
 // ═══════════════════════════════════════════════════════════
 // VERSE
 // ═══════════════════════════════════════════════════════════
-const TRENDING_TAGS=['#今日熱門','#深夜思考','#攝影美學','#AI創作','#音樂分享','#哲學討論','#去中心化','#生活日常'];
+const FALLBACK_TAGS=['#深夜思考','#攝影美學','#AI創作','#音樂分享','#哲學討論','#去中心化','#生活日常'];
+function getTrendingTags(limit=8){
+  const counts={};
+  const cutoff=Date.now()-7*86400000; // last 7 days
+  posts.filter(p=>p.createdAt>cutoff).forEach(p=>{
+    const ms=(p.content||'').match(/#([\w一-鿿]+)/g)||[];
+    ms.forEach(t=>{counts[t]=(counts[t]||0)+1;});
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,limit).map(([t])=>t);
+  return sorted.length?sorted:FALLBACK_TAGS.slice(0,limit);
+}
 function renderVerse(){
-  const versePosts=[...posts].sort((a,b)=>(b.likes?.length||0)-(a.likes?.length||0));
+  const trending=getTrendingTags(8);
+  // Score posts by engagement: likes*3 + comments*2 + reposts*1, recency decay
+  const now=Date.now();
+  const versePosts=[...posts]
+    .filter(p=>!blockedUsers.includes(p.userId)&&!mutedUsers.includes(p.userId))
+    .map(p=>{
+      const ageDays=(now-p.createdAt)/86400000;
+      const score=((p.likes||[]).length*3+((comments[p.id]||[]).length||p.comments||0)*2+(p.reposts||[]).length)*Math.exp(-ageDays*0.3);
+      return {...p,_score:score};
+    })
+    .sort((a,b)=>b._score-a._score)
+    .slice(0,60);
+  // Suggested users: active users not yet followed, not self
+  const me=users.find(u=>u.id===session.userId);
+  const myFollowing=me?.following||[];
+  const suggested=users
+    .filter(u=>u.id!==session.userId&&!myFollowing.includes(u.id)&&!u.id.startsWith('ai_')&&!blockedUsers.includes(u.id))
+    .sort((a,b)=>(b.followers||[]).length-(a.followers||[]).length)
+    .slice(0,5);
   return `
   <div class="page-title"><i class="ti ti-universe" style="color:var(--teal)"></i>探索</div>
-  <div class="tag-bar">${TRENDING_TAGS.map(t=>`<span class="tag-pill" onclick="toast('篩選：'+this.textContent,'info')">${t}</span>`).join('')}</div>
+  <div class="tag-bar">${trending.map(t=>`<span class="tag-pill" onclick="filterByHashtag('${t.replace('#','')}')">${t}</span>`).join('')}</div>
   <div class="two-col">
     <div>
-      <div class="masonry">${versePosts.map(p=>renderVerseCard(p)).join('')}</div>
+      <div class="masonry">${versePosts.length?versePosts.map(p=>renderVerseCard(p)).join(''):'<div class="empty-state"><p>還沒有貼文</p></div>'}</div>
     </div>
     <div>
       <div class="card" style="margin-bottom:14px">
-        <div class="section-title">🔥 熱門標籤</div>
-        ${TRENDING_TAGS.map(t=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--accent2)">${t}</span><span style="color:var(--text3)">${Math.floor(Math.random()*500+50)} 篇</span></div>`).join('')}
+        <div class="section-title">🔥 本週熱門標籤</div>
+        ${trending.map(t=>{
+          const cnt=posts.filter(p=>(p.content||'').includes(t)).length;
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="filterByHashtag('${t.replace('#','')}')">
+            <span style="color:var(--accent2);font-size:13px">${esc(t)}</span>
+            <span style="color:var(--text3);font-size:12px">${cnt} 篇</span>
+          </div>`;
+        }).join('')}
       </div>
+      ${suggested.length?`<div class="card" style="margin-bottom:14px">
+        <div class="section-title">👥 推薦追蹤</div>
+        ${suggested.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="cursor:pointer" onclick="openUserProfile('${u.id}')">${avatarHTML(u.displayName,u.avatarColor,'avatar-sm')}</div>
+          <div style="flex:1;min-width:0;cursor:pointer" onclick="openUserProfile('${u.id}')">
+            <div style="font-size:13px;font-weight:600">${esc(u.displayName)}</div>
+            <div style="font-size:11px;color:var(--text3)">${(u.followers||[]).length} 追蹤者</div>
+          </div>
+          <button class="${isFollowing(u.id)?'btn-following':'btn-follow'}" data-follow="${u.id}" onclick="toggleFollow('${u.id}')">${isFollowing(u.id)?'已追蹤':'追蹤'}</button>
+        </div>`).join('')}
+      </div>`:''}
       <div class="card">
-        <div class="section-title">✨ 為你推薦</div>
-        <p style="font-size:13px;color:var(--text2);line-height:1.7">探索頁根據互動熱度、發布時間與你的興趣，自動為你篩選最熱門的內容。按讚與轉發越多，排名越前。</p>
+        <div class="section-title">✨ 演算法說明</div>
+        <p style="font-size:12px;color:var(--text2);line-height:1.7">按讚 ×3、留言 ×2、轉發 ×1，加上時間衰退係數排序。近期互動熱烈的貼文優先顯示。</p>
       </div>
     </div>
   </div>`;
@@ -2009,7 +2156,7 @@ function renderVerseCard(p){
       <div><div style="font-size:13px;font-weight:600;cursor:pointer" onclick="openUserProfile('${p.userId}')">${esc(p.displayName)}</div><div style="font-size:11px;color:var(--text3)">@${esc(p.username)}</div></div>
     </div>
     ${mediaHTML}
-    <p>${esc(p.content).replace(/\n/g,'<br>')}</p>
+    <p>${linkifyContent(p.content)}</p>
     <div class="verse-stats">
       <span onclick="toggleLikeVerse('${p.id}',this)" class="${liked?'liked-vs':''}"><i class="ti ${liked?'ti-heart-filled':'ti-heart'}" style="${liked?'color:#ef4444':''}"></i>${(p.likes||[]).length}</span>
       <span onclick="openComments('${p.id}')"><i class="ti ti-message-circle"></i>${(comments[p.id]||[]).length||p.comments||0}</span>
@@ -2362,11 +2509,19 @@ function runSearch(q){
 }
 function renderSearchResults(q){
   q=q.trim().toLowerCase();
-  if(!q)return '<div class="empty-state" style="padding:40px"><i class="ti ti-search"></i><p>輸入關鍵字開始搜尋</p></div>';
+  if(!q){
+    // Show trending hashtags as suggestions
+    const trendingTags=getTrendingTags(6);
+    return `<div style="padding:20px 0">
+      <div class="section-title" style="margin-bottom:12px">🔥 熱門搜尋</div>
+      <div class="tag-bar" style="flex-wrap:wrap">${trendingTags.map(t=>`<span class="tag-pill" onclick="document.getElementById('search-input').value='${t}';runSearch('${t}')">${t}</span>`).join('')}</div>
+    </div>`;
+  }
   if(searchTab==='posts'){
-    const matched=posts.filter(p=>p.content&&p.content.toLowerCase().includes(q));
+    const matchQ=q.startsWith('#')?q:q;
+    const matched=posts.filter(p=>p.content&&p.content.toLowerCase().includes(matchQ)&&!blockedUsers.includes(p.userId));
     if(!matched.length)return '<div class="empty-state" style="padding:40px"><i class="ti ti-notes-off"></i><p>找不到相符的貼文</p></div>';
-    return renderFeedHTML(matched);
+    return renderFeedHTML(matched,'hashtag');
   } else {
     const matched=users.filter(u=>(u.displayName&&u.displayName.toLowerCase().includes(q))||(u.username&&u.username.toLowerCase().includes(q)));
     if(!matched.length)return '<div class="empty-state" style="padding:40px"><i class="ti ti-user-off"></i><p>找不到相符的用戶</p></div>';
@@ -2391,8 +2546,8 @@ function renderSearchResults(q){
 // ═══════════════════════════════════════════════════════════
 function renderNotifications(){
   const notifHTML=notifications.length?notifications.map(n=>{
-    const icons={like:'ti-heart-filled',comment:'ti-message-circle',follow:'ti-user-plus',repost:'ti-repeat',quote:'ti-quote',dm:'ti-message-2'};
-    const labels={like:'喜歡了你的貼文',comment:'留言了你的貼文',follow:'開始追蹤你',repost:'轉發了你的貼文',quote:'引用了你的貼文',dm:'傳訊息給你'};
+    const icons={like:'ti-heart-filled',comment:'ti-message-circle',follow:'ti-user-plus',repost:'ti-repeat',quote:'ti-quote',dm:'ti-message-2',mention:'ti-at'};
+    const labels={like:'喜歡了你的貼文',comment:'留言了你的貼文',follow:'開始追蹤你',repost:'轉發了你的貼文',quote:'引用了你的貼文',dm:'傳訊息給你',mention:'提及了你'};
     const p=n.postId?posts.find(x=>x.id===n.postId):null;
     return `<div class="notif-item ${n.read?'':'unread'}">
       <div class="avatar avatar-sm" style="background:${n.fromAvatarColor||hashColor(n.fromDisplayName||'')};flex-shrink:0">${(n.fromDisplayName||'?')[0]}</div>
