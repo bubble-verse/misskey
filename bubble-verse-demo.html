@@ -475,26 +475,49 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
 .perm-banner-icon{font-size:28px;flex-shrink:0}
 .perm-banner-btn{margin-left:auto;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 /* ── DM System ── */
-.dm-list{display:flex;flex-direction:column;gap:2px}
-.dm-row{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;border-radius:12px;transition:background .15s}
-.dm-row:hover{background:var(--surface2)}
+.dm-topbar{display:flex;align-items:center;gap:10px;padding:16px 20px;position:sticky;top:0;background:var(--bg);z-index:10;border-bottom:1px solid var(--border)}
+.dm-search-wrap{flex:1;position:relative}
+.dm-search-wrap input{width:100%;padding:8px 14px;border-radius:99px;background:var(--panel2);border:1px solid var(--border);font-size:13px}
+.dm-new-btn{background:var(--accent);color:#fff;border-radius:99px;padding:7px 16px;font-size:13px;font-weight:700;flex-shrink:0;border:none;cursor:pointer}
+.dm-list{display:flex;flex-direction:column;gap:2px;padding:8px 8px}
+.dm-row{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border-radius:12px;transition:background .15s}
+.dm-row:hover{background:var(--panel2)}
 .dm-row-info{flex:1;min-width:0}
 .dm-row-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dm-row-preview{font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .dm-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
 .dm-row-time{font-size:11px;color:var(--text3)}
-.dm-unread-badge{background:var(--accent);color:#fff;border-radius:99px;padding:2px 7px;font-size:11px;font-weight:700}
-.dm-thread{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px;max-height:calc(100vh - 180px)}
-.dm-msg{display:flex;flex-direction:column;max-width:72%}
+.dm-unread-badge{background:var(--accent);color:#fff;border-radius:99px;padding:2px 7px;font-size:11px;font-weight:700;min-width:20px;text-align:center}
+.dm-online-dot{width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid var(--panel);position:absolute;bottom:0;right:0}
+.dm-avatar-wrap{position:relative;flex-shrink:0}
+.dm-thread{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:4px;max-height:calc(100vh - 180px)}
+.dm-msg{display:flex;flex-direction:column;max-width:72%;position:relative}
 .dm-msg-me{align-self:flex-end;align-items:flex-end}
-.dm-msg-them{align-self:flex-start;align-items:flex-start}
-.dm-bubble{padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.5;word-break:break-word}
+.dm-msg-them{align-self:flex-start;align-items:flex-start;flex-direction:row;gap:8px;max-width:78%}
+.dm-msg-them-inner{display:flex;flex-direction:column;align-items:flex-start}
+.dm-bubble{padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.5;word-break:break-word;position:relative;cursor:pointer}
 .dm-msg-me .dm-bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
-.dm-msg-them .dm-bubble{background:var(--surface2);color:var(--text1);border-bottom-left-radius:4px}
+.dm-msg-them .dm-bubble{background:var(--panel2);color:var(--text);border-bottom-left-radius:4px}
+.dm-bubble img{max-width:200px;max-height:200px;border-radius:12px;display:block;margin-top:4px}
 .dm-time{font-size:10px;color:var(--text3);margin-top:3px;padding:0 4px}
-.dm-input-bar{position:sticky;bottom:0;background:var(--bg);padding:12px 20px;display:flex;gap:10px;align-items:center;border-top:1px solid var(--border)}
-.dm-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text1);font-size:14px;outline:none}
+.dm-status{font-size:10px;color:rgba(255,255,255,.65);margin-top:2px;padding-right:4px;text-align:right}
+.dm-status-read{color:#a5f3fc}
+.dm-reacts{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.dm-react-chip{background:var(--panel2);border:1px solid var(--border);border-radius:99px;padding:2px 7px;font-size:12px;cursor:pointer;transition:background .15s}
+.dm-react-chip:hover,.dm-react-chip.mine{background:rgba(124,58,237,.2);border-color:var(--accent)}
+.dm-react-bar{position:absolute;background:var(--panel);border:1px solid var(--border);border-radius:40px;padding:4px 8px;display:flex;gap:2px;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.3);animation:chatIn .1s ease}
+.dm-react-bar button{background:none;border:none;font-size:20px;cursor:pointer;padding:2px;border-radius:6px;line-height:1}
+.dm-react-bar button:hover{transform:scale(1.25)}
+.dm-del-btn{background:rgba(239,68,68,.12);border:none;color:#ef4444;font-size:11px;padding:3px 8px;border-radius:99px;cursor:pointer;opacity:0;transition:opacity .2s}
+.dm-msg:hover .dm-del-btn{opacity:1}
+.dm-input-bar{position:sticky;bottom:0;background:var(--bg);padding:10px 16px;display:flex;gap:8px;align-items:center;border-top:1px solid var(--border)}
+.dm-input{flex:1;background:var(--panel2);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);font-size:14px;outline:none}
 .dm-input:focus{border-color:var(--accent)}
+.dm-attach-btn{width:38px;height:38px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0}
+.dm-send-btn{width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;border:none}
+.dm-new-modal{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.dm-new-sheet{background:var(--panel);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column}
+.dm-new-list{flex:1;overflow-y:auto;margin-top:12px;display:flex;flex-direction:column;gap:4px}
 /* ── Post Reactions ── */
 .react-btn{position:relative}
 .reaction-picker{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:40px;padding:6px 10px;display:flex;gap:4px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:chatIn .15s ease}
@@ -647,6 +670,7 @@ i.ti{font-style:normal;display:inline-flex;align-items:center;justify-content:ce
 <div id="ai-activity-bar"></div>
 <input type="file" id="media-file-input" accept="image/*,video/*" multiple style="display:none" onchange="handleMediaFiles(this)"/>
 <input type="file" id="story-media-input" accept="image/*,video/*" style="display:none" onchange="handleStoryMedia(this)"/>
+<input type="file" id="dm-media-input" accept="image/*,video/*" style="display:none" onchange="handleDMMedia(this)"/>
 
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -3791,95 +3815,288 @@ function updateDMBadge(){
   badge.classList.toggle('hidden',count===0);
 }
 
-function renderDMs(){
-  const me=users.find(u=>u.id===session.userId);
-  const contacts=new Set();
-  if(me?.following)me.following.forEach(id=>contacts.add(id));
-  if(me?.followers)me.followers.forEach(id=>contacts.add(id));
+function renderDMs(searchQ=''){
+  // Build conversations: anyone we've DM'd + followers + following
+  const seen=new Set();
+  const conversations=[];
+  // First: existing threads (sorted by recency)
   Object.keys(dms).forEach(key=>{
     if(!key.includes(session.userId))return;
-    key.split(':').forEach(id=>{if(id!==session.userId)contacts.add(id);});
-  });
-  const conversations=[];
-  contacts.forEach(uid=>{
-    const u=users.find(x=>x.id===uid);if(!u)return;
-    const thread=getDMThread(uid);
+    const otherId=key.split(':').find(id=>id!==session.userId);
+    if(!otherId||seen.has(otherId))return;
+    seen.add(otherId);
+    const u=users.find(x=>x.id===otherId);if(!u)return;
+    const thread=dms[key];
     const lastMsg=thread[thread.length-1]||null;
     const unread=thread.filter(m=>m.to===session.userId&&!m.read).length;
     conversations.push({user:u,lastMsg,unread});
   });
+  // Then: contacts without threads
+  const me=users.find(u=>u.id===session.userId);
+  [...(me?.following||[]),...(me?.followers||[])].forEach(uid=>{
+    if(seen.has(uid))return;seen.add(uid);
+    const u=users.find(x=>x.id===uid);if(!u||u.id.startsWith('ai_'))return;
+    conversations.push({user:u,lastMsg:null,unread:0});
+  });
   conversations.sort((a,b)=>(b.lastMsg?.time||0)-(a.lastMsg?.time||0));
-  if(conversations.length===0){
-    return `<div class="page-header"><h2>私訊</h2></div><div class="empty-state">💬<p>還沒有私訊</p><p style="font-size:12px;color:var(--text3)">追蹤其他用戶後即可傳送私訊</p></div>`;
-  }
-  return `<div class="page-header"><h2>私訊</h2></div>
-  <div class="dm-list">
-    ${conversations.map(({user:u,lastMsg,unread})=>`
-      <div class="dm-row" onclick="openDMThread('${u.id}')">
+  // Filter by search
+  const filtered=searchQ?conversations.filter(({user:u})=>
+    u.displayName.toLowerCase().includes(searchQ.toLowerCase())||
+    u.username.toLowerCase().includes(searchQ.toLowerCase())
+  ):conversations;
+  // Online simulation: users active in last 15 min (AI users always online during engine run)
+  const isOnline=(uid)=>uid.startsWith('ai_')&&aiEngine.running||Math.random()<0.3;
+  const rowsHTML=filtered.map(({user:u,lastMsg,unread})=>{
+    const online=isOnline(u.id);
+    const previewText=lastMsg?(lastMsg.mediaUrl?'📷 圖片':esc(lastMsg.text?.slice(0,45)||(lastMsg.text?.length>45?'…':''))):'開始對話 👋';
+    return `<div class="dm-row" onclick="openDMThread('${u.id}')">
+      <div class="dm-avatar-wrap">
         ${userAvatarHTML(u.id,'avatar-md')}
-        <div class="dm-row-info">
-          <div class="dm-row-name">${esc(u.displayName)} <span class="uhandle" style="font-size:11px">@${esc(u.username)}</span></div>
-          <div class="dm-row-preview">${lastMsg?esc(lastMsg.text.slice(0,50))+(lastMsg.text.length>50?'…':''):'開始對話 👋'}</div>
+        ${online?'<div class="dm-online-dot"></div>':''}
+      </div>
+      <div class="dm-row-info">
+        <div class="dm-row-name">${esc(u.displayName)}<span class="uhandle" style="font-size:11px;margin-left:5px">@${esc(u.username)}</span></div>
+        <div class="dm-row-preview ${unread>0?'':''}">
+          ${lastMsg?.from===session.userId?'<span style="color:var(--text3);font-size:11px">你: </span>':''}${previewText}
         </div>
-        <div class="dm-row-right">
-          ${lastMsg?`<div class="dm-row-time">${reltime(lastMsg.time)}</div>`:''}
-          ${unread>0?`<div class="dm-unread-badge">${unread}</div>`:''}
-        </div>
-      </div>`).join('')}
+      </div>
+      <div class="dm-row-right">
+        ${lastMsg?`<div class="dm-row-time">${reltime(lastMsg.time)}</div>`:''}
+        ${unread>0?`<div class="dm-unread-badge">${unread}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="dm-topbar">
+    <div style="font-size:17px;font-weight:800;flex-shrink:0">私訊</div>
+    <div class="dm-search-wrap">
+      <input type="text" placeholder="搜尋對話..." value="${esc(searchQ)}" oninput="refreshDMList(this.value)" id="dm-search-input"/>
+    </div>
+    <button class="dm-new-btn" onclick="openNewDMModal()">✏️ 新對話</button>
+  </div>
+  ${filtered.length===0?`<div class="empty-state" style="padding:60px 0">
+    <div style="font-size:40px;margin-bottom:12px">💬</div>
+    <p style="font-weight:700">${searchQ?'找不到符合的對話':'還沒有私訊'}</p>
+    <p style="font-size:13px;color:var(--text3);margin-top:6px">${searchQ?'試試其他關鍵字':'點擊「新對話」搜尋並傳訊息給任何用戶'}</p>
+    <button class="btn btn-primary" style="margin-top:16px" onclick="openNewDMModal()">✏️ 開始新對話</button>
+  </div>`:`<div class="dm-list">${rowsHTML}</div>`}`;
+}
+function refreshDMList(q){
+  const el=document.getElementById('content');
+  if(currentPage==='dms'&&el){el.innerHTML=renderDMs(q);_applyIcons(el);setTimeout(()=>document.getElementById('dm-search-input')?.focus(),10);}
+}
+function openNewDMModal(){
+  const modal=document.createElement('div');
+  modal.className='dm-new-modal';
+  modal.id='dm-new-modal';
+  modal.innerHTML=`
+  <div class="dm-new-sheet">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div style="font-size:16px;font-weight:800;flex:1">搜尋用戶</div>
+      <button style="background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer" onclick="closeNewDMModal()">✕</button>
+    </div>
+    <input type="text" id="new-dm-search" placeholder="輸入名稱或帳號..." style="width:100%;padding:10px 14px;border-radius:99px;background:var(--panel2);border:1px solid var(--border);font-size:14px" oninput="searchNewDMUsers(this.value)" autofocus/>
+    <div class="dm-new-list" id="dm-new-results">${renderNewDMUserList('')}</div>
   </div>`;
+  modal.addEventListener('click',e=>{if(e.target===modal)closeNewDMModal();});
+  document.body.appendChild(modal);
+  setTimeout(()=>document.getElementById('new-dm-search')?.focus(),50);
+}
+function closeNewDMModal(){document.getElementById('dm-new-modal')?.remove();}
+function searchNewDMUsers(q){
+  const el=document.getElementById('dm-new-results');
+  if(el){el.innerHTML=renderNewDMUserList(q);}
+}
+function renderNewDMUserList(q){
+  const all=users.filter(u=>u.id!==session.userId&&!u.id.startsWith('ai_')&&!blockedUsers.includes(u.id));
+  const filtered=q?all.filter(u=>u.displayName.toLowerCase().includes(q.toLowerCase())||u.username.toLowerCase().includes(q.toLowerCase())):all.slice(0,20);
+  if(!filtered.length)return '<div style="text-align:center;color:var(--text3);padding:30px;font-size:13px">找不到用戶</div>';
+  return filtered.map(u=>`
+    <div class="dm-row" onclick="startDMWith('${u.id}')">
+      ${userAvatarHTML(u.id,'avatar-md')}
+      <div class="dm-row-info">
+        <div class="dm-row-name">${esc(u.displayName)}</div>
+        <div class="dm-row-preview">@${esc(u.username)} · ${(u.followers||[]).length} 追蹤者</div>
+      </div>
+      <i class="ti ti-send" style="color:var(--accent);font-size:18px"></i>
+    </div>`).join('');
+}
+function startDMWith(userId){
+  closeNewDMModal();
+  openDMWith(userId);
 }
 
 function openDMThread(userId){
   const u=users.find(x=>x.id===userId);if(!u)return;
   const thread=getDMThread(userId);
-  thread.forEach(m=>{if(m.to===session.userId)m.read=true;});
-  saveDMs();updateDMBadge();
-  const msgs=thread.map(m=>{
-    const isMe=m.from===session.userId;
-    return `<div class="dm-msg ${isMe?'dm-msg-me':'dm-msg-them'}">
-      <div class="dm-bubble">${esc(m.text)}</div>
-      <div class="dm-time">${reltime(m.time)}</div>
-    </div>`;
-  }).join('');
+  // Mark received messages as read
+  let changed=false;
+  thread.forEach(m=>{if(m.to===session.userId&&!m.read){m.read=true;changed=true;}});
+  if(changed){saveDMs();updateDMBadge();}
+  const key=[session.userId,userId].sort().join(':');
   const html=`
-  <div class="page-header" style="position:sticky;top:0;background:var(--bg);z-index:10">
-    <button class="btn btn-ghost btn-sm" onclick="navigate('dms')">← 返回</button>
-    <div style="display:flex;align-items:center;gap:10px;flex:1;margin-left:8px">
+  <div class="dm-topbar">
+    <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="navigate('dms')"><i class="ti ti-arrow-left"></i></button>
+    <div class="dm-avatar-wrap" style="cursor:pointer" onclick="openUserProfile('${userId}')">
       ${userAvatarHTML(userId,'avatar-sm')}
-      <div><div style="font-weight:700">${esc(u.displayName)}</div><div class="uhandle" style="font-size:11px">@${esc(u.username)}</div></div>
     </div>
-    <button class="btn btn-ghost btn-sm" onclick="openUserProfile('${userId}')">查看主頁</button>
+    <div style="flex:1;min-width:0;cursor:pointer" onclick="openUserProfile('${userId}')">
+      <div style="font-weight:700;font-size:15px">${esc(u.displayName)}</div>
+      <div style="font-size:11px;color:var(--text3)">@${esc(u.username)}</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="openUserProfile('${userId}')">主頁</button>
   </div>
   <div class="dm-thread" id="dm-thread">
-    ${thread.length===0?'<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px">開始你們的對話 👋</div>':''}
-    ${msgs}
+    ${thread.length===0?'<div style="text-align:center;color:var(--text3);padding:60px 20px;font-size:13px"><div style="font-size:36px;margin-bottom:12px">👋</div>開始你們的對話吧！</div>':''}
+    ${renderDMMessages(thread,userId,key)}
   </div>
   <div class="dm-input-bar">
-    <input class="dm-input" id="dm-input-field" placeholder="傳送訊息..." onkeydown="if(event.key==='Enter')sendDM('${userId}')"/>
-    <button class="live-btn" style="flex-shrink:0" onclick="sendDM('${userId}')">➤</button>
+    <button class="dm-attach-btn" onclick="document.getElementById('dm-media-input').click()" title="傳送圖片">📎</button>
+    <input class="dm-input" id="dm-input-field" placeholder="傳送訊息..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDM('${userId}');}"/>
+    <button class="dm-send-btn" onclick="sendDM('${userId}')">➤</button>
   </div>`;
   currentPage='dm-thread';
+  _currentDMUserId=userId;
   const content=document.getElementById('content');
   if(content){content.innerHTML=html;_applyIcons(content);}
   const threadEl=document.getElementById('dm-thread');
   if(threadEl)setTimeout(()=>threadEl.scrollTop=threadEl.scrollHeight,50);
   document.getElementById('dm-input-field')?.focus();
 }
+let _currentDMUserId=null;
+function renderDMMessages(thread,userId,key){
+  if(!thread.length)return '';
+  return thread.map((m,i)=>{
+    const isMe=m.from===session.userId;
+    const prev=thread[i-1];
+    const next=thread[i+1];
+    const sameAsPrev=prev&&prev.from===m.from&&(m.time-prev.time)<120000;
+    const sameAsNext=next&&next.from===m.from&&(next.time-m.time)<120000;
+    const showAvatar=!isMe&&!sameAsNext;
+    const isLast=i===thread.length-1;
+    const reactsMap=m.reactions||{};
+    const reactGroups={};
+    Object.entries(reactsMap).forEach(([uid,emoji])=>{
+      if(!reactGroups[emoji])reactGroups[emoji]=[];
+      reactGroups[emoji].push(uid);
+    });
+    const reactsHTML=Object.entries(reactGroups).map(([emoji,uids])=>`
+      <span class="dm-react-chip ${uids.includes(session.userId)?'mine':''}" onclick="toggleDMReaction('${key}','${m.id}','${emoji}')">
+        ${emoji} ${uids.length>1?uids.length:''}
+      </span>`).join('');
+    const statusHTML=isMe&&isLast?`<div class="dm-status ${m.read?'dm-status-read':''}">${m.read?'已讀':'已送出'}</div>`:'';
+    const mediaHTML=m.mediaUrl?`<img src="${m.mediaUrl}" style="max-width:200px;max-height:200px;border-radius:12px;display:block;${isMe?'':'margin-top:4px'}" loading="lazy"/>`:'';
+    const bubbleContent=`${mediaHTML}${m.text?`<span>${esc(m.text)}</span>`:''}`;
+    if(isMe){
+      return `<div class="dm-msg dm-msg-me" id="dmmsg-${m.id}" style="${sameAsPrev?'margin-top:2px':'margin-top:10px'}">
+        ${reactsHTML?`<div class="dm-reacts">${reactsHTML}</div>`:''}
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="dm-del-btn" onclick="deleteDMMessage('${key}','${m.id}')">刪除</button>
+          <button style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px;opacity:0;transition:opacity .2s" class="dm-del-btn" onclick="showDMReactBar(event,'${key}','${m.id}')">😊</button>
+          <div class="dm-bubble">${bubbleContent}</div>
+        </div>
+        ${statusHTML}
+        ${!sameAsNext?`<div class="dm-time">${reltime(m.time)}</div>`:''}
+      </div>`;
+    } else {
+      return `<div class="dm-msg dm-msg-them" id="dmmsg-${m.id}" style="${sameAsPrev?'margin-top:2px':'margin-top:10px'}">
+        <div style="width:32px;flex-shrink:0">${showAvatar?`<div style="cursor:pointer" onclick="openUserProfile('${m.from}')">${avatarHTML(users.find(x=>x.id===m.from)?.displayName||'?',users.find(x=>x.id===m.from)?.avatarColor||hashColor(m.from),'avatar-sm')}</div>`:''}</div>
+        <div class="dm-msg-them-inner">
+          ${reactsHTML?`<div class="dm-reacts">${reactsHTML}</div>`:''}
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="dm-bubble">${bubbleContent}</div>
+            <button style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px;opacity:0;transition:opacity .2s" class="dm-del-btn" onclick="showDMReactBar(event,'${key}','${m.id}')">😊</button>
+          </div>
+          ${!sameAsNext?`<div class="dm-time">${reltime(m.time)}</div>`:''}
+        </div>
+      </div>`;
+    }
+  }).join('');
+}
 
-function sendDM(toUserId){
+function sendDM(toUserId,mediaUrl=null,mediaType=null){
   const inp=document.getElementById('dm-input-field');
-  if(!inp)return;
-  const txt=inp.value.trim();if(!txt)return;
-  const thread=getDMThread(toUserId);
-  thread.push({from:session.userId,to:toUserId,text:txt,time:Date.now(),read:false});
+  const txt=inp?inp.value.trim():'';
+  if(!txt&&!mediaUrl)return;
+  const key=[session.userId,toUserId].sort().join(':');
+  if(!dms[key])dms[key]=[];
+  const msg={id:uid(),from:session.userId,to:toUserId,text:txt,time:Date.now(),read:false};
+  if(mediaUrl){msg.mediaUrl=mediaUrl;msg.mediaType=mediaType||'image';}
+  dms[key].push(msg);
   saveDMs();
-  inp.value='';
-  openDMThread(toUserId);
-  const toUser=users.find(u=>u.id===toUserId);
-  if(toUser){
-    addNotificationForUser('dm',session.userId,toUserId,null,txt.slice(0,50));
-    sendNativeNotif(`${session.displayName} 傳訊息給你`,txt.slice(0,100));
+  if(inp)inp.value='';
+  // Append to existing thread DOM (no full re-render)
+  const threadEl=document.getElementById('dm-thread');
+  if(threadEl){
+    const div=document.createElement('div');
+    div.innerHTML=renderDMMessages([msg],toUserId,key);
+    threadEl.appendChild(div.firstChild);
+    threadEl.scrollTop=threadEl.scrollHeight;
+    // Update last message status
+    const prev=document.querySelector('#dm-thread .dm-status');
+    if(prev)prev.remove();
+  } else {
+    openDMThread(toUserId);
   }
+  _syncLog('create','dm',{id:msg.id,from:session.userId,to:toUserId,ts:msg.time});
+  const toUser=users.find(u=>u.id===toUserId);
+  if(toUser&&!toUser.id.startsWith('ai_')){
+    addNotificationForUser('dm',session.userId,toUserId,null,(txt||'傳了一張圖片').slice(0,50));
+    sendNativeNotif(`${session.displayName} 傳訊息給你`,(txt||'傳了一張圖片').slice(0,80));
+  }
+}
+function deleteDMMessage(key,msgId){
+  if(!dms[key])return;
+  const idx=dms[key].findIndex(m=>m.id===msgId);
+  if(idx<0)return;
+  if(dms[key][idx].from!==session.userId)return;
+  dms[key].splice(idx,1);
+  saveDMs();
+  const el=document.getElementById('dmmsg-'+msgId);
+  if(el)el.remove();
+  toast('訊息已刪除','info');
+}
+function showDMReactBar(e,key,msgId){
+  e.stopPropagation();
+  document.querySelectorAll('.dm-react-bar').forEach(b=>b.remove());
+  const bar=document.createElement('div');
+  bar.className='dm-react-bar';
+  bar.innerHTML=['❤️','😂','😮','👍','😢','🔥'].map(em=>
+    `<button onclick="toggleDMReaction('${key}','${msgId}','${em}');this.closest('.dm-react-bar').remove()">${em}</button>`
+  ).join('');
+  const rect=e.currentTarget.getBoundingClientRect();
+  bar.style.cssText=`position:fixed;left:${Math.max(8,rect.left-80)}px;top:${rect.top-56}px`;
+  document.body.appendChild(bar);
+  setTimeout(()=>document.addEventListener('click',function h(){bar.remove();document.removeEventListener('click',h);},{once:true}),10);
+}
+function toggleDMReaction(key,msgId,emoji){
+  const msg=dms[key]?.find(m=>m.id===msgId);if(!msg)return;
+  if(!msg.reactions)msg.reactions={};
+  if(msg.reactions[session.userId]===emoji){delete msg.reactions[session.userId];}
+  else{msg.reactions[session.userId]=emoji;}
+  saveDMs();
+  // Re-render just this message
+  if(_currentDMUserId){
+    const thread=dms[key]||[];
+    const idx=thread.findIndex(m=>m.id===msgId);
+    const el=document.getElementById('dmmsg-'+msgId);
+    if(el&&idx>=0){
+      const newEl=document.createElement('div');
+      newEl.innerHTML=renderDMMessages([thread[idx]],_currentDMUserId,key);
+      el.replaceWith(newEl.firstChild);
+    }
+  }
+}
+function handleDMMedia(input){
+  const file=input.files[0];if(!file)return;
+  if(!file.type.startsWith('image/')&&!file.type.startsWith('video/')){toast('僅支援圖片和影片','error');return;}
+  if(file.size>10*1024*1024){toast('檔案過大（最大10MB）','error');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    if(_currentDMUserId)sendDM(_currentDMUserId,e.target.result,file.type.startsWith('video/')?'video':'image');
+  };
+  reader.readAsDataURL(file);
+  input.value='';
 }
 
 function openDMWith(userId){
